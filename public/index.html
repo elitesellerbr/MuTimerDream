@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MU Timer Dream</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- LANDING PAGE -->
+    <div id="landingPage" class="landing">
+        <div class="landing-bg">
+            <div class="particles" id="particles"></div>
+        </div>
+        <div class="landing-hero-bg" id="heroBackground">
+            <img id="classAnimImg" src="https://dreamassets.fra1.digitaloceanspaces.com/images/421/body/5ntx2PHwbxUVlBX1oVWlc.gif" alt="Class">
+            <div class="hero-vignette"></div>
+        </div>
+        <div class="lightning-container">
+            <div class="lightning lightning-1"></div>
+            <div class="lightning lightning-2"></div>
+            <div class="lightning lightning-3"></div>
+        </div>
+        <div class="lightning-flash" id="lightningFlash"></div>
+        <div class="landing-content">
+            <div class="landing-logo">
+                <div class="landing-emblem">
+                    <div class="emblem-ring"></div>
+                    <div class="emblem-icon">⚔️</div>
+                </div>
+                <h1 class="landing-title">MU<span class="gold">TIMER DREAM</span></h1>
+                <div class="landing-subtitle">EVENT TIMER</div>
+                <div class="landing-server">RAMPAGE X-20</div>
+            </div>
+            <div class="landing-class-showcase" id="classShowcase">
+                <div class="class-selector" id="classSelector">
+                    <button class="class-btn" data-class="dk" title="Dark Knight">🗡️<span>DK</span></button>
+                    <button class="class-btn" data-class="dw" title="Dark Wizard">⚡<span>DW</span></button>
+                    <button class="class-btn" data-class="elf" title="Elf">🏹<span>ELF</span></button>
+                    <button class="class-btn" data-class="mg" title="Magic Gladiator">⚔️<span>MG</span></button>
+                    <button class="class-btn" data-class="dl" title="Dark Lord">👑<span>DL</span></button>
+                    <button class="class-btn" data-class="sum" title="Summoner">🔮<span>SUM</span></button>
+                    <button class="class-btn" data-class="rf" title="Rage Fighter">👊<span>RF</span></button>
+                </div>
+            </div>
+            <div class="landing-features">
+                <div class="feature-pill" data-i18n="featureAlarms">⏰ Alarmes de Eventos</div>
+                <div class="feature-pill" data-i18n="featureBosses">🐉 Timers de Bosses</div>
+                <div class="feature-pill" data-i18n="featureChat">🤖 MU IA - IA Helper</div>
+                <div class="feature-pill" data-i18n="featureGuild">⚔️ Modo Guild Mestre</div>
+            </div>
+            <button class="landing-enter" id="btnEnter">
+                <span class="enter-text" data-i18n="enterSystem">CADASTRE-SE</span>
+                <span class="enter-arrow">→</span>
+            </button>
+
+            <!-- INSTALL APP SECTION -->
+            <div class="install-app-section" id="installSection">
+                <p class="install-title" data-i18n="installTitle">📲 Baixe o App</p>
+                <div class="install-buttons">
+                    <button class="install-btn install-btn-android" id="btnInstallAndroid" style="display:none">
+                        <span class="install-icon">🤖</span>
+                        <span data-i18n="installAndroid">Android</span>
+                    </button>
+                    <button class="install-btn install-btn-ios" id="btnInstallIOS" style="display:none">
+                        <span class="install-icon">🍎</span>
+                        <span data-i18n="installIOS">iPhone / iPad</span>
+                    </button>
+                    <button class="install-btn install-btn-desktop" id="btnInstallDesktop" style="display:none">
+                        <span class="install-icon">💻</span>
+                        <span data-i18n="installDesktop">Desktop</span>
+                    </button>
+                </div>
+                <div class="install-instructions" id="installInstructions" style="display:none"></div>
+            </div>
+
+            <p class="landing-copyright" data-i18n="copyright">Todos os direitos reservados por UNION 2026©</p>
+        </div>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- CUSTOM CONFIRM MODAL -->
+    <div id="confirmModal" style="display:none"></div>
+
+    <!-- MAIN APP -->
+    <div id="app" style="display:none">
+        <a href="#mainContent" class="skip-nav" data-i18n="skipNav">Pular para conteúdo</a>
+        <header>
+            <div class="header-content">
+                <div class="logo-area" id="btnGoLanding" style="cursor:pointer" title="Voltar à tela inicial" role="button" tabindex="0" aria-label="Voltar à tela inicial">
+                    <div class="logo-icon" aria-hidden="true">⚔️</div>
+                    <div>
+                        <h1>MU Timer Dream</h1>
+                        <p class="subtitle" data-i18n="subtitle">RAMPAGE X-20 • Event Notifier</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <div class="server-time" id="serverTime" aria-label="Horário do servidor" role="timer">--:--:--</div>
+                    <button class="btn-icon btn-donate" id="btnDonate" aria-label="Apoiar o projeto">
+                        <span aria-hidden="true">❤️</span>
+                    </button>
+                    <button class="btn-icon" id="btnToggleAll" aria-label="Ativar/Desativar todos os alarmes">
+                        <span aria-hidden="true">🔔</span>
+                    </button>
+                    <button class="btn-icon" id="btnSettings" aria-label="Configurações">
+                        <span aria-hidden="true">⚙️</span>
+                    </button>
+                    <button class="btn-icon" id="btnAuth" aria-label="Login / Cadastro">
+                        <span aria-hidden="true">👤</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="alert-banner" id="alertBanner" style="display:none">
+            <div class="alert-content">
+                <span class="alert-icon">🔔</span>
+                <span class="alert-text" id="alertText"></span>
+                <button class="alert-dismiss" id="alertDismiss">✕</button>
+            </div>
+        </div>
+
+        <div class="tab-nav-wrapper" id="tabNavWrapper">
+            <nav class="tab-nav" role="tablist" aria-label="Navegação principal">
+                <button class="tab active" data-tab="upcoming" data-i18n="tabUpcoming" role="tab" aria-selected="true">⏰ Próximos</button>
+                <button class="tab" data-tab="events" data-i18n="tabEvents" role="tab" aria-selected="false">🏰 Eventos</button>
+                <button class="tab" data-tab="bosses" data-i18n="tabBosses" role="tab" aria-selected="false">🐉 Bosses</button>
+                <button class="tab" data-tab="cherry" data-i18n="tabCherry" role="tab" aria-selected="false">🌸 Cherry</button>
+                <button class="tab tab-chat" data-tab="muchat" data-i18n="tabChat" role="tab" aria-selected="false">🤖 MU IA</button>
+                <button class="tab" data-tab="guild" id="tabGuild" data-i18n="tabGuild" role="tab" aria-selected="false">⚔️ Guild</button>
+                <button class="tab" data-tab="collection" id="tabCollection" data-i18n="tabCollection" role="tab" aria-selected="false">📦 Coleção</button>
+                <button class="tab" data-tab="guide" data-i18n="tabGuide" role="tab" aria-selected="false">📖 Guia</button>
+                <button class="tab tab-admin" data-tab="admin" id="tabAdmin" style="display:none" data-i18n="tabAdmin" role="tab" aria-selected="false">👑 Admin</button>
+            </nav>
+        </div>
+
+        <main id="mainContent" role="main">
+            <section id="tab-upcoming" class="tab-content active" role="tabpanel">
+                <div class="section-header">
+                    <h2 data-i18n="upcomingTitle">Próximos Eventos</h2>
+                    <span class="badge" id="upcomingCount">0</span>
+                </div>
+                <div class="alarm-info">
+                    <span id="alarmInfoText">🔔 Alarmes: <strong>15 min</strong>, <strong>5 min</strong> e <strong>na hora</strong> do evento</span>
+                </div>
+                <div id="upcomingList" class="event-list"></div>
+            </section>
+
+            <section id="tab-events" class="tab-content">
+                <div class="section-header">
+                    <h2 data-i18n="eventsTitle">Eventos do Servidor</h2>
+                    <button class="btn-sm" id="btnSelectAllEvents" data-i18n="selectAll">Selecionar Todos</button>
+                </div>
+                <div id="eventsList" class="event-list"></div>
+            </section>
+
+            <section id="tab-bosses" class="tab-content">
+                <div class="section-header">
+                    <h2 data-i18n="bossesTitle">Bosses & Monstros Elite</h2>
+                    <button class="btn-sm" id="btnSelectAllBosses" data-i18n="selectAll">Selecionar Todos</button>
+                </div>
+                <div id="bossesList" class="event-list"></div>
+            </section>
+
+            <section id="tab-cherry" class="tab-content">
+                <div class="section-header">
+                    <h2 data-i18n="cherryTitle">Cherry Blossom</h2>
+                    <button class="btn-sm" id="btnSelectAllCherry" data-i18n="selectAll">Selecionar Todos</button>
+                </div>
+                <div id="cherryList" class="event-list"></div>
+            </section>
+
+            <section id="tab-muchat" class="tab-content">
+                <div class="chat-container">
+                    <div class="chat-header-bar">
+                        <div class="chat-avatar">🤖</div>
+                        <div>
+                            <div class="chat-title" data-i18n="chatTitle">MU IA</div>
+                            <div class="chat-status" data-i18n="chatStatus">Assistente do MU Timer Dream</div>
+                        </div>
+                    </div>
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-welcome">
+                            <div class="chat-welcome-icon">🤖</div>
+                            <h3 data-i18n="chatWelcome">Bem-vindo ao MU IA!</h3>
+                            <p data-i18n="chatWelcomeDesc">Sou seu assistente do MU Timer Dream RAMPAGE X-20. Posso te ajudar com:</p>
+                            <div class="chat-suggestions">
+                                <button class="suggestion-btn" data-q="Como criar asas?">Como criar asas?</button>
+                                <button class="suggestion-btn" data-q="Quais são as classes?">Quais são as classes?</button>
+                                <button class="suggestion-btn" data-q="Como funciona o Blood Castle?">Como funciona o Blood Castle?</button>
+                                <button class="suggestion-btn" data-q="Onde encontrar o Red Dragon?">Onde encontrar o Red Dragon?</button>
+                                <button class="suggestion-btn" data-q="Como funciona o reset?">Como funciona o reset?</button>
+                                <button class="suggestion-btn" data-q="O que são Jewels?">O que são Jewels?</button>
+                                <button class="suggestion-btn" data-q="Como funciona o Castle Siege?">Como funciona o Castle Siege?</button>
+                                <button class="suggestion-btn" data-q="Quais os horários dos eventos?">Horários dos eventos?</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chatInput" placeholder="Pergunte sobre o jogo..." autocomplete="off" data-i18n="chatPlaceholder">
+                        <button id="chatSend" class="chat-send-btn">➤</button>
+                    </div>
+                </div>
+            </section>
+            <section id="tab-guild" class="tab-content">
+                <div class="section-header">
+                    <h2 data-i18n="guildTitle">⚔️ Guild</h2>
+                </div>
+                <div id="guildContent"></div>
+            </section>
+
+            <section id="tab-collection" class="tab-content">
+                <div class="section-header">
+                    <h2 data-i18n="collectionTitle">📦 Coleção Excellent</h2>
+                </div>
+                <div id="collectionContent"></div>
+            </section>
+
+            <section id="tab-guide" class="tab-content">
+                <div class="section-header">
+                    <h2 data-i18n="guideTitle">📖 Guia MuDream</h2>
+                </div>
+                <div id="guideContent"></div>
+            </section>
+
+            <section id="tab-admin" class="tab-content">
+                <div class="admin-panel">
+                    <div class="admin-header">
+                        <h2 data-i18n="adminTitle">👑 Painel Administrativo</h2>
+                        <span class="badge" id="totalUsers">0</span>
+                    </div>
+
+                    <div class="admin-tabs">
+                        <button class="admin-tab active" data-atab="dashboard" data-i18n="dashTitle">📊 Dashboard</button>
+                        <button class="admin-tab" data-atab="users" data-i18n="adminUsers">Usuários</button>
+                        <button class="admin-tab" data-atab="campaign" data-i18n="adminCampaign">Nova Campanha</button>
+                        <button class="admin-tab" data-atab="history" data-i18n="adminHistory">Histórico</button>
+                    </div>
+
+                    <div id="adminDashboard" class="admin-section active">
+                        <div class="empty-state"><p data-i18n="loading">Carregando...</p></div>
+                    </div>
+
+                    <div id="adminUsers" class="admin-section">
+                        <div class="admin-toolbar">
+                            <input type="text" id="userSearch" placeholder="Buscar usuário ou email..." class="admin-search" data-i18n="adminSearchPlaceholder">
+                            <button class="btn-sm" id="btnRefreshUsers" data-i18n="adminRefresh">Atualizar</button>
+                        </div>
+                        <div id="usersTable" class="users-table"></div>
+                    </div>
+
+                    <div id="adminCampaign" class="admin-section">
+                        <div class="campaign-form">
+                            <div class="setting-group">
+                                <label data-i18n="adminSubjectLabel">Assunto do Email</label>
+                                <input type="text" id="campSubject" placeholder="Ex: Novo evento neste fim de semana!" class="admin-input" data-i18n="adminSubjectPlaceholder">
+                            </div>
+                            <div class="setting-group">
+                                <label data-i18n="adminBodyLabel">Corpo da Mensagem</label>
+                                <textarea id="campBody" rows="8" placeholder="Escreva o conteúdo da campanha..." class="admin-textarea" data-i18n="adminBodyPlaceholder"></textarea>
+                            </div>
+                            <div class="setting-group">
+                                <label data-i18n="adminRecipients">Destinatários</label>
+                                <div class="radio-group">
+                                    <label><input type="radio" name="campTarget" value="all" checked> <span data-i18n="adminAllUsers">Todos os usuários cadastrados</span></label>
+                                    <label><input type="radio" name="campTarget" value="custom"> <span data-i18n="adminCustom">Emails específicos</span></label>
+                                </div>
+                                <textarea id="campCustomEmails" rows="3" placeholder="email1@ex.com, email2@ex.com" class="admin-textarea" style="display:none;margin-top:8px" data-i18n="adminCustomPlaceholder"></textarea>
+                            </div>
+                            <button class="landing-enter" id="btnSendCampaign" style="width:100%;font-size:14px;padding:12px" data-i18n="adminSendCampaign">
+                                📧 ENVIAR CAMPANHA
+                            </button>
+                            <div id="campResult" style="margin-top:12px;display:none"></div>
+                        </div>
+                    </div>
+
+                    <div id="adminHistory" class="admin-section">
+                        <div id="campaignHistory"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- AUTH MODAL -->
+        <div class="modal-overlay" id="authModal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 id="authModalTitle" data-i18n="authTitle">🔐 Entrar</h3>
+                    <button class="modal-close" id="closeAuth">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div id="authLoggedOut">
+                        <div class="auth-tabs">
+                            <button class="auth-tab active" data-form="login" data-i18n="authLogin">Login</button>
+                            <button class="auth-tab" data-form="register" data-i18n="authRegister">Cadastro</button>
+                        </div>
+
+                        <div id="authLogin" class="auth-form active">
+                            <div class="setting-group">
+                                <label data-i18n="authUserLabel">Usuário ou Email</label>
+                                <input type="text" id="loginUser" placeholder="Seu usuário ou email" class="admin-input" data-i18n="authUserPlaceholder">
+                            </div>
+                            <div class="setting-group">
+                                <label data-i18n="authPassLabel">Senha</label>
+                                <input type="password" id="loginPass" placeholder="Sua senha" class="admin-input" data-i18n="authPassPlaceholder">
+                            </div>
+                            <button class="landing-enter" id="btnLogin" style="width:100%;font-size:14px;padding:10px" data-i18n="authEnter">ENTRAR</button>
+                            <a href="#" id="forgotPassLink" class="forgot-link" data-i18n="forgotLink">Esqueceu a senha?</a>
+                        </div>
+
+                        <div id="authRegister" class="auth-form">
+                            <div class="setting-group">
+                                <label data-i18n="authRegUserLabel">Usuário</label>
+                                <input type="text" id="regUser" placeholder="Escolha um nome de usuário" class="admin-input" data-i18n="authRegUserPlaceholder">
+                            </div>
+                            <div class="setting-group">
+                                <label data-i18n="authRegEmailLabel">Email</label>
+                                <input type="email" id="regEmail" placeholder="Seu email" class="admin-input" data-i18n="authRegEmailPlaceholder">
+                            </div>
+                            <div class="setting-group">
+                                <label data-i18n="authRegPassLabel">Senha</label>
+                                <input type="password" id="regPass" placeholder="Mínimo 4 caracteres" class="admin-input" data-i18n="authRegPassPlaceholder">
+                            </div>
+                            <button class="landing-enter" id="btnRegister" style="width:100%;font-size:14px;padding:10px" data-i18n="authRegBtn">CADASTRAR</button>
+                        </div>
+
+                        <div id="authError" class="auth-error" style="display:none"></div>
+                    </div>
+
+                    <div id="authLoggedIn" style="display:none">
+                        <div class="user-profile">
+                            <div class="user-avatar">⚔️</div>
+                            <h3 id="profileUsername"></h3>
+                            <p id="profileEmail" style="color:var(--text-secondary);font-size:12px"></p>
+                            <div id="profileBadge" style="display:none" class="admin-badge" data-i18n="authSuperAdmin">👑 SUPER ADMIN</div>
+                        </div>
+                        <button class="btn-sm" id="btnLogout" style="width:100%;padding:10px;margin-top:16px;font-size:13px" data-i18n="authLogout">Sair da conta</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="settingsModal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 id="settingsModalTitle" data-i18n="settingsTitle">⚙️ Configurações</h3>
+                    <button class="modal-close" id="closeSettings">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="setting-group">
+                        <label data-i18n="settingsLang">Idioma</label>
+                        <select id="langSelect" class="lang-select">
+                            <option value="pt">🇧🇷 Português</option>
+                            <option value="en">🇬🇧 English</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <label data-i18n="settingsAlarmLabel">Avisos de alarme</label>
+                        <p class="setting-desc" data-i18n="settingsAlarmDesc">Escolha quando quer ser avisado antes do evento:</p>
+                        <div class="alarm-intervals">
+                            <label class="interval-check">
+                                <input type="checkbox" id="chkAlarm15" checked>
+                                <span data-i18n="settings15min">15 minutos antes</span>
+                            </label>
+                            <label class="interval-check">
+                                <input type="checkbox" id="chkAlarm5" checked>
+                                <span data-i18n="settings5min">5 minutos antes</span>
+                            </label>
+                            <label class="interval-check">
+                                <input type="checkbox" id="chkAlarm0" checked>
+                                <span data-i18n="settingsAtTime">Na hora do evento</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="setting-group">
+                        <label data-i18n="settingsTimezone">Fuso horário do servidor (UTC+2)</label>
+                        <p class="setting-desc" data-i18n="settingsTimezoneDesc">O servidor usa UTC+2. O app converte automaticamente para o seu horário local.</p>
+                    </div>
+                    <div class="setting-group">
+                        <label data-i18n="settingsSound">Som do Alarme</label>
+                        <div class="setting-row">
+                            <select id="alarmSound">
+                                <option value="default" data-i18n="settingsSoundDefault">Padrão (Beep)</option>
+                                <option value="bell" data-i18n="settingsSoundBell">Sino</option>
+                                <option value="horn" data-i18n="settingsSoundHorn">Trombeta</option>
+                                <option value="chime" data-i18n="settingsSoundChime">Chime</option>
+                            </select>
+                            <button class="btn-sm" id="btnTestSound" data-i18n="settingsTest">Testar</button>
+                        </div>
+                    </div>
+                    <div class="setting-group">
+                        <label data-i18n="settingsVolume">Volume</label>
+                        <input type="range" id="volumeSlider" min="0" max="100" value="70">
+                    </div>
+                    <div class="setting-group">
+                        <label>
+                            <input type="checkbox" id="chkBrowserNotif" checked>
+                            <span data-i18n="settingsBrowserNotif">Notificações do navegador</span>
+                        </label>
+                    </div>
+                    <div class="setting-group">
+                        <label>
+                            <input type="checkbox" id="chkSoundAlarm" checked>
+                            <span data-i18n="settingsSoundAlarm">Alarme sonoro</span>
+                        </label>
+                    </div>
+                    <div class="setting-group setting-pin-section" id="pinSection" style="display:none">
+                        <label>🔐 <span data-i18n="settingsPinTitle">PIN de Segurança (Guild)</span></label>
+                        <p class="setting-desc" data-i18n="settingsPinDesc">Ative um PIN de 6 dígitos para proteger o acesso às informações da sua Guild.</p>
+                        <div id="pinStatusArea">
+                            <div id="pinDisabled" style="display:none">
+                                <span class="pin-status-badge pin-off" data-i18n="settingsPinOff">Desativado</span>
+                                <button class="btn-sm" id="btnActivatePin" data-i18n="settingsPinActivate">Ativar PIN</button>
+                            </div>
+                            <div id="pinEnabled" style="display:none">
+                                <span class="pin-status-badge pin-on" data-i18n="settingsPinOn">Ativado</span>
+                                <button class="btn-sm btn-danger" id="btnDisablePin" data-i18n="settingsPinDeactivate">Desativar</button>
+                            </div>
+                        </div>
+                        <div id="pinSetupForm" style="display:none">
+                            <div class="pin-input-group">
+                                <input type="password" id="pinCurrentPass" class="admin-input" placeholder="Sua senha atual" maxlength="50" data-i18n-placeholder="settingsPinPassPlaceholder">
+                                <input type="text" id="pinInput" class="admin-input pin-code-input" placeholder="000000" maxlength="6" inputmode="numeric" pattern="[0-9]*">
+                                <input type="text" id="pinConfirm" class="admin-input pin-code-input" placeholder="Confirmar PIN" maxlength="6" inputmode="numeric" pattern="[0-9]*" data-i18n-placeholder="settingsPinConfirm">
+                            </div>
+                            <div class="pin-form-actions">
+                                <button class="btn-sm" id="btnSavePin" data-i18n="settingsPinSave">Salvar PIN</button>
+                                <button class="btn-sm btn-cancel" id="btnCancelPin" data-i18n="settingsPinCancel">Cancelar</button>
+                            </div>
+                            <div id="pinError" class="auth-error" style="display:none"></div>
+                        </div>
+                        <div id="pinDisableForm" style="display:none">
+                            <div class="pin-input-group">
+                                <input type="password" id="pinDisablePass" class="admin-input" placeholder="Sua senha atual" maxlength="50" data-i18n-placeholder="settingsPinPassPlaceholder">
+                            </div>
+                            <div class="pin-form-actions">
+                                <button class="btn-sm btn-danger" id="btnConfirmDisablePin" data-i18n="settingsPinConfirmDisable">Confirmar Desativação</button>
+                                <button class="btn-sm btn-cancel" id="btnCancelDisablePin" data-i18n="settingsPinCancel">Cancelar</button>
+                            </div>
+                            <div id="pinDisableError" class="auth-error" style="display:none"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- PIN VERIFICATION MODAL -->
+        <div class="modal-overlay" id="pinModal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="pinModalTitleH">
+            <div class="modal pin-modal">
+                <div class="modal-header">
+                    <h3 id="pinModalTitleH">🔐 <span data-i18n="pinModalTitle">PIN de Segurança</span></h3>
+                    <button class="modal-close" id="closePinModal">✕</button>
+                </div>
+                <div class="modal-body">
+                    <p class="pin-modal-desc" data-i18n="pinModalDesc">Digite seu PIN de 6 dígitos para acessar a Guild.</p>
+                    <div class="pin-dots-container">
+                        <input type="text" id="pinVerifyInput" class="pin-verify-input" maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="Digite seu PIN de 6 dígitos">
+                        <div class="pin-dots" id="pinDots">
+                            <span class="pin-dot"></span>
+                            <span class="pin-dot"></span>
+                            <span class="pin-dot"></span>
+                            <span class="pin-dot"></span>
+                            <span class="pin-dot"></span>
+                            <span class="pin-dot"></span>
+                        </div>
+                    </div>
+                    <div id="pinVerifyError" class="auth-error" style="display:none"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DONATION MODAL -->
+        <div class="modal-overlay" id="donateModal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="donateTitleH">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 id="donateTitleH" data-i18n="donateTitle">❤️ Apoiar o Projeto</h3>
+                    <button class="modal-close" id="closeDonate">✕</button>
+                </div>
+                <div class="modal-body">
+                    <p class="donate-desc" data-i18n="donateDesc">Ajude a manter o MU Timer Dream online! Escolha o valor e a forma de pagamento.</p>
+
+                    <div class="donate-amounts">
+                        <button class="donate-amount" data-value="2">€2</button>
+                        <button class="donate-amount" data-value="5">€5</button>
+                        <button class="donate-amount" data-value="10">€10</button>
+                        <button class="donate-amount active" data-value="custom" data-i18n="donateOther">Outro</button>
+                    </div>
+
+                    <div class="setting-group">
+                        <div class="donate-custom-row">
+                            <input type="number" id="donateValue" min="1" max="500" value="5" class="admin-input donate-input" placeholder="Valor">
+                            <select id="donateCurrency" class="donate-currency">
+                                <option value="EUR">€ EUR</option>
+                                <option value="BRL">R$ BRL</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="donateMethodEU" class="donate-method">
+                        <button class="donate-btn revolut-btn" id="btnPayRevolut">
+                            <span class="donate-btn-icon">🔄</span>
+                            <span data-i18n="donatePayRevolut">Pagar com Revolut</span>
+                        </button>
+                    </div>
+
+                    <div id="donateMethodBR" class="donate-method" style="display:none">
+                        <button class="donate-btn pix-btn" id="btnPayPix">
+                            <span class="donate-btn-icon">📱</span>
+                            <span data-i18n="donatePayPix">Gerar QR Code PIX</span>
+                        </button>
+                        <div id="pixResult" style="display:none">
+                            <div class="pix-qr-container">
+                                <canvas id="pixQrCanvas"></canvas>
+                            </div>
+                            <div class="pix-copy-area">
+                                <label data-i18n="donateCopyPaste">PIX Copia e Cola:</label>
+                                <div class="pix-code-row">
+                                    <input type="text" id="pixCode" class="admin-input" readonly>
+                                    <button class="btn-sm" id="btnCopyPix" data-i18n="donateCopy">Copiar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="donate-footer" data-i18n="donateFooter">Toda contribuição ajuda a manter o servidor e desenvolver novas funcionalidades!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="qrcode.min.js"></script>
+    <script src="i18n.js"></script>
+    <script src="events-data.js"></script>
+    <script src="knowledge-base.js"></script>
+    <script src="alarm.js"></script>
+    <script src="muchat.js"></script>
+    <script src="auth.js"></script>
+    <script src="donate.js"></script>
+    <script src="exc-items-data.js"></script>
+    <script src="guild.js"></script>
+    <script src="collection.js"></script>
+    <script src="guide.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
