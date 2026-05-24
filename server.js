@@ -13,6 +13,7 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 const IS_PROD = process.env.NODE_ENV === 'production';
+const IS_VERCEL = process.env.VERCEL === '1';
 const JWT_SECRET = process.env.JWT_SECRET || 'mudream-secret-key-change-in-production';
 const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
 const FROM_EMAIL = process.env.FROM_EMAIL || 'onboarding@resend.dev';
@@ -22,7 +23,7 @@ const APP_URL = process.env.APP_URL || 'http://localhost:3000';
 if (!IS_PROD && JWT_SECRET === 'mudream-secret-key-change-in-production') {
     console.warn('⚠️  AVISO: JWT_SECRET padrão em uso. Defina um segredo forte em produção!');
 }
-if (IS_PROD && !process.env.JWT_SECRET) {
+if (IS_PROD && !process.env.JWT_SECRET && !IS_VERCEL) {
     console.error('🚨 ERRO CRÍTICO: JWT_SECRET não definido em produção! Abortando.');
     process.exit(1);
 }
@@ -49,7 +50,7 @@ async function sendEmail(to, subject, html) {
     }
 }
 
-const dbPath = process.env.DB_PATH || './data/mudream.db';
+const dbPath = IS_VERCEL ? '/tmp/mudream.db' : (process.env.DB_PATH || './data/mudream.db');
 const dbDir = path.dirname(dbPath);
 if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true });
 const db = new Database(dbPath);
@@ -1020,6 +1021,10 @@ function shutdown() {
 process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
 
-app.listen(PORT, () => {
-    console.log(`⚔️ MU Timer Dream rodando na porta ${PORT} [${IS_PROD ? 'PRODUCTION' : 'DEV'}]`);
-});
+if (!IS_VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`⚔️ MU Timer Dream rodando na porta ${PORT} [${IS_PROD ? 'PRODUCTION' : 'DEV'}]`);
+    });
+}
+
+module.exports = app;
