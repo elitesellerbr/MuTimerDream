@@ -1,6 +1,6 @@
 const TRANSLATIONS = {
     pt: {
-        enterSystem: 'CADASTRE-SE',
+        enterSystem: 'ENTRAR / CADASTRE-SE',
         landingFooter: 'Alarmes Eventos • Guia Completo • Chat de Dúvida IA • Sistema de Guild',
         featureAlarms: '⏰ Alarmes de Eventos',
         featureBosses: '🐉 Timers de Bosses',
@@ -279,7 +279,7 @@ const TRANSLATIONS = {
         limitClose: 'Fechar',
     },
     en: {
-        enterSystem: 'SIGN UP',
+        enterSystem: 'SIGN IN / SIGN UP',
         landingFooter: 'Event Alarms • Full Guide • AI Help Chat • Guild System',
         featureAlarms: '⏰ Event Alarms',
         featureBosses: '🐉 Boss Timers',

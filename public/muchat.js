@@ -44,7 +44,8 @@ class MuChat {
     addMessage(content, type) {
         const msg = document.createElement('div');
         msg.className = `chat-msg ${type}`;
-        const avatar = type === 'bot' ? '🤖' : '⚔️';
+        const botSvg = '<svg viewBox="0 0 64 64" width="22" height="22"><defs><linearGradient id="hg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7ecbf5"/><stop offset="100%" stop-color="#1a6fa0"/></linearGradient></defs><path d="M32 4L28 10H36Z" fill="#f7c948"/><rect x="14" y="12" width="36" height="30" rx="8" fill="url(#hg)" stroke="#5bb8e8" stroke-width="1.5"/><path d="M10 27L14 22V32Z" fill="#5bb8e8"/><path d="M54 27L50 22V32Z" fill="#5bb8e8"/><rect x="18" y="20" width="28" height="14" rx="4" fill="#0d2b45" stroke="#4fc3f7" stroke-width="1"/><circle cx="26" cy="27" r="3.5" fill="#4fc3f7"/><circle cx="38" cy="27" r="3.5" fill="#f44336"/><rect x="22" y="44" width="20" height="10" rx="4" fill="#1a6fa0" stroke="#5bb8e8" stroke-width="1"/></svg>';
+        const avatar = type === 'bot' ? botSvg : '⚔️';
         msg.innerHTML = `
             <div class="chat-msg-avatar">${avatar}</div>
             <div class="chat-msg-bubble">${content}</div>
@@ -59,7 +60,7 @@ class MuChat {
         typing.className = 'chat-msg bot';
         typing.id = 'chatTyping';
         typing.innerHTML = `
-            <div class="chat-msg-avatar">🤖</div>
+            <div class="chat-msg-avatar"><svg viewBox="0 0 64 64" width="22" height="22"><defs><linearGradient id="hgt" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7ecbf5"/><stop offset="100%" stop-color="#1a6fa0"/></linearGradient></defs><path d="M32 4L28 10H36Z" fill="#f7c948"/><rect x="14" y="12" width="36" height="30" rx="8" fill="url(#hgt)" stroke="#5bb8e8" stroke-width="1.5"/><path d="M10 27L14 22V32Z" fill="#5bb8e8"/><path d="M54 27L50 22V32Z" fill="#5bb8e8"/><rect x="18" y="20" width="28" height="14" rx="4" fill="#0d2b45" stroke="#4fc3f7" stroke-width="1"/><circle cx="26" cy="27" r="3.5" fill="#4fc3f7"/><circle cx="38" cy="27" r="3.5" fill="#f44336"/><rect x="22" y="44" width="20" height="10" rx="4" fill="#1a6fa0" stroke="#5bb8e8" stroke-width="1"/></svg></div>
             <div class="chat-msg-bubble chat-typing">
                 <span></span><span></span><span></span>
             </div>
@@ -98,7 +99,8 @@ class MuChat {
         battleRoyale: { url: 'https://mudream.online/about/events/battle-royale', label: 'Battle Royale' },
         castleSiege: { url: 'https://mudream.online/about/guilds/castle-siege', label: 'Castle Siege' },
         goldenInvasion: { url: 'https://mudream.online/about/monsters/golden-monsters', label: 'Golden Monsters' },
-        bosses: { url: 'https://mudream.online/about/monsters/elite-monsters', label: 'Elite Monsters' },
+        bosses: { url: 'https://mudream.online/pt/news/74', label: 'World Bosses - Guia Completo' },
+        eliteMonsters: { url: 'https://mudream.online/about/monsters/elite-monsters', label: 'Elite Monsters' },
         jewels: { url: 'https://mudream.online/about/items/jewels', label: 'Jewels' },
         boxes: { url: 'https://mudream.online/about/items/boxes', label: 'Boxes' },
         ancientSets: { url: 'https://mudream.online/about/gear/anc-set/anct4', label: 'Ancient Sets' },

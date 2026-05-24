@@ -67,6 +67,7 @@ const GUIDE_DATA = [
             en: 'Bosses & Monsters'
         },
         items: [
+            { id: 'worldbosses', name: { pt: 'World Bosses (Guia Completo)', en: 'World Bosses (Full Guide)' }, url: 'https://mudream.online/pt/news/74' },
             { id: 'golden', name: { pt: 'Golden Monsters', en: 'Golden Monsters' }, url: 'https://mudream.online/about/monsters/golden-monsters' },
             { id: 'elite', name: { pt: 'Elite Monsters', en: 'Elite Monsters' }, url: 'https://mudream.online/about/monsters/elite-monsters' }
         ]

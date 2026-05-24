@@ -557,6 +557,9 @@ function initLanding() {
             app.style.transition = 'opacity 0.5s';
             requestAnimationFrame(() => { app.style.opacity = '1'; });
             startApp();
+            // Open login modal automatically
+            const authModal = document.getElementById('authModal');
+            if (authModal) authModal.style.display = 'flex';
         }, 500);
     });
 }

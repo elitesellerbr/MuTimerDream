@@ -205,7 +205,15 @@ app.use('/api/auth/forgot-password', rateLimit({
 
 app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), {
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.js') || filePath.endsWith('.css')) {
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
+        }
+    }
+}));
 
 function authMiddleware(req, res, next) {
     const token = req.cookies.token || req.headers.authorization?.replace('Bearer ', '');
