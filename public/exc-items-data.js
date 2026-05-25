@@ -103,6 +103,11 @@ const EXC_ITEMS_DATA = {
         { id: 'dw-gsoul-pants', name: 'Grand Soul Pants', category: 'sets-dw', tier: 5 },
         { id: 'dw-gsoul-gloves', name: 'Grand Soul Gloves', category: 'sets-dw', tier: 5 },
         { id: 'dw-gsoul-boots', name: 'Grand Soul Boots', category: 'sets-dw', tier: 5 },
+        { id: 'dw-eclipse-helm', name: 'Eclipse Helm', category: 'sets-dw', tier: 3 },
+        { id: 'dw-eclipse-armor', name: 'Eclipse Armor', category: 'sets-dw', tier: 3 },
+        { id: 'dw-eclipse-pants', name: 'Eclipse Pants', category: 'sets-dw', tier: 3 },
+        { id: 'dw-eclipse-gloves', name: 'Eclipse Gloves', category: 'sets-dw', tier: 3 },
+        { id: 'dw-eclipse-boots', name: 'Eclipse Boots', category: 'sets-dw', tier: 3 },
 
         // ===== ELF SETS =====
         { id: 'elf-vine-helm', name: 'Vine Helm', category: 'sets-elf', tier: 1 },
@@ -120,6 +125,11 @@ const EXC_ITEMS_DATA = {
         { id: 'elf-rspirit-pants', name: 'Red Spirit Pants', category: 'sets-elf', tier: 5 },
         { id: 'elf-rspirit-gloves', name: 'Red Spirit Gloves', category: 'sets-elf', tier: 5 },
         { id: 'elf-rspirit-boots', name: 'Red Spirit Boots', category: 'sets-elf', tier: 5 },
+        { id: 'elf-iris-helm', name: 'Iris Helm', category: 'sets-elf', tier: 5 },
+        { id: 'elf-iris-armor', name: 'Iris Armor', category: 'sets-elf', tier: 5 },
+        { id: 'elf-iris-pants', name: 'Iris Pants', category: 'sets-elf', tier: 5 },
+        { id: 'elf-iris-gloves', name: 'Iris Gloves', category: 'sets-elf', tier: 5 },
+        { id: 'elf-iris-boots', name: 'Iris Boots', category: 'sets-elf', tier: 5 },
 
         // ===== MG SETS =====
         { id: 'mg-storm-helm', name: 'Storm Crow Helm', category: 'sets-mg', tier: 4 },
@@ -146,16 +156,6 @@ const EXC_ITEMS_DATA = {
         { id: 'dl-dmaster-boots', name: 'Dark Master Boots', category: 'sets-dl', tier: 5 },
 
         // ===== SUMMONER SETS =====
-        { id: 'sum-eclipse-helm', name: 'Eclipse Helm', category: 'sets-sum', tier: 3 },
-        { id: 'sum-eclipse-armor', name: 'Eclipse Armor', category: 'sets-sum', tier: 3 },
-        { id: 'sum-eclipse-pants', name: 'Eclipse Pants', category: 'sets-sum', tier: 3 },
-        { id: 'sum-eclipse-gloves', name: 'Eclipse Gloves', category: 'sets-sum', tier: 3 },
-        { id: 'sum-eclipse-boots', name: 'Eclipse Boots', category: 'sets-sum', tier: 3 },
-        { id: 'sum-iris-helm', name: 'Iris Helm', category: 'sets-sum', tier: 5 },
-        { id: 'sum-iris-armor', name: 'Iris Armor', category: 'sets-sum', tier: 5 },
-        { id: 'sum-iris-pants', name: 'Iris Pants', category: 'sets-sum', tier: 5 },
-        { id: 'sum-iris-gloves', name: 'Iris Gloves', category: 'sets-sum', tier: 5 },
-        { id: 'sum-iris-boots', name: 'Iris Boots', category: 'sets-sum', tier: 5 },
 
         // ===== SHIELDS =====
         { id: 'dragon-slayer-shield', name: 'Dragon Slayer Shield', category: 'shields', tier: 3 },
