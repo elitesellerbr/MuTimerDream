@@ -156,6 +156,7 @@
                 <button class="tab active" data-tab="upcoming" data-i18n="tabUpcoming" role="tab" aria-selected="true">⏰ Próximos</button>
                 <button class="tab" data-tab="events" data-i18n="tabEvents" role="tab" aria-selected="false">🏰 Eventos</button>
                 <button class="tab" data-tab="bosses" data-i18n="tabBosses" role="tab" aria-selected="false">🐉 Bosses</button>
+                <button class="tab" data-tab="elites" data-i18n="tabElites" role="tab" aria-selected="false">⚔️ Elites</button>
                 <button class="tab" data-tab="cherry" data-i18n="tabCherry" role="tab" aria-selected="false">🌸 Cherry</button>
                 <button class="tab tab-chat" data-tab="muchat" data-i18n="tabChat" role="tab" aria-selected="false">🤖 MU IA</button>
                 <button class="tab" data-tab="guild" id="tabGuild" data-i18n="tabGuild" role="tab" aria-selected="false">⚔️ Guild</button>
@@ -191,6 +192,15 @@
                     <button class="btn-sm" id="btnSelectAllBosses" data-i18n="selectAll">Selecionar Todos</button>
                 </div>
                 <div id="bossesList" class="event-list"></div>
+            </section>
+
+            <section id="tab-elites" class="tab-content">
+                <div class="section-header">
+                    <h2 data-i18n="elitesTitle">Monstros Elite</h2>
+                    <button class="btn-sm" id="btnSelectAllElites" data-i18n="selectAll">Selecionar Todos</button>
+                </div>
+                <p class="elite-info" style="color:var(--text-muted);font-size:13px;margin:0 0 12px;padding:0 4px;" data-i18n="eliteInfo">⚔️ Clique em "Matei" quando matar um Elite. O timer de 1h inicia e você recebe alarme antes do respawn.</p>
+                <div id="elitesList" class="event-list"></div>
             </section>
 
             <section id="tab-cherry" class="tab-content">

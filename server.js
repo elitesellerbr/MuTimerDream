@@ -280,12 +280,14 @@ app.get('/api/auth/me', authMiddleware, async (req, res) => {
 app.get('/api/user/alarms', authMiddleware, async (req, res) => {
     const { data } = await supabase
         .from('users')
-        .select('enabled_alarms')
+        .select('enabled_alarms, elite_timers')
         .eq('id', req.user.id)
         .single();
     let alarms = [];
+    let eliteTimers = {};
     try { alarms = JSON.parse(data?.enabled_alarms || '[]'); } catch {}
-    res.json({ alarms });
+    try { eliteTimers = JSON.parse(data?.elite_timers || '{}'); } catch {}
+    res.json({ alarms, eliteTimers });
 });
 
 app.put('/api/user/alarms', authMiddleware, async (req, res) => {
@@ -294,6 +296,27 @@ app.put('/api/user/alarms', authMiddleware, async (req, res) => {
     await supabase
         .from('users')
         .update({ enabled_alarms: JSON.stringify(alarms) })
+        .eq('id', req.user.id);
+    res.json({ ok: true });
+});
+
+app.get('/api/user/elite-timers', authMiddleware, async (req, res) => {
+    const { data } = await supabase
+        .from('users')
+        .select('elite_timers')
+        .eq('id', req.user.id)
+        .single();
+    let timers = {};
+    try { timers = JSON.parse(data?.elite_timers || '{}'); } catch {}
+    res.json({ timers });
+});
+
+app.put('/api/user/elite-timers', authMiddleware, async (req, res) => {
+    const { timers } = req.body;
+    if (typeof timers !== 'object') return res.status(400).json({ error: 'Formato inválido' });
+    await supabase
+        .from('users')
+        .update({ elite_timers: JSON.stringify(timers) })
         .eq('id', req.user.id);
     res.json({ ok: true });
 });

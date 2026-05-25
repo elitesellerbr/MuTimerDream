@@ -240,6 +240,100 @@ const EVENTS_DATA = {
         }
     ],
 
+    elites: [
+        {
+            id: 'nethrakar',
+            name: 'Nethrakar',
+            icon: '💀',
+            img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/662/body/yWulQ5S3n-ec6iXEdrccv.gif',
+            color: '#8d6e63',
+            category: 'elites',
+            description: 'Dream Land, Noria, Devias, Shadow Abyss, Elveland, Atlans, Losttower',
+            times: [],
+            duration: 0,
+            respawnMinutes: 60,
+            respawnInfo: '1 hora após a morte'
+        },
+        {
+            id: 'crystal-warden',
+            name: 'Crystal Warden',
+            icon: '🔮',
+            img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/663/body/sosa2ZUMch7GNZ3Xg0YK6.gif',
+            color: '#4fc3f7',
+            category: 'elites',
+            description: 'Dream Land, Noria, Devias, Shadow Abyss, Elveland, Atlans, Losttower',
+            times: [],
+            duration: 0,
+            respawnMinutes: 60,
+            respawnInfo: '1 hora após a morte'
+        },
+        {
+            id: 'mordrax',
+            name: 'Mordrax',
+            icon: '🦎',
+            img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/664/body/x6ALiVunTInzXDKlWtYrP.gif',
+            color: '#66bb6a',
+            category: 'elites',
+            description: 'Dream Land, Noria, Devias, Shadow Abyss, Elveland, Atlans, Losttower',
+            times: [],
+            duration: 0,
+            respawnMinutes: 60,
+            respawnInfo: '1 hora após a morte'
+        },
+        {
+            id: 'ember-golem',
+            name: 'Ember Golem',
+            icon: '🪨',
+            img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/665/body/0MoGHfTnsChnaYLjiWlo_.gif',
+            color: '#ff7043',
+            category: 'elites',
+            description: 'Dream Land, Noria, Devias, Shadow Abyss, Elveland, Atlans, Losttower',
+            times: [],
+            duration: 0,
+            respawnMinutes: 60,
+            respawnInfo: '1 hora após a morte'
+        },
+        {
+            id: 'arcane-sentinel',
+            name: 'Arcane Sentinel',
+            icon: '🛡️',
+            img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/666/body/ZVcSXx1R3yHLlEnvSbTVf.gif',
+            color: '#ef5350',
+            category: 'elites',
+            description: 'Dream Land, Noria, Devias, Shadow Abyss, Elveland, Atlans, Losttower',
+            times: [],
+            duration: 0,
+            respawnMinutes: 60,
+            respawnInfo: '1 hora após a morte'
+        },
+        {
+            id: 'hellcarion',
+            name: 'Hellcarion',
+            icon: '😈',
+            img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/668/body/nDNsnkmFRgMgoHsGg6JBO.gif',
+            color: '#7e57c2',
+            category: 'elites',
+            description: 'Dream Land, Noria, Devias, Shadow Abyss, Elveland, Atlans, Losttower',
+            times: [],
+            duration: 0,
+            respawnMinutes: 60,
+            respawnInfo: '1 hora após a morte'
+        },
+        {
+            id: 'tidebreaker',
+            name: 'Tidebreaker',
+            icon: '🌊',
+            img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/669/body/aeB06DAzVtHDHCVDcNteM.gif',
+            color: '#5c6bc0',
+            category: 'elites',
+            description: 'Dream Land, Noria, Devias, Shadow Abyss, Elveland, Atlans, Losttower',
+            times: [],
+            duration: 0,
+            respawnMinutes: 60,
+            respawnInfo: '1 hora após a morte'
+        }
+    ],
+
     cherry: [
         {
             id: 'lunar-rabbit',

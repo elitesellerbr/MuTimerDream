@@ -3,6 +3,7 @@ const muChat = new MuChat();
 let settings = loadSettings();
 let enabledAlarms = loadEnabledAlarms();
 let firedAlarms = new Set();
+let eliteKillTimers = loadEliteKillTimers();
 
 // ==================== TOAST SYSTEM ====================
 function showToast(message, type = 'info', duration = 4000) {
@@ -143,7 +144,169 @@ async function loadAlarmsFromServer() {
             enabledAlarms = new Set(data.alarms);
             localStorage.setItem('mudream_alarms', JSON.stringify(data.alarms));
         }
+        if (data.eliteTimers && Object.keys(data.eliteTimers).length > 0) {
+            eliteKillTimers = data.eliteTimers;
+            localStorage.setItem('mudream_elite_timers', JSON.stringify(eliteKillTimers));
+        }
     } catch {}
+}
+
+// ==================== ELITE KILL TIMERS ====================
+
+function loadEliteKillTimers() {
+    try { return JSON.parse(localStorage.getItem('mudream_elite_timers')) || {}; } catch { return {}; }
+}
+
+function saveEliteKillTimers() {
+    localStorage.setItem('mudream_elite_timers', JSON.stringify(eliteKillTimers));
+    syncEliteTimersToServer();
+}
+
+let _eliteSyncTimer = null;
+function syncEliteTimersToServer() {
+    clearTimeout(_eliteSyncTimer);
+    _eliteSyncTimer = setTimeout(async () => {
+        try {
+            await fetch('/api/user/elite-timers', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ timers: eliteKillTimers })
+            });
+        } catch {}
+    }, 500);
+}
+
+function markEliteKilled(eliteId, mapName) {
+    const key = `${eliteId}__${mapName}`;
+    eliteKillTimers[key] = Date.now();
+    saveEliteKillTimers();
+    renderElites();
+}
+
+function clearEliteTimer(key) {
+    delete eliteKillTimers[key];
+    saveEliteKillTimers();
+    renderElites();
+}
+
+function getEliteRespawnMs(key) {
+    const killTime = eliteKillTimers[key];
+    if (!killTime) return null;
+    const respawnAt = killTime + 60 * 60 * 1000; // 1 hour
+    const remaining = respawnAt - Date.now();
+    return remaining > 0 ? remaining : null; // null = already respawned
+}
+
+function renderElites() {
+    const container = document.getElementById('elitesList');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const maps = ['Dream Land', 'Noria', 'Devias', 'Shadow Abyss', 'Elveland', 'Atlans', 'Losttower'];
+
+    for (const elite of EVENTS_DATA.elites) {
+        // Header card for this elite
+        const header = document.createElement('div');
+        header.className = 'elite-header';
+        header.innerHTML = `
+            <div class="event-card" style="--card-accent:${elite.color};cursor:default;">
+                ${elite.img ? `<div class="event-icon event-icon-img"><img src="${elite.img}" alt="${elite.name}"></div>` : `<div class="event-icon">${elite.icon}</div>`}
+                <div class="event-info">
+                    <div class="event-name">${elite.name}</div>
+                    <div class="event-detail"><span style="color:var(--text-muted)">Reward: 1-2 JoB, 1-2 JoS, 1-2 JoC, 1-2 JoCr</span></div>
+                </div>
+            </div>
+        `;
+        container.appendChild(header);
+
+        // Map rows
+        for (const map of maps) {
+            const key = `${elite.id}__${map}`;
+            const remaining = getEliteRespawnMs(key);
+            const killTime = eliteKillTimers[key];
+            const isActive = remaining !== null;
+            const hasRespawned = killTime && remaining === null;
+
+            const row = document.createElement('div');
+            row.className = 'elite-map-row';
+            row.dataset.key = key;
+
+            if (isActive) {
+                row.innerHTML = `
+                    <span class="elite-map-name">📍 ${map}</span>
+                    <span class="elite-timer" style="color:#f5a623;font-weight:bold;">${formatCountdown(remaining)}</span>
+                    <button class="btn-sm btn-elite-clear" onclick="clearEliteTimer('${key}')" title="Cancelar">✕</button>
+                `;
+            } else if (hasRespawned) {
+                row.innerHTML = `
+                    <span class="elite-map-name">📍 ${map}</span>
+                    <span class="elite-timer" style="color:#66bb6a;font-weight:bold;">🟢 Respawnou!</span>
+                    <button class="btn-sm btn-elite-kill" onclick="markEliteKilled('${elite.id}','${map}')">⚔️ Matei</button>
+                    <button class="btn-sm btn-elite-clear" onclick="clearEliteTimer('${key}')" title="Limpar">✕</button>
+                `;
+            } else {
+                row.innerHTML = `
+                    <span class="elite-map-name">📍 ${map}</span>
+                    <span class="elite-timer" style="color:var(--text-muted)">—</span>
+                    <button class="btn-sm btn-elite-kill" onclick="markEliteKilled('${elite.id}','${map}')">⚔️ Matei</button>
+                `;
+            }
+            container.appendChild(row);
+        }
+    }
+}
+
+function updateEliteCountdowns() {
+    const rows = document.querySelectorAll('.elite-map-row');
+    let needsFullRender = false;
+    rows.forEach(row => {
+        const key = row.dataset.key;
+        if (!key || !eliteKillTimers[key]) return;
+        const remaining = getEliteRespawnMs(key);
+        const timerEl = row.querySelector('.elite-timer');
+        if (!timerEl) return;
+        if (remaining !== null) {
+            timerEl.textContent = formatCountdown(remaining);
+            timerEl.style.color = '#f5a623';
+        } else if (timerEl.textContent !== '🟢 Respawnou!') {
+            needsFullRender = true;
+        }
+    });
+    if (needsFullRender) renderElites();
+}
+
+function checkEliteAlarms() {
+    const intervals = getAlarmIntervals();
+    for (const elite of (EVENTS_DATA.elites || [])) {
+        if (!enabledAlarms.has(elite.id)) continue;
+        const maps = ['Dream Land', 'Noria', 'Devias', 'Shadow Abyss', 'Elveland', 'Atlans', 'Losttower'];
+        for (const map of maps) {
+            const key = `${elite.id}__${map}`;
+            const remaining = getEliteRespawnMs(key);
+            if (remaining === null) continue;
+            const minutesUntil = remaining / 60000;
+
+            for (const interval of intervals) {
+                const alarmKey = `elite-${key}-${interval}`;
+                if (firedAlarms.has(alarmKey)) continue;
+
+                if (interval === 0 && minutesUntil <= 0.5 && minutesUntil >= -0.5) {
+                    firedAlarms.add(alarmKey);
+                    const msg = `🟢 ${elite.name} respawnou em ${map}!`;
+                    showToast(msg, 'success', 8000);
+                    alarm.play();
+                    alarm.sendNotification('MU Timer Dream', msg);
+                } else if (interval > 0 && minutesUntil > 0 && minutesUntil <= interval && minutesUntil > interval - 1) {
+                    firedAlarms.add(alarmKey);
+                    const msg = `⏰ ${elite.name} respawna em ${Math.ceil(minutesUntil)} min — ${map}`;
+                    showToast(msg, 'warning', 6000);
+                    alarm.play();
+                    alarm.sendNotification('MU Timer Dream', msg);
+                }
+            }
+        }
+    }
 }
 
 function getServerTime() {
@@ -379,6 +542,7 @@ function renderAll(forceFullRender = false) {
     renderUpcoming();
     renderCategory('events', 'eventsList');
     renderCategory('bosses', 'bossesList');
+    renderElites();
     renderCategory('cherry', 'cherryList');
 }
 
@@ -406,6 +570,8 @@ function updateCountdowns() {
     const upcoming = getAllUpcoming();
     const count = document.getElementById('upcomingCount');
     if (count) count.textContent = upcoming.length;
+    // Update elite timers
+    updateEliteCountdowns();
 }
 
 function updateServerClock() {
@@ -442,6 +608,9 @@ function checkAlarms() {
             }
         }
     }
+
+    // Check elite respawn alarms
+    checkEliteAlarms();
 
     if (firedAlarms.size > 100) {
         firedAlarms.clear();
@@ -814,10 +983,11 @@ function initSelectAll() {
 
     makeSelectAll('btnSelectAllEvents', 'events');
     makeSelectAll('btnSelectAllBosses', 'bosses');
+    makeSelectAll('btnSelectAllElites', 'elites');
     makeSelectAll('btnSelectAllCherry', 'cherry');
 
     document.getElementById('btnToggleAll').addEventListener('click', () => {
-        const allIds = [...EVENTS_DATA.events, ...EVENTS_DATA.bosses, ...EVENTS_DATA.cherry].map(e => e.id);
+        const allIds = [...EVENTS_DATA.events, ...EVENTS_DATA.bosses, ...EVENTS_DATA.elites, ...EVENTS_DATA.cherry].map(e => e.id);
         const allEnabled = allIds.every(id => enabledAlarms.has(id));
         allIds.forEach(id => {
             if (allEnabled) enabledAlarms.delete(id);
