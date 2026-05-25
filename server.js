@@ -105,6 +105,11 @@ async function initSettings() {
     }
 })();
 
+// Trust proxy (Vercel, Cloudflare, etc.)
+if (IS_VERCEL || IS_PROD) {
+    app.set('trust proxy', 1);
+}
+
 // Security headers
 app.use(helmet({
     contentSecurityPolicy: false,
@@ -172,7 +177,7 @@ async function getMaxUsers() {
 }
 
 function cookieOpts(maxAge) {
-    return { httpOnly: true, maxAge, sameSite: 'lax', secure: IS_PROD };
+    return { httpOnly: true, maxAge, sameSite: 'lax', secure: IS_PROD || IS_VERCEL, path: '/' };
 }
 
 function escapeHtml(str) {
