@@ -12,6 +12,7 @@ const EXC_ITEMS_DATA = {
         { id: 'sets-mg', icon: '⚡' },
         { id: 'sets-dl', icon: '👹' },
         { id: 'sets-sum', icon: '📖' },
+        { id: 'sets-rf', icon: '👊' },
         { id: 'shields', icon: '🛡️' },
         { id: 'wings', icon: '🪽' },
         { id: 'rings', icon: '💍' },
@@ -263,6 +264,24 @@ const EXC_ITEMS_DATA = {
         { id: 'sum-sblitz-pants', name: 'Storm Blitz Pants', category: 'sets-sum', tier: 5 },
         { id: 'sum-sblitz-gloves', name: 'Storm Blitz Gloves', category: 'sets-sum', tier: 5 },
         { id: 'sum-sblitz-boots', name: 'Storm Blitz Boots', category: 'sets-sum', tier: 5 },
+
+        // ===== RF SETS (no Gloves) =====
+        { id: 'rf-plate-helm', name: 'Plate Helm', category: 'sets-rf', tier: 1 },
+        { id: 'rf-plate-armor', name: 'Plate Armor', category: 'sets-rf', tier: 1 },
+        { id: 'rf-plate-pants', name: 'Plate Pants', category: 'sets-rf', tier: 1 },
+        { id: 'rf-plate-boots', name: 'Plate Boots', category: 'sets-rf', tier: 1 },
+        { id: 'rf-sfire-helm', name: 'Sacred Fire Helm', category: 'sets-rf', tier: 2 },
+        { id: 'rf-sfire-armor', name: 'Sacred Fire Armor', category: 'sets-rf', tier: 2 },
+        { id: 'rf-sfire-pants', name: 'Sacred Fire Pants', category: 'sets-rf', tier: 2 },
+        { id: 'rf-sfire-boots', name: 'Sacred Fire Boots', category: 'sets-rf', tier: 2 },
+        { id: 'rf-szahard-helm', name: 'Storm Zahard Helm', category: 'sets-rf', tier: 3 },
+        { id: 'rf-szahard-armor', name: 'Storm Zahard Armor', category: 'sets-rf', tier: 3 },
+        { id: 'rf-szahard-pants', name: 'Storm Zahard Pants', category: 'sets-rf', tier: 3 },
+        { id: 'rf-szahard-boots', name: 'Storm Zahard Boots', category: 'sets-rf', tier: 3 },
+        { id: 'rf-pgrove-helm', name: 'Piercing Grove Helm', category: 'sets-rf', tier: 4 },
+        { id: 'rf-pgrove-armor', name: 'Piercing Grove Armor', category: 'sets-rf', tier: 4 },
+        { id: 'rf-pgrove-pants', name: 'Piercing Grove Pants', category: 'sets-rf', tier: 4 },
+        { id: 'rf-pgrove-boots', name: 'Piercing Grove Boots', category: 'sets-rf', tier: 4 },
 
         // ===== SHIELDS =====
         { id: 'dragon-slayer-shield', name: 'Dragon Slayer Shield', category: 'shields', tier: 3 },
