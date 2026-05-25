@@ -3632,6 +3632,174 @@ input[type="checkbox"] {
     opacity: 1;
 }
 
+/* ==================== GUILD COLLECTIONS ==================== */
+
+.guild-collections-header {
+    margin-bottom: 16px;
+}
+.guild-collections-header h4 {
+    color: #f0c040;
+    font-size: 16px;
+}
+.guild-collections-subtitle {
+    font-size: 12px;
+    color: #8888aa;
+}
+
+.guild-collections-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.guild-collection-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 12px;
+    transition: border-color 0.2s;
+}
+.guild-collection-card:hover {
+    border-color: rgba(240,192,64,0.3);
+}
+
+.gc-main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.gc-rank {
+    font-size: 16px;
+    min-width: 32px;
+    text-align: center;
+    font-weight: 700;
+    color: #f0c040;
+}
+
+.gc-info {
+    min-width: 100px;
+    flex-shrink: 0;
+}
+.gc-member-name {
+    font-weight: 600;
+    color: #e0e0f0;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+}
+.gc-member-user {
+    font-size: 11px;
+    color: #6666aa;
+}
+
+.gc-progress-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+.gc-pct {
+    font-size: 14px;
+    font-weight: 700;
+    color: #f0c040;
+    min-width: 38px;
+    text-align: right;
+}
+.gc-bar {
+    flex: 1;
+    height: 10px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 5px;
+    overflow: hidden;
+}
+.gc-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #f0c040, #ff6600);
+    border-radius: 5px;
+    transition: width 0.5s ease;
+}
+.gc-count {
+    font-size: 11px;
+    color: #8888aa;
+    min-width: 50px;
+    text-align: right;
+}
+
+.gc-view-btn, .gc-expand-btn {
+    padding: 4px 8px !important;
+    font-size: 12px !important;
+    background: rgba(255,255,255,0.06) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    border-radius: 6px !important;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.gc-view-btn:hover, .gc-expand-btn:hover {
+    background: rgba(240,192,64,0.15) !important;
+}
+
+/* Category breakdown */
+.gc-breakdown {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.gc-cat-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+}
+.gc-cat-name {
+    min-width: 90px;
+    color: #b0b0cc;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.gc-cat-bar {
+    flex: 1;
+    height: 6px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 3px;
+    overflow: hidden;
+}
+.gc-cat-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4488ff, #44ddff);
+    border-radius: 3px;
+}
+.gc-cat-count {
+    min-width: 40px;
+    text-align: right;
+    color: #8888aa;
+    font-size: 11px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .gc-main {
+        flex-wrap: wrap;
+    }
+    .gc-info {
+        min-width: 80px;
+    }
+    .gc-member-name {
+        max-width: 80px;
+    }
+    .gc-progress-area {
+        width: 100%;
+        order: 5;
+    }
+}
+
 /* ==================== ELITE MONSTERS ==================== */
 
 .elite-header {

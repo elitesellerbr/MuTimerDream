@@ -183,11 +183,13 @@ function renderGuildPanel(data) {
 
         <div class="admin-tabs guild-tabs">
             <button class="admin-tab active" data-gtab="members">${t('guildMembers')} (${data.members.length})</button>
+            <button class="admin-tab" data-gtab="collections">📦 ${t('guildCollections')}</button>
             <button class="admin-tab" data-gtab="events">${t('guildEvents')}</button>
             ${isLeader ? `<button class="admin-tab" data-gtab="report">${t('guildReport')}</button>` : ''}
         </div>
 
         <div id="guildMembers" class="admin-section active"></div>
+        <div id="guildCollections" class="admin-section"></div>
         <div id="guildEvents" class="admin-section"></div>
         ${isLeader ? '<div id="guildReport" class="admin-section"></div>' : ''}
 
@@ -203,6 +205,7 @@ function renderGuildPanel(data) {
             tab.classList.add('active');
             const sectionId = 'guild' + capitalize(tab.dataset.gtab);
             document.getElementById(sectionId).classList.add('active');
+            if (tab.dataset.gtab === 'collections') loadGuildCollections();
             if (tab.dataset.gtab === 'events') loadGuildEvents();
             if (tab.dataset.gtab === 'report') loadGuildReport();
         });
@@ -360,6 +363,112 @@ function renderGuildMembers(data) {
             } catch (e) { showToast(e.message, 'error'); }
         });
     });
+}
+
+async function loadGuildCollections() {
+    const container = document.getElementById('guildCollections');
+    container.innerHTML = `<div class="empty-state"><p>⏳ ${t('loading')}</p></div>`;
+
+    try {
+        const data = await guildApi('/api/guild/collections');
+        const summaries = data.summaries;
+        const totalItems = typeof EXC_ITEMS_DATA !== 'undefined' ? EXC_ITEMS_DATA.items.length : 0;
+
+        if (summaries.length === 0) {
+            container.innerHTML = `<div class="empty-state"><div class="empty-icon">📦</div><p>${t('guildNoCollections')}</p></div>`;
+            return;
+        }
+
+        // Category mapping for display
+        const catNames = {
+            pt: { 'swords': 'Espadas', 'axes': 'Machados', 'maces': 'Maças', 'staffs': 'Cajados', 'bows': 'Arcos', 'scepters': 'Cetros',
+                  'sets-dk': 'Sets DK', 'sets-dw': 'Sets DW', 'sets-elf': 'Sets ELF', 'sets-mg': 'Sets MG', 'sets-dl': 'Sets DL', 'sets-sum': 'Sets SUM',
+                  'shields': 'Escudos', 'wings': 'Asas', 'rings': 'Anéis' },
+            en: { 'swords': 'Swords', 'axes': 'Axes', 'maces': 'Maces', 'staffs': 'Staffs', 'bows': 'Bows', 'scepters': 'Scepters',
+                  'sets-dk': 'DK Sets', 'sets-dw': 'DW Sets', 'sets-elf': 'ELF Sets', 'sets-mg': 'MG Sets', 'sets-dl': 'DL Sets', 'sets-sum': 'SUM Sets',
+                  'shields': 'Shields', 'wings': 'Wings', 'rings': 'Rings' }
+        };
+        const lang = typeof currentLang !== 'undefined' ? currentLang : 'pt';
+        const names = catNames[lang] || catNames.pt;
+
+        container.innerHTML = `
+            <div class="guild-collections-header">
+                <h4>📦 ${t('guildCollections')}</h4>
+                <span class="guild-collections-subtitle">${t('guildCollectionsDesc')}</span>
+            </div>
+            <div class="guild-collections-list">
+                ${summaries.map((m, idx) => {
+                    const pct = totalItems > 0 ? Math.round((m.obtained / totalItems) * 100) : 0;
+                    const medal = idx === 0 && m.obtained > 0 ? '🥇' : idx === 1 && m.obtained > 0 ? '🥈' : idx === 2 && m.obtained > 0 ? '🥉' : '';
+
+                    // Build category breakdown
+                    let catBreakdown = '';
+                    if (totalItems > 0 && typeof EXC_ITEMS_DATA !== 'undefined') {
+                        const obtainedSet = new Set(m.items.map(i => i.item_id));
+                        const cats = EXC_ITEMS_DATA.categories.map(cat => {
+                            const catItems = EXC_ITEMS_DATA.items.filter(i => i.category === cat.id);
+                            const catObtained = catItems.filter(i => obtainedSet.has(i.id)).length;
+                            if (catObtained === 0) return '';
+                            const catPct = Math.round((catObtained / catItems.length) * 100);
+                            return `<div class="gc-cat-row">
+                                <span class="gc-cat-name">${cat.icon} ${names[cat.id] || cat.id}</span>
+                                <div class="gc-cat-bar"><div class="gc-cat-fill" style="width:${catPct}%"></div></div>
+                                <span class="gc-cat-count">${catObtained}/${catItems.length}</span>
+                            </div>`;
+                        }).filter(Boolean).join('');
+                        catBreakdown = cats ? `<div class="gc-breakdown" id="gcBreakdown${idx}" style="display:none">${cats}</div>` : '';
+                    }
+
+                    return `
+                        <div class="guild-collection-card" data-idx="${idx}">
+                            <div class="gc-main">
+                                <div class="gc-rank">${medal || `#${idx + 1}`}</div>
+                                <div class="gc-info">
+                                    <div class="gc-member-name">${getRoleBadge(m.role)} ${escapeHtml(m.char_name)}</div>
+                                    <div class="gc-member-user">@${escapeHtml(m.username)}</div>
+                                </div>
+                                <div class="gc-progress-area">
+                                    <div class="gc-pct">${pct}%</div>
+                                    <div class="gc-bar"><div class="gc-fill" style="width:${pct}%"></div></div>
+                                    <div class="gc-count">${m.obtained}/${totalItems}</div>
+                                </div>
+                                <button class="btn-sm gc-view-btn" data-username="${escapeHtml(m.username)}" title="${t('guildViewCollection')}">👁️</button>
+                                ${catBreakdown ? `<button class="btn-sm gc-expand-btn" data-idx="${idx}" title="${t('guildCollectionExpand')}">▼</button>` : ''}
+                            </div>
+                            ${catBreakdown}
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+
+        // View full collection button
+        container.querySelectorAll('.gc-view-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const username = btn.dataset.username;
+                if (typeof loadGuildCollectionOf === 'function') {
+                    loadGuildCollectionOf(username);
+                }
+            });
+        });
+
+        // Expand/collapse category breakdown
+        container.querySelectorAll('.gc-expand-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const idx = btn.dataset.idx;
+                const breakdown = document.getElementById('gcBreakdown' + idx);
+                if (breakdown) {
+                    const isVisible = breakdown.style.display !== 'none';
+                    breakdown.style.display = isVisible ? 'none' : 'block';
+                    btn.textContent = isVisible ? '▼' : '▲';
+                }
+            });
+        });
+    } catch (e) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>${escapeHtml(e.message || 'Erro ao carregar coleções')}</p></div>`;
+    }
 }
 
 async function loadGuildEvents() {

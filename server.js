@@ -1322,6 +1322,60 @@ app.get('/api/collection/:username', async (req, res) => {
     res.json({ username: user.username, items: (items || []).map(i => ({ ...i, obtained: i.obtained === 1, adds: JSON.parse(i.adds || '[]') })) });
 });
 
+// Guild collections overview — all members' collection summaries
+app.get('/api/guild/collections', authMiddleware, async (req, res) => {
+    try {
+        const { data: myMember } = await supabase
+            .from('guild_members')
+            .select('guild_id')
+            .eq('user_id', req.user.id)
+            .single();
+        if (!myMember) return res.status(403).json({ error: 'Você não está em uma guild' });
+
+        const { data: members } = await supabase
+            .from('guild_members')
+            .select('user_id, char_name, role')
+            .eq('guild_id', myMember.guild_id);
+
+        const userIds = members.map(m => m.user_id);
+        const { data: allItems } = await supabase
+            .from('user_items')
+            .select('user_id, item_id, obtained, adds')
+            .in('user_id', userIds)
+            .eq('obtained', 1);
+
+        // Get usernames
+        const { data: users } = await supabase
+            .from('users')
+            .select('id, username')
+            .in('id', userIds);
+        const userMap = {};
+        (users || []).forEach(u => { userMap[u.id] = u.username; });
+
+        // Build per-member summaries
+        const itemsByUser = {};
+        (allItems || []).forEach(i => {
+            if (!itemsByUser[i.user_id]) itemsByUser[i.user_id] = [];
+            itemsByUser[i.user_id].push({ item_id: i.item_id, adds: JSON.parse(i.adds || '[]') });
+        });
+
+        const summaries = members.map(m => ({
+            username: userMap[m.user_id] || '',
+            char_name: m.char_name,
+            role: m.role,
+            obtained: (itemsByUser[m.user_id] || []).length,
+            items: (itemsByUser[m.user_id] || [])
+        }));
+
+        // Sort: most items first
+        summaries.sort((a, b) => b.obtained - a.obtained);
+        res.json({ summaries });
+    } catch (e) {
+        console.error('Guild collections error:', e.message);
+        res.status(500).json({ error: 'Erro ao buscar coleções' });
+    }
+});
+
 app.get('/api/guild/collection/:username', authMiddleware, async (req, res) => {
     const { data: myMember } = await supabase
         .from('guild_members')
