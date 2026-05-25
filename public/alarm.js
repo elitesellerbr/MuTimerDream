@@ -3,25 +3,104 @@ class AlarmSystem {
         this.audioCtx = null;
         this.volume = 0.7;
         this.soundType = 'default';
+        this.customBuffer = null;
+        this.customSoundUrl = null;
+        this.fallbackAudio = null;
+        this.unlocked = false;
+        this._setupInteractionUnlock();
+        this._startKeepAlive();
     }
+
+    /* ── AudioContext management ── */
 
     getAudioContext() {
         if (!this.audioCtx || this.audioCtx.state === 'closed') {
             this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
         if (this.audioCtx.state === 'suspended') {
-            this.audioCtx.resume();
+            this.audioCtx.resume().catch(() => {});
         }
         return this.audioCtx;
     }
 
+    /* ── PWA Audio Fix A: unlock on first user interaction ── */
+
+    _setupInteractionUnlock() {
+        const unlock = () => {
+            const ctx = this.getAudioContext();
+            // Play a silent buffer to fully unlock audio on iOS/Android
+            try {
+                const buf = ctx.createBuffer(1, 1, 22050);
+                const src = ctx.createBufferSource();
+                src.buffer = buf;
+                src.connect(ctx.destination);
+                src.start(0);
+            } catch {}
+            this.unlocked = true;
+            ['touchstart', 'touchend', 'click', 'keydown'].forEach(evt =>
+                document.removeEventListener(evt, unlock, true)
+            );
+        };
+        ['touchstart', 'touchend', 'click', 'keydown'].forEach(evt =>
+            document.addEventListener(evt, unlock, { capture: true })
+        );
+    }
+
+    /* ── PWA Audio Fix B: silent keep-alive in standalone mode ── */
+
+    _startKeepAlive() {
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+            || window.navigator.standalone === true;
+        if (!isStandalone) return;
+
+        setInterval(() => {
+            if (this.audioCtx && this.audioCtx.state === 'running') {
+                try {
+                    const buf = this.audioCtx.createBuffer(1, 1, 22050);
+                    const src = this.audioCtx.createBufferSource();
+                    src.buffer = buf;
+                    src.connect(this.audioCtx.destination);
+                    src.start();
+                } catch {}
+            }
+        }, 25000);
+    }
+
+    /* ── Volume & Sound type ── */
+
     setVolume(v) {
         this.volume = v / 100;
+        if (this.fallbackAudio) this.fallbackAudio.volume = this.volume;
     }
 
     setSoundType(type) {
         this.soundType = type;
+        // If custom:xxx, load the audio
+        if (type.startsWith('custom:')) {
+            const url = type.substring(7);
+            this.loadCustomSound(url);
+        } else {
+            this.customBuffer = null;
+            this.customSoundUrl = null;
+        }
     }
+
+    /* ── Custom sound loading ── */
+
+    async loadCustomSound(url) {
+        this.customSoundUrl = url;
+        try {
+            const ctx = this.getAudioContext();
+            const resp = await fetch(url);
+            const arrayBuf = await resp.arrayBuffer();
+            this.customBuffer = await ctx.decodeAudioData(arrayBuf);
+        } catch (e) {
+            console.warn('Failed to load custom sound:', e);
+            this.customBuffer = null;
+        }
+    }
+
+    /* ── Built-in synthesized sounds ── */
 
     playNote(ctx, freq, start, dur, gain, type = 'sine') {
         const osc = ctx.createOscillator();
@@ -72,18 +151,81 @@ class AlarmSystem {
         });
     }
 
-    play() {
+    /* ── Custom sound playback ── */
+
+    playCustom() {
+        if (!this.customBuffer) {
+            // Fallback: try HTML5 Audio if buffer failed to load
+            if (this.customSoundUrl) {
+                this._playFallbackAudio(this.customSoundUrl);
+            } else {
+                this.playDefault();
+            }
+            return;
+        }
         try {
-            switch (this.soundType) {
-                case 'bell': this.playBell(); break;
-                case 'horn': this.playHorn(); break;
-                case 'chime': this.playChime(); break;
-                default: this.playDefault();
+            const ctx = this.getAudioContext();
+            const source = ctx.createBufferSource();
+            const gainNode = ctx.createGain();
+            source.buffer = this.customBuffer;
+            gainNode.gain.value = this.volume;
+            source.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            source.start(0);
+        } catch (e) {
+            console.warn('Custom sound playback failed:', e);
+            this._playFallbackAudio(this.customSoundUrl);
+        }
+    }
+
+    /* ── PWA Audio Fix C: HTML5 Audio fallback ── */
+
+    _playFallbackAudio(url) {
+        if (!url) return;
+        try {
+            if (this.fallbackAudio) {
+                this.fallbackAudio.pause();
+                this.fallbackAudio.currentTime = 0;
+            }
+            this.fallbackAudio = new Audio(url);
+            this.fallbackAudio.volume = this.volume;
+            this.fallbackAudio.play().catch(() => {});
+        } catch {}
+    }
+
+    /* ── Main play method with PWA fallback ── */
+
+    async play() {
+        try {
+            const ctx = this.getAudioContext();
+            // Try to resume if suspended (PWA fix)
+            if (ctx.state === 'suspended') {
+                try { await ctx.resume(); } catch {}
+            }
+
+            if (this.soundType.startsWith('custom:')) {
+                this.playCustom();
+                return;
+            }
+
+            if (ctx.state === 'running') {
+                switch (this.soundType) {
+                    case 'bell': this.playBell(); break;
+                    case 'horn': this.playHorn(); break;
+                    case 'chime': this.playChime(); break;
+                    default: this.playDefault();
+                }
+            } else {
+                // AudioContext still suspended — try vibration as last resort
+                if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]);
             }
         } catch (e) {
             console.warn('Audio playback failed:', e);
+            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
         }
     }
+
+    /* ── Notifications with improved PWA support ── */
 
     async sendNotification(title, body, icon = '⚔️') {
         if (!('Notification' in window)) return;
@@ -91,14 +233,41 @@ class AlarmSystem {
             await Notification.requestPermission();
         }
         if (Notification.permission === 'granted') {
-            new Notification(title, {
-                body,
-                icon: 'favicon.svg',
-                badge: 'favicon.svg',
-                tag: 'mudream-event',
-                renotify: true,
-                vibrate: [200, 100, 200]
-            });
+            try {
+                const reg = await navigator.serviceWorker?.ready;
+                if (reg) {
+                    // Use SW notification (works in background/standalone PWA)
+                    reg.showNotification(title, {
+                        body,
+                        icon: 'favicon.svg',
+                        badge: 'favicon.svg',
+                        tag: 'mudream-event-' + Date.now(),
+                        renotify: true,
+                        requireInteraction: true,
+                        vibrate: [200, 100, 200, 100, 200],
+                        silent: false
+                    });
+                } else {
+                    // Fallback: regular notification
+                    new Notification(title, {
+                        body,
+                        icon: 'favicon.svg',
+                        badge: 'favicon.svg',
+                        tag: 'mudream-event',
+                        renotify: true,
+                        vibrate: [200, 100, 200]
+                    });
+                }
+            } catch {
+                new Notification(title, {
+                    body,
+                    icon: 'favicon.svg',
+                    badge: 'favicon.svg',
+                    tag: 'mudream-event',
+                    renotify: true,
+                    vibrate: [200, 100, 200]
+                });
+            }
         }
     }
 }

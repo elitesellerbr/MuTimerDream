@@ -426,12 +426,38 @@
                         <label data-i18n="settingsSound">Som do Alarme</label>
                         <div class="setting-row">
                             <select id="alarmSound">
-                                <option value="default" data-i18n="settingsSoundDefault">Padrão (Beep)</option>
-                                <option value="bell" data-i18n="settingsSoundBell">Sino</option>
-                                <option value="horn" data-i18n="settingsSoundHorn">Trombeta</option>
-                                <option value="chime" data-i18n="settingsSoundChime">Chime</option>
+                                <optgroup label="Sons padrão" data-i18n-label="settingsPresetGroup">
+                                    <option value="default" data-i18n="settingsSoundDefault">Padrão (Beep)</option>
+                                    <option value="bell" data-i18n="settingsSoundBell">Sino</option>
+                                    <option value="horn" data-i18n="settingsSoundHorn">Trombeta</option>
+                                    <option value="chime" data-i18n="settingsSoundChime">Chime</option>
+                                </optgroup>
+                                <optgroup id="customSoundsGroup" label="Meus sons" data-i18n-label="settingsCustomGroup" style="display:none">
+                                </optgroup>
                             </select>
                             <button class="btn-sm" id="btnTestSound" data-i18n="settingsTest">Testar</button>
+                        </div>
+                        <div class="custom-sound-actions">
+                            <button class="btn-sm btn-upload" id="btnUploadSound" title="Enviar áudio">
+                                <span>📁</span> <span data-i18n="settingsUpload">Enviar</span>
+                            </button>
+                            <button class="btn-sm btn-record" id="btnRecordSound" title="Gravar áudio">
+                                <span>🎙️</span> <span data-i18n="settingsRecord">Gravar</span>
+                            </button>
+                            <button class="btn-sm btn-danger btn-delete-sound" id="btnDeleteSound" title="Excluir som" style="display:none">
+                                <span>🗑️</span>
+                            </button>
+                            <input type="file" id="soundFileInput" accept="audio/mpeg,audio/wav,audio/ogg,audio/webm,audio/mp4,audio/*" style="display:none">
+                        </div>
+                        <div class="recorder-ui" id="recorderUI" style="display:none">
+                            <div class="recorder-status">
+                                <span class="rec-dot"></span>
+                                <span id="recTimer">00:00</span>
+                            </div>
+                            <div class="recorder-controls">
+                                <button class="btn-sm btn-danger" id="btnStopRec" data-i18n="settingsStopRec">Parar</button>
+                                <button class="btn-sm" id="btnCancelRec" data-i18n="settingsCancelRec">Cancelar</button>
+                            </div>
                         </div>
                     </div>
                     <div class="setting-group">

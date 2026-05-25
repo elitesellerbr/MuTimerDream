@@ -7,7 +7,10 @@ const path = require('path');
 const crypto = require('crypto');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const multer = require('multer');
 require('dotenv').config();
+
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 2 * 1024 * 1024 } });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -321,6 +324,48 @@ app.put('/api/user/elite-timers', authMiddleware, async (req, res) => {
     await supabase
         .from('users')
         .update({ elite_timers: JSON.stringify(timers) })
+        .eq('id', req.user.id);
+    res.json({ ok: true });
+});
+
+// ==================== CUSTOM ALARM SOUND ====================
+
+app.post('/api/user/alarm-sound', authMiddleware, upload.single('audio'), async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ error: 'Nenhum arquivo enviado' });
+        const allowed = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/webm', 'audio/mp4', 'audio/x-m4a'];
+        if (!allowed.includes(req.file.mimetype)) {
+            return res.status(400).json({ error: 'Formato de áudio não suportado' });
+        }
+        const base64 = req.file.buffer.toString('base64');
+        const dataUrl = `data:${req.file.mimetype};base64,${base64}`;
+        const name = req.body.name || req.file.originalname || 'custom-sound';
+        await supabase
+            .from('users')
+            .update({ custom_sound: JSON.stringify({ name, dataUrl, mime: req.file.mimetype }) })
+            .eq('id', req.user.id);
+        res.json({ ok: true, sound: { name, dataUrl } });
+    } catch (e) {
+        console.error('Upload sound error:', e.message);
+        res.status(500).json({ error: 'Erro ao salvar som' });
+    }
+});
+
+app.get('/api/user/alarm-sound', authMiddleware, async (req, res) => {
+    const { data } = await supabase
+        .from('users')
+        .select('custom_sound')
+        .eq('id', req.user.id)
+        .single();
+    let sound = null;
+    try { sound = JSON.parse(data?.custom_sound || 'null'); } catch {}
+    res.json({ sound });
+});
+
+app.delete('/api/user/alarm-sound', authMiddleware, async (req, res) => {
+    await supabase
+        .from('users')
+        .update({ custom_sound: null })
         .eq('id', req.user.id);
     res.json({ ok: true });
 });

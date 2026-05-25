@@ -3720,3 +3720,61 @@ input[type="checkbox"] {
         padding: 3px 8px !important;
     }
 }
+
+/* ── Custom alarm sound UI ── */
+.custom-sound-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+.btn-upload, .btn-record {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    padding: 4px 10px;
+}
+.btn-record.recording {
+    background: rgba(255, 60, 60, 0.3) !important;
+    border-color: #ff4444 !important;
+    animation: pulse-rec 1s infinite;
+}
+.btn-delete-sound {
+    padding: 4px 8px !important;
+    font-size: 12px;
+}
+.recorder-ui {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    background: rgba(255, 60, 60, 0.08);
+    border: 1px solid rgba(255, 60, 60, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.recorder-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ff6b6b;
+}
+.rec-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #ff4444;
+    animation: pulse-rec 1s infinite;
+}
+.recorder-controls {
+    display: flex;
+    gap: 6px;
+}
+@keyframes pulse-rec {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}

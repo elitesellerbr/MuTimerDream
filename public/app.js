@@ -797,6 +797,22 @@ function startApp() {
     setInterval(updateServerClock, 1000);
     setInterval(renderAll, 5000);
     setInterval(checkAlarms, 10000);
+
+    // PWA: request wake lock to keep alarms active
+    requestWakeLock();
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') requestWakeLock();
+    });
+}
+
+/* ── PWA Wake Lock ── */
+let _wakeLock = null;
+async function requestWakeLock() {
+    if (!('wakeLock' in navigator) || enabledAlarms.size === 0) return;
+    try {
+        _wakeLock = await navigator.wakeLock.request('screen');
+        _wakeLock.addEventListener('release', () => { _wakeLock = null; });
+    } catch {}
 }
 
 function goToLanding() {
@@ -952,6 +968,161 @@ function initSettings() {
         setLanguage(langSelect.value);
         renderAll();
     });
+
+    // ── Custom sound upload/record ──
+    initCustomSound(alarmSelect);
+}
+
+/* ── Custom alarm sound: upload, record, delete ── */
+
+let mediaRecorder = null;
+let recordedChunks = [];
+let recTimerInterval = null;
+
+async function initCustomSound(alarmSelect) {
+    const fileInput = document.getElementById('soundFileInput');
+    const btnUpload = document.getElementById('btnUploadSound');
+    const btnRecord = document.getElementById('btnRecordSound');
+    const btnDelete = document.getElementById('btnDeleteSound');
+    const recorderUI = document.getElementById('recorderUI');
+    const btnStopRec = document.getElementById('btnStopRec');
+    const btnCancelRec = document.getElementById('btnCancelRec');
+    const recTimer = document.getElementById('recTimer');
+    const customGroup = document.getElementById('customSoundsGroup');
+
+    // Load existing custom sound from server
+    await loadCustomSoundFromServer(alarmSelect, customGroup, btnDelete);
+
+    // Upload button
+    btnUpload.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', async () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+        if (file.size > 2 * 1024 * 1024) {
+            showAlertBanner(t('settingsMaxSize'));
+            fileInput.value = '';
+            return;
+        }
+        const formData = new FormData();
+        formData.append('audio', file);
+        formData.append('name', file.name.replace(/\.[^.]+$/, ''));
+        try {
+            const res = await fetch('/api/user/alarm-sound', { method: 'POST', body: formData, credentials: 'include' });
+            const data = await res.json();
+            if (data.ok) {
+                addCustomSoundOption(alarmSelect, customGroup, data.sound, btnDelete);
+                showAlertBanner(t('settingsUploadSuccess'));
+            }
+        } catch (e) { console.error('Upload error:', e); }
+        fileInput.value = '';
+    });
+
+    // Record button
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        btnRecord.addEventListener('click', async () => {
+            if (mediaRecorder && mediaRecorder.state === 'recording') return;
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                recordedChunks = [];
+                mediaRecorder = new MediaRecorder(stream, { mimeType: getSupportedMime() });
+                mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
+                mediaRecorder.onstop = async () => {
+                    stream.getTracks().forEach(t => t.stop());
+                    recorderUI.style.display = 'none';
+                    clearInterval(recTimerInterval);
+                    if (recordedChunks.length === 0) return;
+                    const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType });
+                    if (blob.size > 2 * 1024 * 1024) { showAlertBanner(t('settingsMaxSize')); return; }
+                    const formData = new FormData();
+                    formData.append('audio', blob, 'recording.' + (mediaRecorder.mimeType.includes('webm') ? 'webm' : 'ogg'));
+                    formData.append('name', 'Gravação ' + new Date().toLocaleTimeString());
+                    try {
+                        const res = await fetch('/api/user/alarm-sound', { method: 'POST', body: formData, credentials: 'include' });
+                        const data = await res.json();
+                        if (data.ok) {
+                            addCustomSoundOption(alarmSelect, customGroup, data.sound, btnDelete);
+                            showAlertBanner(t('settingsRecordSuccess'));
+                        }
+                    } catch (e) { console.error('Record upload error:', e); }
+                };
+                mediaRecorder.start();
+                recorderUI.style.display = 'flex';
+                let secs = 0;
+                recTimer.textContent = '00:00';
+                recTimerInterval = setInterval(() => {
+                    secs++;
+                    recTimer.textContent = `${String(Math.floor(secs / 60)).padStart(2, '0')}:${String(secs % 60).padStart(2, '0')}`;
+                    if (secs >= 30) { mediaRecorder.stop(); } // Max 30s
+                }, 1000);
+            } catch (e) {
+                console.warn('Microphone access denied:', e);
+            }
+        });
+
+        btnStopRec.addEventListener('click', () => {
+            if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+        });
+        btnCancelRec.addEventListener('click', () => {
+            recordedChunks = [];
+            if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
+            recorderUI.style.display = 'none';
+            clearInterval(recTimerInterval);
+        });
+    } else {
+        btnRecord.style.display = 'none';
+    }
+
+    // Delete button
+    btnDelete.addEventListener('click', async () => {
+        try {
+            await fetch('/api/user/alarm-sound', { method: 'DELETE', credentials: 'include' });
+            customGroup.innerHTML = '';
+            customGroup.style.display = 'none';
+            btnDelete.style.display = 'none';
+            alarmSelect.value = 'default';
+            settings.sound = 'default';
+            alarm.setSoundType('default');
+            saveSettings();
+            showAlertBanner(t('settingsDeleteSound'));
+        } catch (e) { console.error('Delete error:', e); }
+    });
+}
+
+function getSupportedMime() {
+    const types = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus', 'audio/mp4'];
+    for (const t of types) { if (MediaRecorder.isTypeSupported(t)) return t; }
+    return '';
+}
+
+async function loadCustomSoundFromServer(alarmSelect, customGroup, btnDelete) {
+    try {
+        const res = await fetch('/api/user/alarm-sound', { credentials: 'include' });
+        const data = await res.json();
+        if (data.sound) {
+            addCustomSoundOption(alarmSelect, customGroup, data.sound, btnDelete);
+            // If current setting uses custom, select it
+            if (settings.sound.startsWith('custom:')) {
+                alarmSelect.value = settings.sound;
+                alarm.setSoundType(settings.sound);
+            }
+        }
+    } catch {}
+}
+
+function addCustomSoundOption(alarmSelect, customGroup, sound, btnDelete) {
+    customGroup.innerHTML = '';
+    const opt = document.createElement('option');
+    opt.value = 'custom:' + sound.dataUrl;
+    opt.textContent = '🎵 ' + (sound.name || 'Custom');
+    customGroup.appendChild(opt);
+    customGroup.style.display = '';
+    btnDelete.style.display = '';
+
+    // Auto-select the new custom sound
+    alarmSelect.value = opt.value;
+    settings.sound = opt.value;
+    alarm.setSoundType(opt.value);
+    saveSettings();
 }
 
 function updateAlarmInfoText() {
