@@ -114,6 +114,36 @@ function loadEnabledAlarms() {
 
 function saveEnabledAlarms() {
     localStorage.setItem('mudream_alarms', JSON.stringify([...enabledAlarms]));
+    // Sync to server (fire-and-forget)
+    syncAlarmsToServer();
+}
+
+let _alarmSyncTimer = null;
+function syncAlarmsToServer() {
+    // Debounce: wait 1s after last toggle before syncing
+    clearTimeout(_alarmSyncTimer);
+    _alarmSyncTimer = setTimeout(async () => {
+        try {
+            await fetch('/api/user/alarms', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ alarms: [...enabledAlarms] })
+            });
+        } catch {}
+    }, 1000);
+}
+
+async function loadAlarmsFromServer() {
+    try {
+        const res = await fetch('/api/user/alarms', { credentials: 'same-origin' });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.alarms && data.alarms.length > 0) {
+            enabledAlarms = new Set(data.alarms);
+            localStorage.setItem('mudream_alarms', JSON.stringify(data.alarms));
+        }
+    } catch {}
 }
 
 function getServerTime() {
@@ -536,9 +566,10 @@ function initLanding() {
     // Auto-skip landing if user has a valid session
     fetch('/api/auth/me', { credentials: 'same-origin' })
         .then(r => r.ok ? r.json() : Promise.reject())
-        .then(data => {
+        .then(async data => {
             if (data && data.user) {
-                // User is logged in — skip landing directly
+                // User is logged in — load alarms from server then skip landing
+                await loadAlarmsFromServer();
                 landing.classList.add('landing-hidden');
                 app.style.display = '';
                 startApp();

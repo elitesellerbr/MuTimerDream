@@ -270,11 +270,32 @@ app.post('/api/auth/logout', (req, res) => {
 app.get('/api/auth/me', authMiddleware, async (req, res) => {
     const { data: user } = await supabase
         .from('users')
-        .select('id, username, email, is_admin, created_at, last_login')
+        .select('id, username, email, is_admin, created_at, last_login, enabled_alarms')
         .eq('id', req.user.id)
         .single();
     if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
     res.json({ user });
+});
+
+app.get('/api/user/alarms', authMiddleware, async (req, res) => {
+    const { data } = await supabase
+        .from('users')
+        .select('enabled_alarms')
+        .eq('id', req.user.id)
+        .single();
+    let alarms = [];
+    try { alarms = JSON.parse(data?.enabled_alarms || '[]'); } catch {}
+    res.json({ alarms });
+});
+
+app.put('/api/user/alarms', authMiddleware, async (req, res) => {
+    const { alarms } = req.body;
+    if (!Array.isArray(alarms)) return res.status(400).json({ error: 'Formato inválido' });
+    await supabase
+        .from('users')
+        .update({ enabled_alarms: JSON.stringify(alarms) })
+        .eq('id', req.user.id);
+    res.json({ ok: true });
 });
 
 // ==================== ADMIN ROUTES ====================

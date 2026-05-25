@@ -117,6 +117,10 @@ function initAuth() {
             document.getElementById('loginUser').value = '';
             document.getElementById('loginPass').value = '';
             if (currentUser.is_admin) loadAdminData();
+            // Load alarms from server and refresh UI
+            if (typeof loadAlarmsFromServer === 'function') {
+                loadAlarmsFromServer().then(() => { if (typeof renderAll === 'function') renderAll(true); });
+            }
             const activeTab = document.querySelector('.tab.active');
             if (activeTab && activeTab.dataset.tab === 'collection') loadCollection();
         } catch (e) {
