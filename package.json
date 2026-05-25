@@ -20,8 +20,8 @@
   },
   "homepage": "https://github.com/businessecom2026-code/MDEvent#readme",
   "dependencies": {
+    "@supabase/supabase-js": "^2.106.2",
     "bcryptjs": "^3.0.3",
-    "better-sqlite3": "^12.10.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",

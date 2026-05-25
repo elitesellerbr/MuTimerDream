@@ -1,10 +1,9 @@
 const express = require('express');
-const Database = require('better-sqlite3');
+const { createClient } = require('@supabase/supabase-js');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const path = require('path');
-const fs = require('fs');
 const crypto = require('crypto');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -18,6 +17,11 @@ const JWT_SECRET = process.env.JWT_SECRET || 'mudream-secret-key-change-in-produ
 const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
 const FROM_EMAIL = process.env.FROM_EMAIL || 'onboarding@resend.dev';
 const APP_URL = process.env.APP_URL || 'http://localhost:3000';
+
+// Supabase client
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://wjapusdyewhysitcamyy.supabase.co';
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 // Security warnings
 if (!IS_PROD && JWT_SECRET === 'mudream-secret-key-change-in-production') {
@@ -50,146 +54,67 @@ async function sendEmail(to, subject, html) {
     }
 }
 
-const dbPath = IS_VERCEL ? '/tmp/mudream.db' : (process.env.DB_PATH || './data/mudream.db');
-const dbDir = path.dirname(dbPath);
-if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true });
-const db = new Database(dbPath);
-db.pragma('journal_mode = WAL');
+// Initialize admin on startup
+async function initAdmin() {
+    const ADMIN_PASS = process.env.ADMIN_PASS || 'Admin2026*!@#';
+    const { data: adminExists } = await supabase
+        .from('users')
+        .select('id')
+        .eq('is_admin', 1)
+        .limit(1)
+        .single();
 
-db.exec(`
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        email TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        is_admin INTEGER DEFAULT 0,
-        created_at TEXT DEFAULT (datetime('now')),
-        last_login TEXT
-    );
-
-    CREATE TABLE IF NOT EXISTS campaigns (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        subject TEXT NOT NULL,
-        body TEXT NOT NULL,
-        sent_by INTEGER,
-        sent_at TEXT DEFAULT (datetime('now')),
-        recipients_count INTEGER DEFAULT 0,
-        FOREIGN KEY (sent_by) REFERENCES users(id)
-    );
-
-    CREATE TABLE IF NOT EXISTS guilds (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT UNIQUE NOT NULL,
-        master_id INTEGER NOT NULL,
-        join_code TEXT UNIQUE NOT NULL,
-        created_at TEXT DEFAULT (datetime('now')),
-        FOREIGN KEY (master_id) REFERENCES users(id)
-    );
-
-    CREATE TABLE IF NOT EXISTS guild_members (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        guild_id INTEGER NOT NULL,
-        user_id INTEGER NOT NULL,
-        char_name TEXT NOT NULL,
-        role TEXT DEFAULT 'member',
-        joined_at TEXT DEFAULT (datetime('now')),
-        FOREIGN KEY (guild_id) REFERENCES guilds(id),
-        FOREIGN KEY (user_id) REFERENCES users(id),
-        UNIQUE(guild_id, user_id)
-    );
-
-    CREATE TABLE IF NOT EXISTS guild_event_signups (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        guild_id INTEGER NOT NULL,
-        member_id INTEGER NOT NULL,
-        event_id TEXT NOT NULL,
-        event_date TEXT NOT NULL,
-        status TEXT DEFAULT 'going',
-        signed_at TEXT DEFAULT (datetime('now')),
-        FOREIGN KEY (guild_id) REFERENCES guilds(id),
-        FOREIGN KEY (member_id) REFERENCES guild_members(id),
-        UNIQUE(guild_id, member_id, event_id, event_date)
-    );
-
-    CREATE TABLE IF NOT EXISTS user_pins (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER UNIQUE NOT NULL,
-        pin_hash TEXT NOT NULL,
-        enabled INTEGER DEFAULT 1,
-        created_at TEXT DEFAULT (datetime('now')),
-        FOREIGN KEY (user_id) REFERENCES users(id)
-    );
-
-    CREATE TABLE IF NOT EXISTS user_items (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        item_id TEXT NOT NULL,
-        obtained INTEGER DEFAULT 1,
-        obtained_at TEXT DEFAULT (datetime('now')),
-        FOREIGN KEY (user_id) REFERENCES users(id),
-        UNIQUE(user_id, item_id)
-    );
-
-    CREATE TABLE IF NOT EXISTS payments (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        type TEXT NOT NULL DEFAULT 'premium',
-        plan TEXT NOT NULL DEFAULT 'year',
-        amount REAL NOT NULL,
-        currency TEXT NOT NULL DEFAULT 'EUR',
-        status TEXT NOT NULL DEFAULT 'pending',
-        notes TEXT,
-        created_at TEXT DEFAULT (datetime('now')),
-        confirmed_at TEXT,
-        confirmed_by INTEGER,
-        FOREIGN KEY (user_id) REFERENCES users(id),
-        FOREIGN KEY (confirmed_by) REFERENCES users(id)
-    );
-
-    CREATE TABLE IF NOT EXISTS password_resets (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        token TEXT UNIQUE NOT NULL,
-        expires_at TEXT NOT NULL,
-        used INTEGER DEFAULT 0,
-        created_at TEXT DEFAULT (datetime('now')),
-        FOREIGN KEY (user_id) REFERENCES users(id)
-    );
-`);
-
-// Settings table
-db.exec(`CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)`);
-db.prepare("INSERT OR IGNORE INTO settings (key, value) VALUES ('max_users', '40')").run();
-
-// Migrate: add premium columns to users if missing
-try { db.prepare("ALTER TABLE users ADD COLUMN premium_until TEXT").run(); } catch {}
-try { db.prepare("ALTER TABLE users ADD COLUMN premium_plan TEXT").run(); } catch {}
-// Migrate: add adds column to user_items for item options (+luck, +skill, etc.)
-try { db.prepare("ALTER TABLE user_items ADD COLUMN adds TEXT DEFAULT '[]'").run(); } catch {}
-
-const ADMIN_PASS = process.env.ADMIN_PASS || 'Admin2026*!@#';
-const adminExists = db.prepare('SELECT id FROM users WHERE is_admin = 1').get();
-if (!adminExists) {
-    const hash = bcrypt.hashSync(ADMIN_PASS, 10);
-    db.prepare('INSERT OR IGNORE INTO users (username, email, password, is_admin) VALUES (?, ?, ?, 1)')
-        .run('superadmin', 'admin@mudream.local', hash);
-    console.log('Super admin created: superadmin');
-} else {
-    // Always sync admin password with ADMIN_PASS
-    const hash = bcrypt.hashSync(ADMIN_PASS, 10);
-    db.prepare('UPDATE users SET password = ? WHERE username = ? AND is_admin = 1').run(hash, 'superadmin');
+    if (!adminExists) {
+        const hash = bcrypt.hashSync(ADMIN_PASS, 10);
+        await supabase.from('users').upsert({
+            username: 'superadmin',
+            email: 'admin@mudream.local',
+            password: hash,
+            is_admin: 1
+        }, { onConflict: 'username' });
+        console.log('Super admin created: superadmin');
+    } else {
+        const hash = bcrypt.hashSync(ADMIN_PASS, 10);
+        await supabase
+            .from('users')
+            .update({ password: hash })
+            .eq('username', 'superadmin')
+            .eq('is_admin', 1);
+    }
 }
+
+// Initialize settings
+async function initSettings() {
+    const { data } = await supabase
+        .from('settings')
+        .select('key')
+        .eq('key', 'max_users')
+        .single();
+    if (!data) {
+        await supabase.from('settings').insert({ key: 'max_users', value: '40' });
+    }
+}
+
+// Run init
+(async () => {
+    try {
+        await initSettings();
+        await initAdmin();
+    } catch (err) {
+        console.error('Init error:', err.message);
+    }
+})();
 
 // Security headers
 app.use(helmet({
-    contentSecurityPolicy: false, // SPA loads inline scripts
+    contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false
 }));
 
 // Rate limiting
 const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 10, // 10 tentativas por IP
+    windowMs: 15 * 60 * 1000,
+    max: 10,
     message: { error: 'Muitas tentativas. Aguarde 15 minutos.' },
     standardHeaders: true,
     legacyHeaders: false
@@ -237,72 +162,95 @@ function adminMiddleware(req, res, next) {
     next();
 }
 
-// Limite de cadastros (sem contar admin) — configurável via admin
-function getMaxUsers() {
-    const row = db.prepare("SELECT value FROM settings WHERE key = 'max_users'").get();
-    return row ? parseInt(row.value) : 40;
+async function getMaxUsers() {
+    const { data } = await supabase
+        .from('settings')
+        .select('value')
+        .eq('key', 'max_users')
+        .single();
+    return data ? parseInt(data.value) : 40;
 }
 
-// Cookie options helper
 function cookieOpts(maxAge) {
     return { httpOnly: true, maxAge, sameSite: 'lax', secure: IS_PROD };
 }
 
-// HTML sanitizer to prevent XSS in email templates
 function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 }
 
-app.post('/api/auth/register', (req, res) => {
+// ==================== AUTH ROUTES ====================
+
+app.post('/api/auth/register', async (req, res) => {
     const { username, email, password } = req.body;
     if (!username || !email || !password) return res.status(400).json({ error: 'Preencha todos os campos' });
     if (password.length < 6) return res.status(400).json({ error: 'Senha deve ter pelo menos 6 caracteres' });
 
-    // Username validation
     if (username.length < 3 || username.length > 20) return res.status(400).json({ error: 'Username deve ter 3-20 caracteres' });
     if (!/^[a-zA-Z0-9_]+$/.test(username)) return res.status(400).json({ error: 'Username só pode conter letras, números e _' });
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) return res.status(400).json({ error: 'Email inválido' });
 
-    // Verificar limite de cadastros gratuitos (não conta admins)
-    const userCount = db.prepare('SELECT COUNT(*) as cnt FROM users WHERE is_admin = 0').get().cnt;
-    const maxUsers = getMaxUsers();
-    if (userCount >= maxUsers) {
-        return res.status(403).json({
-            error: 'limitReached',
-            limit: maxUsers,
-            pricing: { eur: 10, brl: 59.90, eurMonth: 3, brlMonth: 10 }
-        });
-    }
-
     try {
+        // Check user limit
+        const { count } = await supabase
+            .from('users')
+            .select('*', { count: 'exact', head: true })
+            .eq('is_admin', 0);
+        const maxUsers = await getMaxUsers();
+        if (count >= maxUsers) {
+            return res.status(403).json({
+                error: 'limitReached',
+                limit: maxUsers,
+                pricing: { eur: 10, brl: 59.90, eurMonth: 3, brlMonth: 10 }
+            });
+        }
+
         const hash = bcrypt.hashSync(password, 10);
-        const result = db.prepare('INSERT INTO users (username, email, password) VALUES (?, ?, ?)').run(username, email.toLowerCase(), hash);
-        const token = jwt.sign({ id: result.lastInsertRowid, username, is_admin: 0 }, JWT_SECRET, { expiresIn: '30d' });
+        const { data, error } = await supabase
+            .from('users')
+            .insert({ username, email: email.toLowerCase(), password: hash })
+            .select('id')
+            .single();
+
+        if (error) {
+            if (error.code === '23505') {
+                return res.status(400).json({ error: 'Usuário ou email já cadastrado' });
+            }
+            throw error;
+        }
+
+        const token = jwt.sign({ id: data.id, username, is_admin: 0 }, JWT_SECRET, { expiresIn: '30d' });
         res.cookie('token', token, cookieOpts(30 * 24 * 3600000));
-        res.json({ ok: true, user: { id: result.lastInsertRowid, username, is_admin: 0 } });
-        // Send welcome email (async, non-blocking)
+        res.json({ ok: true, user: { id: data.id, username, is_admin: 0 } });
         sendEmail(email.toLowerCase(), '⚔️ Bem-vindo ao MU Timer Dream!', buildWelcomeHtml(username)).catch(() => {});
     } catch (e) {
-        if (e.message.includes('UNIQUE')) {
-            return res.status(400).json({ error: 'Usuário ou email já cadastrado' });
-        }
+        console.error('Register error:', e.message);
         res.status(500).json({ error: 'Erro ao cadastrar' });
     }
 });
 
-app.post('/api/auth/login', (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
     const { login, password } = req.body;
     if (!login || !password) return res.status(400).json({ error: 'Preencha todos os campos' });
 
-    const user = db.prepare('SELECT * FROM users WHERE username = ? OR email = ?').get(login, login.toLowerCase());
+    const { data: user } = await supabase
+        .from('users')
+        .select('*')
+        .or(`username.eq.${login},email.eq.${login.toLowerCase()}`)
+        .limit(1)
+        .single();
+
     if (!user || !bcrypt.compareSync(password, user.password)) {
         return res.status(401).json({ error: 'Usuário ou senha incorretos' });
     }
 
-    db.prepare("UPDATE users SET last_login = datetime('now') WHERE id = ?").run(user.id);
+    await supabase
+        .from('users')
+        .update({ last_login: new Date().toISOString() })
+        .eq('id', user.id);
 
     const token = jwt.sign({ id: user.id, username: user.username, is_admin: user.is_admin }, JWT_SECRET, { expiresIn: '30d' });
     res.cookie('token', token, cookieOpts(30 * 24 * 3600000));
@@ -314,53 +262,81 @@ app.post('/api/auth/logout', (req, res) => {
     res.json({ ok: true });
 });
 
-app.get('/api/auth/me', authMiddleware, (req, res) => {
-    const user = db.prepare('SELECT id, username, email, is_admin, created_at, last_login FROM users WHERE id = ?').get(req.user.id);
+app.get('/api/auth/me', authMiddleware, async (req, res) => {
+    const { data: user } = await supabase
+        .from('users')
+        .select('id, username, email, is_admin, created_at, last_login')
+        .eq('id', req.user.id)
+        .single();
     if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
     res.json({ user });
 });
 
-app.get('/api/admin/users', authMiddleware, adminMiddleware, (req, res) => {
-    const users = db.prepare('SELECT id, username, email, is_admin, created_at, last_login, premium_until, premium_plan FROM users ORDER BY created_at DESC').all();
-    // Attach payment info for each user
-    const paymentsStmt = db.prepare('SELECT id, type, plan, amount, currency, status, created_at, confirmed_at FROM payments WHERE user_id = ? ORDER BY created_at DESC');
-    users.forEach(u => {
-        u.payments = paymentsStmt.all(u.id);
+// ==================== ADMIN ROUTES ====================
+
+app.get('/api/admin/users', authMiddleware, adminMiddleware, async (req, res) => {
+    const { data: users } = await supabase
+        .from('users')
+        .select('id, username, email, is_admin, created_at, last_login, premium_until, premium_plan')
+        .order('created_at', { ascending: false });
+
+    for (const u of users || []) {
+        const { data: payments } = await supabase
+            .from('payments')
+            .select('id, type, plan, amount, currency, status, created_at, confirmed_at')
+            .eq('user_id', u.id)
+            .order('created_at', { ascending: false });
+        u.payments = payments || [];
         u.is_premium = u.premium_until && new Date(u.premium_until + 'Z') > new Date();
-    });
-    res.json({ users, total: users.length });
+    }
+    res.json({ users: users || [], total: (users || []).length });
 });
 
-app.delete('/api/admin/users/:id', authMiddleware, adminMiddleware, (req, res) => {
+app.delete('/api/admin/users/:id', authMiddleware, adminMiddleware, async (req, res) => {
     const userId = parseInt(req.params.id);
     if (userId === req.user.id) return res.status(400).json({ error: 'Não pode deletar a si mesmo' });
-    const user = db.prepare('SELECT id FROM users WHERE id = ? AND is_admin = 0').get(userId);
+
+    const { data: user } = await supabase
+        .from('users')
+        .select('id')
+        .eq('id', userId)
+        .eq('is_admin', 0)
+        .single();
     if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
 
-    // Cascade delete all related data
-    const memberIds = db.prepare('SELECT id FROM guild_members WHERE user_id = ?').all(userId).map(m => m.id);
-    for (const mid of memberIds) {
-        db.prepare('DELETE FROM guild_event_signups WHERE member_id = ?').run(mid);
+    // Get member IDs for cascade delete
+    const { data: members } = await supabase
+        .from('guild_members')
+        .select('id')
+        .eq('user_id', userId);
+
+    if (members && members.length > 0) {
+        const memberIds = members.map(m => m.id);
+        await supabase.from('guild_event_signups').delete().in('member_id', memberIds);
     }
-    db.prepare('DELETE FROM guild_members WHERE user_id = ?').run(userId);
-    db.prepare('DELETE FROM payments WHERE user_id = ?').run(userId);
-    db.prepare('DELETE FROM user_pins WHERE user_id = ?').run(userId);
-    db.prepare('DELETE FROM user_items WHERE user_id = ?').run(userId);
-    db.prepare('DELETE FROM password_resets WHERE user_id = ?').run(userId);
-    db.prepare('DELETE FROM users WHERE id = ?').run(userId);
+
+    await supabase.from('guild_members').delete().eq('user_id', userId);
+    await supabase.from('payments').delete().eq('user_id', userId);
+    await supabase.from('user_pins').delete().eq('user_id', userId);
+    await supabase.from('user_items').delete().eq('user_id', userId);
+    await supabase.from('password_resets').delete().eq('user_id', userId);
+    await supabase.from('users').delete().eq('id', userId);
     res.json({ ok: true });
 });
 
 // Premium payment management
-app.post('/api/admin/users/:id/premium', authMiddleware, adminMiddleware, (req, res) => {
+app.post('/api/admin/users/:id/premium', authMiddleware, adminMiddleware, async (req, res) => {
     const userId = parseInt(req.params.id);
     const { plan, amount, currency, notes } = req.body;
     if (!plan || !amount || !currency) return res.status(400).json({ error: 'Preencha plano, valor e moeda' });
 
-    const user = db.prepare('SELECT id FROM users WHERE id = ?').get(userId);
+    const { data: user } = await supabase
+        .from('users')
+        .select('id')
+        .eq('id', userId)
+        .single();
     if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
 
-    // Calculate premium_until
     const now = new Date();
     let premiumUntil;
     if (plan === 'year') {
@@ -369,20 +345,32 @@ app.post('/api/admin/users/:id/premium', authMiddleware, adminMiddleware, (req, 
         premiumUntil = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
     }
 
-    // Insert payment record
-    db.prepare('INSERT INTO payments (user_id, type, plan, amount, currency, status, notes, confirmed_at, confirmed_by) VALUES (?, ?, ?, ?, ?, ?, ?, datetime(?), ?)')
-        .run(userId, 'premium', plan, amount, currency, 'confirmed', notes || null, 'now', req.user.id);
+    await supabase.from('payments').insert({
+        user_id: userId,
+        type: 'premium',
+        plan,
+        amount,
+        currency,
+        status: 'confirmed',
+        notes: notes || null,
+        confirmed_at: new Date().toISOString(),
+        confirmed_by: req.user.id
+    });
 
-    // Update user premium status
-    db.prepare('UPDATE users SET premium_until = ?, premium_plan = ? WHERE id = ?')
-        .run(premiumUntil.toISOString().split('T')[0], plan, userId);
+    await supabase
+        .from('users')
+        .update({ premium_until: premiumUntil.toISOString().split('T')[0], premium_plan: plan })
+        .eq('id', userId);
 
     res.json({ ok: true, premium_until: premiumUntil.toISOString().split('T')[0] });
 });
 
-app.delete('/api/admin/users/:id/premium', authMiddleware, adminMiddleware, (req, res) => {
+app.delete('/api/admin/users/:id/premium', authMiddleware, adminMiddleware, async (req, res) => {
     const userId = parseInt(req.params.id);
-    db.prepare('UPDATE users SET premium_until = NULL, premium_plan = NULL WHERE id = ?').run(userId);
+    await supabase
+        .from('users')
+        .update({ premium_until: null, premium_plan: null })
+        .eq('id', userId);
     res.json({ ok: true });
 });
 
@@ -394,14 +382,21 @@ app.post('/api/admin/campaign', authMiddleware, adminMiddleware, async (req, res
     if (targetEmails && targetEmails.length > 0) {
         emails = targetEmails;
     } else {
-        const users = db.prepare('SELECT email FROM users WHERE email NOT LIKE ?').all('%@mudream.local');
-        emails = users.map(u => u.email);
+        const { data: users } = await supabase
+            .from('users')
+            .select('email')
+            .not('email', 'like', '%@mudream.local');
+        emails = (users || []).map(u => u.email);
     }
 
     if (emails.length === 0) return res.status(400).json({ error: 'Nenhum destinatário encontrado' });
 
-    db.prepare('INSERT INTO campaigns (subject, body, sent_by, recipients_count) VALUES (?, ?, ?, ?)')
-        .run(subject, body, req.user.id, emails.length);
+    await supabase.from('campaigns').insert({
+        subject,
+        body,
+        sent_by: req.user.id,
+        recipients_count: emails.length
+    });
 
     if (resendClient) {
         const results = [];
@@ -416,87 +411,149 @@ app.post('/api/admin/campaign', authMiddleware, adminMiddleware, async (req, res
     }
 });
 
-app.get('/api/admin/campaigns', authMiddleware, adminMiddleware, (req, res) => {
-    const campaigns = db.prepare(`
-        SELECT c.*, u.username as sent_by_name
-        FROM campaigns c
-        LEFT JOIN users u ON c.sent_by = u.id
-        ORDER BY c.sent_at DESC
-    `).all();
-    res.json({ campaigns });
+app.get('/api/admin/campaigns', authMiddleware, adminMiddleware, async (req, res) => {
+    const { data: campaigns } = await supabase
+        .from('campaigns')
+        .select('*, users!campaigns_sent_by_fkey(username)')
+        .order('sent_at', { ascending: false });
+
+    const result = (campaigns || []).map(c => ({
+        ...c,
+        sent_by_name: c.users?.username || null,
+        users: undefined
+    }));
+    res.json({ campaigns: result });
 });
 
 // ==================== ADMIN DASHBOARD ====================
 
-app.get('/api/admin/dashboard', authMiddleware, adminMiddleware, (req, res) => {
-    const totalUsers = db.prepare('SELECT COUNT(*) as cnt FROM users WHERE is_admin = 0').get().cnt;
-    const premiumUsers = db.prepare("SELECT COUNT(*) as cnt FROM users WHERE is_admin = 0 AND premium_until IS NOT NULL AND premium_until >= date('now')").get().cnt;
+app.get('/api/admin/dashboard', authMiddleware, adminMiddleware, async (req, res) => {
+    const { count: totalUsers } = await supabase
+        .from('users')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_admin', 0);
+
+    const today = new Date().toISOString().split('T')[0];
+    const { count: premiumUsers } = await supabase
+        .from('users')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_admin', 0)
+        .not('premium_until', 'is', null)
+        .gte('premium_until', today);
+
     const freeUsers = totalUsers - premiumUsers;
-    const maxUsers = getMaxUsers();
+    const maxUsers = await getMaxUsers();
     const slotsLeft = Math.max(0, maxUsers - totalUsers);
 
-    const totalPayments = db.prepare("SELECT COUNT(*) as cnt FROM payments WHERE status = 'confirmed'").get().cnt;
-    const revenueEur = db.prepare("SELECT COALESCE(SUM(amount), 0) as total FROM payments WHERE status = 'confirmed' AND currency = 'EUR'").get().total;
-    const revenueBrl = db.prepare("SELECT COALESCE(SUM(amount), 0) as total FROM payments WHERE status = 'confirmed' AND currency = 'BRL'").get().total;
+    const { count: totalPayments } = await supabase
+        .from('payments')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'confirmed');
 
-    const totalCampaigns = db.prepare('SELECT COUNT(*) as cnt FROM campaigns').get().cnt;
-    const totalGuilds = db.prepare('SELECT COUNT(*) as cnt FROM guilds').get().cnt;
+    const { data: eurPayments } = await supabase
+        .from('payments')
+        .select('amount')
+        .eq('status', 'confirmed')
+        .eq('currency', 'EUR');
+    const revenueEur = (eurPayments || []).reduce((sum, p) => sum + p.amount, 0);
 
-    // Recent signups (last 7 days)
-    const recentSignups = db.prepare("SELECT COUNT(*) as cnt FROM users WHERE is_admin = 0 AND created_at >= datetime('now', '-7 days')").get().cnt;
+    const { data: brlPayments } = await supabase
+        .from('payments')
+        .select('amount')
+        .eq('status', 'confirmed')
+        .eq('currency', 'BRL');
+    const revenueBrl = (brlPayments || []).reduce((sum, p) => sum + p.amount, 0);
 
-    // Recent payments (last 30 days)
-    const recentPayments = db.prepare("SELECT id, user_id, plan, amount, currency, status, created_at, confirmed_at FROM payments ORDER BY created_at DESC LIMIT 10").all();
-    // Attach usernames to recent payments
-    const userStmt = db.prepare('SELECT username FROM users WHERE id = ?');
-    recentPayments.forEach(p => {
-        const u = userStmt.get(p.user_id);
+    const { count: totalCampaigns } = await supabase
+        .from('campaigns')
+        .select('*', { count: 'exact', head: true });
+
+    const { count: totalGuilds } = await supabase
+        .from('guilds')
+        .select('*', { count: 'exact', head: true });
+
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const { count: recentSignups } = await supabase
+        .from('users')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_admin', 0)
+        .gte('created_at', sevenDaysAgo);
+
+    const { data: recentPayments } = await supabase
+        .from('payments')
+        .select('id, user_id, plan, amount, currency, status, created_at, confirmed_at')
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+    for (const p of recentPayments || []) {
+        const { data: u } = await supabase
+            .from('users')
+            .select('username')
+            .eq('id', p.user_id)
+            .single();
         p.username = u ? u.username : '?';
-    });
+    }
 
     res.json({
         totalUsers, premiumUsers, freeUsers, slotsLeft, maxUsers,
         totalPayments, revenueEur, revenueBrl,
         totalCampaigns, totalGuilds, recentSignups,
-        recentPayments
+        recentPayments: recentPayments || []
     });
 });
 
 // ==================== ADMIN SETTINGS ====================
 
-app.put('/api/admin/settings/max-users', authMiddleware, adminMiddleware, (req, res) => {
+app.put('/api/admin/settings/max-users', authMiddleware, adminMiddleware, async (req, res) => {
     const { value } = req.body;
     const num = parseInt(value);
     if (!num || num < 1 || num > 10000) return res.status(400).json({ error: 'Valor inválido (1-10000)' });
-    db.prepare("UPDATE settings SET value = ? WHERE key = 'max_users'").run(String(num));
+    await supabase
+        .from('settings')
+        .update({ value: String(num) })
+        .eq('key', 'max_users');
     res.json({ ok: true, maxUsers: num });
 });
 
 // ==================== CLEANUP EXPIRED TOKENS ====================
 
-function cleanupExpiredTokens() {
-    db.prepare("DELETE FROM password_resets WHERE expires_at < datetime('now') OR used = 1").run();
+async function cleanupExpiredTokens() {
+    const now = new Date().toISOString();
+    await supabase
+        .from('password_resets')
+        .delete()
+        .or(`expires_at.lt.${now},used.eq.1`);
 }
-cleanupExpiredTokens(); // run on startup
-setInterval(cleanupExpiredTokens, 60 * 60 * 1000); // every hour
+cleanupExpiredTokens();
+setInterval(cleanupExpiredTokens, 60 * 60 * 1000);
 
 // ==================== FORGOT PASSWORD ====================
 
-app.post('/api/auth/forgot-password', (req, res) => {
+app.post('/api/auth/forgot-password', async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Informe o email' });
 
-    const user = db.prepare('SELECT id, username, email FROM users WHERE email = ?').get(email.toLowerCase());
-    // Always return success to prevent email enumeration
+    const { data: user } = await supabase
+        .from('users')
+        .select('id, username, email')
+        .eq('email', email.toLowerCase())
+        .single();
+
     if (!user) return res.json({ ok: true });
 
-    // Generate token
     const token = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString(); // 30 min
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
 
-    // Invalidate previous tokens
-    db.prepare('UPDATE password_resets SET used = 1 WHERE user_id = ?').run(user.id);
-    db.prepare('INSERT INTO password_resets (user_id, token, expires_at) VALUES (?, ?, ?)').run(user.id, token, expiresAt);
+    await supabase
+        .from('password_resets')
+        .update({ used: 1 })
+        .eq('user_id', user.id);
+
+    await supabase.from('password_resets').insert({
+        user_id: user.id,
+        token,
+        expires_at: expiresAt
+    });
 
     const resetLink = `${APP_URL}/?reset=${token}`;
     sendEmail(user.email, '🔑 Redefinir senha — MU Timer Dream', buildResetPasswordHtml(user.username, resetLink)).catch(() => {});
@@ -504,17 +561,25 @@ app.post('/api/auth/forgot-password', (req, res) => {
     res.json({ ok: true });
 });
 
-app.post('/api/auth/reset-password', (req, res) => {
+app.post('/api/auth/reset-password', async (req, res) => {
     const { token, password } = req.body;
     if (!token || !password) return res.status(400).json({ error: 'Dados incompletos' });
     if (password.length < 6) return res.status(400).json({ error: 'Senha deve ter pelo menos 6 caracteres' });
 
-    const reset = db.prepare("SELECT * FROM password_resets WHERE token = ? AND used = 0 AND expires_at > datetime('now')").get(token);
+    const now = new Date().toISOString();
+    const { data: reset } = await supabase
+        .from('password_resets')
+        .select('*')
+        .eq('token', token)
+        .eq('used', 0)
+        .gt('expires_at', now)
+        .single();
+
     if (!reset) return res.status(400).json({ error: 'Link expirado ou inválido. Solicite um novo.' });
 
     const hash = bcrypt.hashSync(password, 10);
-    db.prepare('UPDATE users SET password = ? WHERE id = ?').run(hash, reset.user_id);
-    db.prepare('UPDATE password_resets SET used = 1 WHERE id = ?').run(reset.id);
+    await supabase.from('users').update({ password: hash }).eq('id', reset.user_id);
+    await supabase.from('password_resets').update({ used: 1 }).eq('id', reset.id);
 
     res.json({ ok: true });
 });
@@ -591,59 +656,84 @@ function buildEmailHtml(subject, body) {
 
 // ==================== PIN SECURITY ====================
 
-app.get('/api/auth/pin-status', authMiddleware, (req, res) => {
-    const pin = db.prepare('SELECT enabled FROM user_pins WHERE user_id = ?').get(req.user.id);
+app.get('/api/auth/pin-status', authMiddleware, async (req, res) => {
+    const { data: pin } = await supabase
+        .from('user_pins')
+        .select('enabled')
+        .eq('user_id', req.user.id)
+        .single();
     res.json({ hasPin: !!pin, enabled: pin ? !!pin.enabled : false });
 });
 
-app.post('/api/auth/pin-set', authMiddleware, (req, res) => {
+app.post('/api/auth/pin-set', authMiddleware, async (req, res) => {
     const { pin, currentPassword } = req.body;
     if (!pin || !currentPassword) return res.status(400).json({ error: 'PIN e senha são obrigatórios' });
     if (!/^\d{6}$/.test(pin)) return res.status(400).json({ error: 'PIN deve ter exatamente 6 dígitos numéricos' });
 
-    const user = db.prepare('SELECT password FROM users WHERE id = ?').get(req.user.id);
+    const { data: user } = await supabase
+        .from('users')
+        .select('password')
+        .eq('id', req.user.id)
+        .single();
     if (!user || !bcrypt.compareSync(currentPassword, user.password)) {
         return res.status(401).json({ error: 'Senha incorreta' });
     }
 
     const pinHash = bcrypt.hashSync(pin, 10);
-    db.prepare('INSERT OR REPLACE INTO user_pins (user_id, pin_hash, enabled) VALUES (?, ?, 1)').run(req.user.id, pinHash);
+    await supabase.from('user_pins').upsert({
+        user_id: req.user.id,
+        pin_hash: pinHash,
+        enabled: 1
+    }, { onConflict: 'user_id' });
     res.json({ ok: true });
 });
 
-app.post('/api/auth/pin-disable', authMiddleware, (req, res) => {
+app.post('/api/auth/pin-disable', authMiddleware, async (req, res) => {
     const { currentPassword } = req.body;
     if (!currentPassword) return res.status(400).json({ error: 'Senha é obrigatória' });
 
-    const user = db.prepare('SELECT password FROM users WHERE id = ?').get(req.user.id);
+    const { data: user } = await supabase
+        .from('users')
+        .select('password')
+        .eq('id', req.user.id)
+        .single();
     if (!user || !bcrypt.compareSync(currentPassword, user.password)) {
         return res.status(401).json({ error: 'Senha incorreta' });
     }
 
-    db.prepare('DELETE FROM user_pins WHERE user_id = ?').run(req.user.id);
+    await supabase.from('user_pins').delete().eq('user_id', req.user.id);
     res.json({ ok: true });
 });
 
-app.post('/api/auth/pin-verify', authMiddleware, (req, res) => {
+app.post('/api/auth/pin-verify', authMiddleware, async (req, res) => {
     const { pin } = req.body;
     if (!pin) return res.status(400).json({ error: 'PIN é obrigatório' });
 
-    const stored = db.prepare('SELECT pin_hash FROM user_pins WHERE user_id = ? AND enabled = 1').get(req.user.id);
+    const { data: stored } = await supabase
+        .from('user_pins')
+        .select('pin_hash')
+        .eq('user_id', req.user.id)
+        .eq('enabled', 1)
+        .single();
     if (!stored) return res.status(400).json({ error: 'PIN não configurado' });
 
     if (!bcrypt.compareSync(pin, stored.pin_hash)) {
         return res.status(401).json({ error: 'PIN incorreto' });
     }
 
-    // Generate a short-lived PIN token (15 min)
     const pinToken = jwt.sign({ id: req.user.id, pinVerified: true }, JWT_SECRET, { expiresIn: '15m' });
     res.cookie('pin_token', pinToken, cookieOpts(15 * 60 * 1000));
     res.json({ ok: true });
 });
 
-function pinMiddleware(req, res, next) {
-    const pinRecord = db.prepare('SELECT enabled FROM user_pins WHERE user_id = ? AND enabled = 1').get(req.user.id);
-    if (!pinRecord) return next(); // No PIN set, allow access
+async function pinMiddleware(req, res, next) {
+    const { data: pinRecord } = await supabase
+        .from('user_pins')
+        .select('enabled')
+        .eq('user_id', req.user.id)
+        .eq('enabled', 1)
+        .single();
+    if (!pinRecord) return next();
 
     const pinToken = req.cookies.pin_token;
     if (!pinToken) return res.status(403).json({ error: 'PIN necessário', pinRequired: true });
@@ -665,52 +755,93 @@ function isGuildLeader(member) {
     return member.role === 'master' || member.role === 'assistant' || member.role === 'party_assistant';
 }
 
-app.post('/api/guild/create', authMiddleware, (req, res) => {
+app.post('/api/guild/create', authMiddleware, async (req, res) => {
     const { name, charName } = req.body;
     if (!name || !charName) return res.status(400).json({ error: 'Nome da guild e nick são obrigatórios' });
     if (name.length < 2 || name.length > 30) return res.status(400).json({ error: 'Nome da guild deve ter 2-30 caracteres' });
 
-    const existing = db.prepare('SELECT id FROM guild_members WHERE user_id = ?').get(req.user.id);
+    const { data: existing } = await supabase
+        .from('guild_members')
+        .select('id')
+        .eq('user_id', req.user.id)
+        .single();
     if (existing) return res.status(400).json({ error: 'Você já está em uma guild' });
 
     try {
         const joinCode = crypto.randomBytes(4).toString('hex').toUpperCase();
-        const result = db.prepare('INSERT INTO guilds (name, master_id, join_code) VALUES (?, ?, ?)').run(name, req.user.id, joinCode);
-        db.prepare('INSERT INTO guild_members (guild_id, user_id, char_name, role) VALUES (?, ?, ?, ?)').run(result.lastInsertRowid, req.user.id, charName, 'master');
-        res.json({ ok: true, guild: { id: result.lastInsertRowid, name, joinCode } });
+        const { data: guild, error } = await supabase
+            .from('guilds')
+            .insert({ name, master_id: req.user.id, join_code: joinCode })
+            .select('id')
+            .single();
+
+        if (error) {
+            if (error.code === '23505') return res.status(400).json({ error: 'Nome de guild já existe' });
+            throw error;
+        }
+
+        await supabase.from('guild_members').insert({
+            guild_id: guild.id,
+            user_id: req.user.id,
+            char_name: charName,
+            role: 'master'
+        });
+
+        res.json({ ok: true, guild: { id: guild.id, name, joinCode } });
     } catch (e) {
-        if (e.message.includes('UNIQUE')) return res.status(400).json({ error: 'Nome de guild já existe' });
+        console.error('Guild create error:', e.message);
         res.status(500).json({ error: 'Erro ao criar guild' });
     }
 });
 
-app.post('/api/guild/add-member', authMiddleware, (req, res) => {
+app.post('/api/guild/add-member', authMiddleware, async (req, res) => {
     const { username, charName } = req.body;
     if (!username || !charName) return res.status(400).json({ error: 'Usuário e nick são obrigatórios' });
 
-    const myMember = db.prepare('SELECT gm.*, g.id as gid FROM guild_members gm JOIN guilds g ON gm.guild_id = g.id WHERE gm.user_id = ?').get(req.user.id);
+    const { data: myMember } = await supabase
+        .from('guild_members')
+        .select('*, guilds!inner(id)')
+        .eq('user_id', req.user.id)
+        .single();
     if (!myMember || !isGuildLeader(myMember)) return res.status(403).json({ error: 'Apenas o mestre ou assistente pode adicionar membros' });
 
-    const targetUser = db.prepare('SELECT id, username FROM users WHERE username = ?').get(username);
+    const { data: targetUser } = await supabase
+        .from('users')
+        .select('id, username')
+        .eq('username', username)
+        .single();
     if (!targetUser) return res.status(404).json({ error: 'Usuário não encontrado no sistema' });
 
-    const alreadyInGuild = db.prepare('SELECT id FROM guild_members WHERE user_id = ?').get(targetUser.id);
+    const { data: alreadyInGuild } = await supabase
+        .from('guild_members')
+        .select('id')
+        .eq('user_id', targetUser.id)
+        .single();
     if (alreadyInGuild) return res.status(400).json({ error: 'Este usuário já está em uma guild' });
 
     try {
-        db.prepare('INSERT INTO guild_members (guild_id, user_id, char_name, role) VALUES (?, ?, ?, ?)').run(myMember.guild_id, targetUser.id, charName, 'member');
+        await supabase.from('guild_members').insert({
+            guild_id: myMember.guild_id,
+            user_id: targetUser.id,
+            char_name: charName,
+            role: 'member'
+        });
         res.json({ ok: true });
     } catch (e) {
         res.status(500).json({ error: 'Erro ao adicionar membro' });
     }
 });
 
-app.post('/api/guild/set-role', authMiddleware, (req, res) => {
+app.post('/api/guild/set-role', authMiddleware, async (req, res) => {
     const { memberId, role } = req.body;
     if (!memberId || !role) return res.status(400).json({ error: 'Dados incompletos' });
     if (!['member', 'assistant', 'party_assistant'].includes(role)) return res.status(400).json({ error: 'Cargo inválido' });
 
-    const myMember = db.prepare('SELECT gm.*, g.master_id FROM guild_members gm JOIN guilds g ON gm.guild_id = g.id WHERE gm.user_id = ?').get(req.user.id);
+    const { data: myMember } = await supabase
+        .from('guild_members')
+        .select('*, guilds!inner(master_id)')
+        .eq('user_id', req.user.id)
+        .single();
     if (!myMember) return res.status(403).json({ error: 'Você não está em uma guild' });
 
     const isMaster = myMember.role === 'master';
@@ -719,209 +850,320 @@ app.post('/api/guild/set-role', authMiddleware, (req, res) => {
     if (role === 'assistant' && !isMaster) return res.status(403).json({ error: 'Apenas o mestre pode promover a assistente' });
     if (!isMaster && !isAssistant) return res.status(403).json({ error: 'Apenas o mestre ou assistente pode alterar cargos' });
 
-    const target = db.prepare('SELECT * FROM guild_members WHERE id = ? AND guild_id = ?').get(memberId, myMember.guild_id);
+    const { data: target } = await supabase
+        .from('guild_members')
+        .select('*')
+        .eq('id', memberId)
+        .eq('guild_id', myMember.guild_id)
+        .single();
     if (!target) return res.status(404).json({ error: 'Membro não encontrado' });
     if (target.role === 'master') return res.status(400).json({ error: 'Não pode alterar o cargo do mestre' });
     if (target.role === 'assistant' && !isMaster) return res.status(403).json({ error: 'Apenas o mestre pode alterar o cargo de assistentes' });
 
-    db.prepare('UPDATE guild_members SET role = ? WHERE id = ?').run(role, memberId);
+    await supabase.from('guild_members').update({ role }).eq('id', memberId);
     res.json({ ok: true });
 });
 
-app.get('/api/guild/my', authMiddleware, pinMiddleware, (req, res) => {
-    const member = db.prepare(`
-        SELECT gm.*, g.name as guild_name, g.join_code, g.master_id, g.created_at as guild_created
-        FROM guild_members gm
-        JOIN guilds g ON gm.guild_id = g.id
-        WHERE gm.user_id = ?
-    `).get(req.user.id);
+app.get('/api/guild/my', authMiddleware, pinMiddleware, async (req, res) => {
+    const { data: member } = await supabase
+        .from('guild_members')
+        .select('*, guilds(name, join_code, master_id, created_at)')
+        .eq('user_id', req.user.id)
+        .single();
 
     if (!member) return res.json({ guild: null });
 
-    const members = db.prepare(`
-        SELECT gm.id, gm.char_name, gm.role, gm.joined_at, u.username
-        FROM guild_members gm
-        JOIN users u ON gm.user_id = u.id
-        WHERE gm.guild_id = ?
-        ORDER BY CASE gm.role WHEN 'master' THEN 0 WHEN 'assistant' THEN 1 WHEN 'party_assistant' THEN 2 ELSE 3 END, gm.joined_at
-    `).all(member.guild_id);
+    const { data: members } = await supabase
+        .from('guild_members')
+        .select('id, char_name, role, joined_at, users(username)')
+        .eq('guild_id', member.guild_id)
+        .order('role', { ascending: true })
+        .order('joined_at', { ascending: true });
+
+    const formattedMembers = (members || []).map(m => ({
+        id: m.id,
+        char_name: m.char_name,
+        role: m.role,
+        joined_at: m.joined_at,
+        username: m.users?.username
+    }));
+
+    // Sort by role priority
+    const rolePriority = { master: 0, assistant: 1, party_assistant: 2, member: 3 };
+    formattedMembers.sort((a, b) => (rolePriority[a.role] || 3) - (rolePriority[b.role] || 3));
 
     res.json({
         guild: {
             id: member.guild_id,
-            name: member.guild_name,
-            join_code: member.join_code,
-            master_id: member.master_id,
-            created_at: member.guild_created
+            name: member.guilds.name,
+            join_code: member.guilds.join_code,
+            master_id: member.guilds.master_id,
+            created_at: member.guilds.created_at
         },
         member: { id: member.id, char_name: member.char_name, role: member.role },
-        members
+        members: formattedMembers
     });
 });
 
-app.post('/api/guild/leave', authMiddleware, (req, res) => {
-    const member = db.prepare('SELECT gm.*, g.master_id FROM guild_members gm JOIN guilds g ON gm.guild_id = g.id WHERE gm.user_id = ?').get(req.user.id);
+app.post('/api/guild/leave', authMiddleware, async (req, res) => {
+    const { data: member } = await supabase
+        .from('guild_members')
+        .select('*, guilds!inner(master_id)')
+        .eq('user_id', req.user.id)
+        .single();
     if (!member) return res.status(404).json({ error: 'Você não está em uma guild' });
 
-    if (member.master_id === req.user.id) {
-        const memberCount = db.prepare('SELECT COUNT(*) as cnt FROM guild_members WHERE guild_id = ?').get(member.guild_id).cnt;
+    if (member.guilds.master_id === req.user.id) {
+        const { count: memberCount } = await supabase
+            .from('guild_members')
+            .select('*', { count: 'exact', head: true })
+            .eq('guild_id', member.guild_id);
         if (memberCount > 1) return res.status(400).json({ error: 'Transfira a liderança antes de sair ou remova todos os membros' });
-        db.prepare('DELETE FROM guild_event_signups WHERE guild_id = ?').run(member.guild_id);
-        db.prepare('DELETE FROM guild_members WHERE guild_id = ?').run(member.guild_id);
-        db.prepare('DELETE FROM guilds WHERE id = ?').run(member.guild_id);
+        await supabase.from('guild_event_signups').delete().eq('guild_id', member.guild_id);
+        await supabase.from('guild_members').delete().eq('guild_id', member.guild_id);
+        await supabase.from('guilds').delete().eq('id', member.guild_id);
     } else {
-        db.prepare('DELETE FROM guild_event_signups WHERE member_id = ?').run(member.id);
-        db.prepare('DELETE FROM guild_members WHERE id = ?').run(member.id);
+        await supabase.from('guild_event_signups').delete().eq('member_id', member.id);
+        await supabase.from('guild_members').delete().eq('id', member.id);
     }
     res.json({ ok: true });
 });
 
-app.delete('/api/guild/members/:id', authMiddleware, (req, res) => {
+app.delete('/api/guild/members/:id', authMiddleware, async (req, res) => {
     const memberId = parseInt(req.params.id);
-    const myMember = db.prepare('SELECT gm.*, g.master_id FROM guild_members gm JOIN guilds g ON gm.guild_id = g.id WHERE gm.user_id = ?').get(req.user.id);
+    const { data: myMember } = await supabase
+        .from('guild_members')
+        .select('*, guilds!inner(master_id)')
+        .eq('user_id', req.user.id)
+        .single();
     if (!myMember || !isGuildLeader(myMember)) return res.status(403).json({ error: 'Apenas o mestre ou assistente pode remover membros' });
 
-    const target = db.prepare('SELECT * FROM guild_members WHERE id = ? AND guild_id = ?').get(memberId, myMember.guild_id);
+    const { data: target } = await supabase
+        .from('guild_members')
+        .select('*')
+        .eq('id', memberId)
+        .eq('guild_id', myMember.guild_id)
+        .single();
     if (!target) return res.status(404).json({ error: 'Membro não encontrado' });
     if (target.role === 'master') return res.status(400).json({ error: 'Não pode remover o mestre' });
     if (target.role === 'assistant' && myMember.role !== 'master') return res.status(403).json({ error: 'Apenas o mestre pode remover assistentes' });
     if (target.role === 'party_assistant' && myMember.role === 'party_assistant') return res.status(403).json({ error: 'Assistente de party não pode remover outro assistente de party' });
 
-    db.prepare('DELETE FROM guild_event_signups WHERE member_id = ?').run(memberId);
-    db.prepare('DELETE FROM guild_members WHERE id = ?').run(memberId);
+    await supabase.from('guild_event_signups').delete().eq('member_id', memberId);
+    await supabase.from('guild_members').delete().eq('id', memberId);
     res.json({ ok: true });
 });
 
-app.post('/api/guild/events/signup', authMiddleware, (req, res) => {
+app.post('/api/guild/events/signup', authMiddleware, async (req, res) => {
     const { eventId, eventDate } = req.body;
     if (!eventId || !eventDate) return res.status(400).json({ error: 'Dados incompletos' });
 
-    const member = db.prepare('SELECT * FROM guild_members WHERE user_id = ?').get(req.user.id);
+    const { data: member } = await supabase
+        .from('guild_members')
+        .select('*')
+        .eq('user_id', req.user.id)
+        .single();
     if (!member) return res.status(404).json({ error: 'Você não está em uma guild' });
 
     try {
-        db.prepare('INSERT OR REPLACE INTO guild_event_signups (guild_id, member_id, event_id, event_date, status) VALUES (?, ?, ?, ?, ?)').run(member.guild_id, member.id, eventId, eventDate, 'going');
+        await supabase.from('guild_event_signups').upsert({
+            guild_id: member.guild_id,
+            member_id: member.id,
+            event_id: eventId,
+            event_date: eventDate,
+            status: 'going'
+        }, { onConflict: 'guild_id,member_id,event_id,event_date' });
         res.json({ ok: true });
     } catch (e) {
         res.status(500).json({ error: 'Erro ao inscrever' });
     }
 });
 
-app.delete('/api/guild/events/signup', authMiddleware, (req, res) => {
+app.delete('/api/guild/events/signup', authMiddleware, async (req, res) => {
     const { eventId, eventDate } = req.body;
-    const member = db.prepare('SELECT * FROM guild_members WHERE user_id = ?').get(req.user.id);
+    const { data: member } = await supabase
+        .from('guild_members')
+        .select('*')
+        .eq('user_id', req.user.id)
+        .single();
     if (!member) return res.status(404).json({ error: 'Você não está em uma guild' });
 
-    db.prepare('DELETE FROM guild_event_signups WHERE guild_id = ? AND member_id = ? AND event_id = ? AND event_date = ?').run(member.guild_id, member.id, eventId, eventDate);
+    await supabase
+        .from('guild_event_signups')
+        .delete()
+        .eq('guild_id', member.guild_id)
+        .eq('member_id', member.id)
+        .eq('event_id', eventId)
+        .eq('event_date', eventDate);
     res.json({ ok: true });
 });
 
-app.get('/api/guild/events/signups', authMiddleware, (req, res) => {
-    const member = db.prepare('SELECT * FROM guild_members WHERE user_id = ?').get(req.user.id);
+app.get('/api/guild/events/signups', authMiddleware, async (req, res) => {
+    const { data: member } = await supabase
+        .from('guild_members')
+        .select('*')
+        .eq('user_id', req.user.id)
+        .single();
     if (!member) return res.status(404).json({ error: 'Você não está em uma guild' });
 
-    const signups = db.prepare(`
-        SELECT ges.*, gm.char_name, u.username
-        FROM guild_event_signups ges
-        JOIN guild_members gm ON ges.member_id = gm.id
-        JOIN users u ON gm.user_id = u.id
-        WHERE ges.guild_id = ?
-        ORDER BY ges.event_date DESC, ges.event_id
-    `).all(member.guild_id);
+    const { data: signups } = await supabase
+        .from('guild_event_signups')
+        .select('*, guild_members(char_name, users(username))')
+        .eq('guild_id', member.guild_id)
+        .order('event_date', { ascending: false });
 
-    res.json({ signups, myMemberId: member.id });
+    const formatted = (signups || []).map(s => ({
+        ...s,
+        char_name: s.guild_members?.char_name,
+        username: s.guild_members?.users?.username,
+        guild_members: undefined
+    }));
+
+    res.json({ signups: formatted, myMemberId: member.id });
 });
 
-app.get('/api/guild/events/report', authMiddleware, (req, res) => {
-    const member = db.prepare('SELECT gm.*, g.master_id FROM guild_members gm JOIN guilds g ON gm.guild_id = g.id WHERE gm.user_id = ?').get(req.user.id);
+app.get('/api/guild/events/report', authMiddleware, async (req, res) => {
+    const { data: member } = await supabase
+        .from('guild_members')
+        .select('*, guilds!inner(master_id)')
+        .eq('user_id', req.user.id)
+        .single();
     if (!member || !isGuildLeader(member)) return res.status(403).json({ error: 'Apenas o mestre ou assistente pode ver relatórios' });
 
-    const report = db.prepare(`
-        SELECT ges.event_id, ges.event_date, gm.char_name, u.username, ges.signed_at
-        FROM guild_event_signups ges
-        JOIN guild_members gm ON ges.member_id = gm.id
-        JOIN users u ON gm.user_id = u.id
-        WHERE ges.guild_id = ?
-        ORDER BY ges.event_date DESC, ges.event_id, gm.char_name
-    `).all(member.guild_id);
+    const { data: report } = await supabase
+        .from('guild_event_signups')
+        .select('event_id, event_date, signed_at, guild_members(char_name, users(username))')
+        .eq('guild_id', member.guild_id)
+        .order('event_date', { ascending: false });
 
-    res.json({ report });
+    const formatted = (report || []).map(r => ({
+        event_id: r.event_id,
+        event_date: r.event_date,
+        signed_at: r.signed_at,
+        char_name: r.guild_members?.char_name,
+        username: r.guild_members?.users?.username
+    }));
+
+    res.json({ report: formatted });
 });
 
 // ==================== COLLECTION ROUTES ====================
 
-app.get('/api/collection', authMiddleware, (req, res) => {
-    const items = db.prepare('SELECT item_id, obtained, obtained_at, adds FROM user_items WHERE user_id = ?').all(req.user.id);
-    res.json({ items: items.map(i => ({ ...i, obtained: i.obtained === 1, adds: JSON.parse(i.adds || '[]') })) });
+app.get('/api/collection', authMiddleware, async (req, res) => {
+    const { data: items } = await supabase
+        .from('user_items')
+        .select('item_id, obtained, obtained_at, adds')
+        .eq('user_id', req.user.id);
+    res.json({ items: (items || []).map(i => ({ ...i, obtained: i.obtained === 1, adds: JSON.parse(i.adds || '[]') })) });
 });
 
-app.post('/api/collection/toggle', authMiddleware, (req, res) => {
+app.post('/api/collection/toggle', authMiddleware, async (req, res) => {
     const { itemId } = req.body;
     if (!itemId) return res.status(400).json({ error: 'Item inválido' });
 
-    const existing = db.prepare('SELECT id, obtained, adds FROM user_items WHERE user_id = ? AND item_id = ?').get(req.user.id, itemId);
+    const { data: existing } = await supabase
+        .from('user_items')
+        .select('id, obtained, adds')
+        .eq('user_id', req.user.id)
+        .eq('item_id', itemId)
+        .single();
+
     if (existing) {
         if (existing.obtained === 1) {
-            // Toggling OFF: if has adds, keep row but mark not obtained; otherwise delete
             const hasAdds = existing.adds && existing.adds !== '[]' && existing.adds !== '';
             if (hasAdds) {
-                db.prepare('UPDATE user_items SET obtained = 0, obtained_at = NULL WHERE id = ?').run(existing.id);
+                await supabase.from('user_items').update({ obtained: 0, obtained_at: null }).eq('id', existing.id);
             } else {
-                db.prepare('DELETE FROM user_items WHERE id = ?').run(existing.id);
+                await supabase.from('user_items').delete().eq('id', existing.id);
             }
             res.json({ ok: true, obtained: false });
         } else {
-            // Row exists (from adds) but not obtained — mark as obtained
-            db.prepare("UPDATE user_items SET obtained = 1, obtained_at = datetime('now') WHERE id = ?").run(existing.id);
+            await supabase.from('user_items').update({ obtained: 1, obtained_at: new Date().toISOString() }).eq('id', existing.id);
             res.json({ ok: true, obtained: true });
         }
     } else {
-        db.prepare("INSERT INTO user_items (user_id, item_id, obtained) VALUES (?, ?, 1)").run(req.user.id, itemId);
+        await supabase.from('user_items').insert({ user_id: req.user.id, item_id: itemId, obtained: 1 });
         res.json({ ok: true, obtained: true });
     }
 });
 
-app.put('/api/collection/adds', authMiddleware, (req, res) => {
+app.put('/api/collection/adds', authMiddleware, async (req, res) => {
     const { itemId, adds } = req.body;
     if (!itemId) return res.status(400).json({ error: 'Item inválido' });
     const validAdds = ['luck', 'skill', 'additional', 'life', 'mana', 'zen'];
     const filtered = (adds || []).filter(a => validAdds.includes(a));
-    const existing = db.prepare('SELECT id, obtained FROM user_items WHERE user_id = ? AND item_id = ?').get(req.user.id, itemId);
+
+    const { data: existing } = await supabase
+        .from('user_items')
+        .select('id, obtained')
+        .eq('user_id', req.user.id)
+        .eq('item_id', itemId)
+        .single();
+
     if (existing) {
         if (filtered.length === 0 && existing.obtained === 0) {
-            // No adds and not obtained — remove the row entirely
-            db.prepare('DELETE FROM user_items WHERE id = ?').run(existing.id);
+            await supabase.from('user_items').delete().eq('id', existing.id);
         } else {
-            db.prepare('UPDATE user_items SET adds = ? WHERE id = ?').run(JSON.stringify(filtered), existing.id);
+            await supabase.from('user_items').update({ adds: JSON.stringify(filtered) }).eq('id', existing.id);
         }
     } else {
-        // Item not in collection yet — create row with obtained=0 for adds only
         if (filtered.length > 0) {
-            db.prepare("INSERT INTO user_items (user_id, item_id, obtained, obtained_at, adds) VALUES (?, ?, 0, NULL, ?)").run(req.user.id, itemId, JSON.stringify(filtered));
+            await supabase.from('user_items').insert({
+                user_id: req.user.id,
+                item_id: itemId,
+                obtained: 0,
+                obtained_at: null,
+                adds: JSON.stringify(filtered)
+            });
         }
     }
     res.json({ ok: true, adds: filtered });
 });
 
-app.get('/api/collection/:username', (req, res) => {
-    const user = db.prepare('SELECT id, username FROM users WHERE username = ?').get(req.params.username);
+app.get('/api/collection/:username', async (req, res) => {
+    const { data: user } = await supabase
+        .from('users')
+        .select('id, username')
+        .eq('username', req.params.username)
+        .single();
     if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
-    const items = db.prepare('SELECT item_id, obtained, obtained_at, adds FROM user_items WHERE user_id = ?').all(user.id);
-    res.json({ username: user.username, items: items.map(i => ({ ...i, obtained: i.obtained === 1, adds: JSON.parse(i.adds || '[]') })) });
+
+    const { data: items } = await supabase
+        .from('user_items')
+        .select('item_id, obtained, obtained_at, adds')
+        .eq('user_id', user.id);
+    res.json({ username: user.username, items: (items || []).map(i => ({ ...i, obtained: i.obtained === 1, adds: JSON.parse(i.adds || '[]') })) });
 });
 
-// Guild collection view — only guild members can see each other's collections
-app.get('/api/guild/collection/:username', authMiddleware, (req, res) => {
-    const myMember = db.prepare('SELECT guild_id FROM guild_members WHERE user_id = ?').get(req.user.id);
+app.get('/api/guild/collection/:username', authMiddleware, async (req, res) => {
+    const { data: myMember } = await supabase
+        .from('guild_members')
+        .select('guild_id')
+        .eq('user_id', req.user.id)
+        .single();
     if (!myMember) return res.status(403).json({ error: 'Você não está em uma guild' });
-    const targetUser = db.prepare('SELECT id, username FROM users WHERE username = ?').get(req.params.username);
+
+    const { data: targetUser } = await supabase
+        .from('users')
+        .select('id, username')
+        .eq('username', req.params.username)
+        .single();
     if (!targetUser) return res.status(404).json({ error: 'Usuário não encontrado' });
-    const targetMember = db.prepare('SELECT guild_id FROM guild_members WHERE user_id = ?').get(targetUser.id);
+
+    const { data: targetMember } = await supabase
+        .from('guild_members')
+        .select('guild_id')
+        .eq('user_id', targetUser.id)
+        .single();
     if (!targetMember || targetMember.guild_id !== myMember.guild_id) {
         return res.status(403).json({ error: 'Este usuário não é da sua guild' });
     }
-    const items = db.prepare('SELECT item_id, obtained, obtained_at, adds FROM user_items WHERE user_id = ?').all(targetUser.id);
-    res.json({ username: targetUser.username, items: items.map(i => ({ ...i, obtained: i.obtained === 1, adds: JSON.parse(i.adds || '[]') })) });
+
+    const { data: items } = await supabase
+        .from('user_items')
+        .select('item_id, obtained, obtained_at, adds')
+        .eq('user_id', targetUser.id);
+    res.json({ username: targetUser.username, items: (items || []).map(i => ({ ...i, obtained: i.obtained === 1, adds: JSON.parse(i.adds || '[]') })) });
 });
 
 // ==================== DONATION ROUTES ====================
@@ -1020,7 +1262,6 @@ app.use((err, req, res, next) => {
 
 function shutdown() {
     console.log('Shutting down gracefully...');
-    db.close();
     process.exit(0);
 }
 process.on('SIGTERM', shutdown);
