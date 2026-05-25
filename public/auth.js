@@ -230,6 +230,7 @@ function capitalize(str) {
 async function loadAdminData() {
     loadDashboard();
     loadUsers();
+    loadAdminGuilds();
     loadCampaignHistory();
 }
 
@@ -394,6 +395,43 @@ function renderUsersTable(users) {
     container.querySelectorAll('.btn-revoke-premium').forEach(btn => {
         btn.addEventListener('click', () => revokePremium(parseInt(btn.dataset.uid)));
     });
+}
+
+async function loadAdminGuilds() {
+    const container = document.getElementById('adminGuilds');
+    if (!container) return;
+    try {
+        const data = await apiCall('/api/admin/guilds');
+        if (!data.guilds || data.guilds.length === 0) {
+            container.innerHTML = `<div class="empty-state"><div class="empty-icon">⚔️</div><p>Nenhuma guild cadastrada</p></div>`;
+            return;
+        }
+        const roleLabels = { master: '👑 Mestre', assistant: '⭐ Assistente', party_assistant: '🎯 Party Assist.', member: 'Membro' };
+        container.innerHTML = `
+            <div style="margin-bottom:12px;color:#8888aa;font-size:13px;">Total: ${data.total} guild${data.total !== 1 ? 's' : ''}</div>
+            ${data.guilds.map(g => `
+                <div class="guild-admin-card" style="background:#1a1a35;border:1px solid #2a2a4a;border-radius:10px;padding:16px;margin-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <div>
+                            <strong style="color:#f5a623;font-size:16px;">⚔️ ${escapeHtml(g.name)}</strong>
+                            <span style="color:#8888aa;font-size:12px;margin-left:8px;">Código: <code style="background:#0d0d20;padding:2px 6px;border-radius:4px;color:#f5a623;">${escapeHtml(g.join_code)}</code></span>
+                        </div>
+                        <span style="color:#8888aa;font-size:12px;">${g.member_count} membro${g.member_count !== 1 ? 's' : ''} · Criada ${formatDate(g.created_at)}</span>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));gap:6px;">
+                        ${g.members.map(m => `
+                            <div style="background:#0d0d20;padding:8px 12px;border-radius:6px;font-size:13px;display:flex;justify-content:space-between;align-items:center;">
+                                <span style="color:#e8e8f0;">${escapeHtml(m.char_name)} <span style="color:#666;font-size:11px;">(${escapeHtml(m.username || '?')})</span></span>
+                                <span style="color:${m.role === 'master' ? '#f5a623' : m.role === 'assistant' ? '#4fc3f7' : '#8888aa'};font-size:11px;">${roleLabels[m.role] || m.role}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('')}
+        `;
+    } catch (e) {
+        container.innerHTML = `<div class="empty-state"><p>Erro ao carregar guilds: ${escapeHtml(e.message)}</p></div>`;
+    }
 }
 
 async function deleteUser(id) {

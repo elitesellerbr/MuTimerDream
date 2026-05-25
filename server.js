@@ -425,6 +425,46 @@ app.get('/api/admin/campaigns', authMiddleware, adminMiddleware, async (req, res
     res.json({ campaigns: result });
 });
 
+// ==================== ADMIN GUILDS ====================
+
+app.get('/api/admin/guilds', authMiddleware, adminMiddleware, async (req, res) => {
+    const { data: guilds } = await supabase
+        .from('guilds')
+        .select('*, users!guilds_master_id_fkey(username)')
+        .order('created_at', { ascending: false });
+
+    const result = [];
+    for (const g of guilds || []) {
+        const { data: members } = await supabase
+            .from('guild_members')
+            .select('id, char_name, role, joined_at, users(username)')
+            .eq('guild_id', g.id)
+            .order('role', { ascending: true })
+            .order('joined_at', { ascending: true });
+
+        const rolePriority = { master: 0, assistant: 1, party_assistant: 2, member: 3 };
+        const sortedMembers = (members || []).map(m => ({
+            id: m.id,
+            char_name: m.char_name,
+            role: m.role,
+            joined_at: m.joined_at,
+            username: m.users?.username
+        })).sort((a, b) => (rolePriority[a.role] || 3) - (rolePriority[b.role] || 3));
+
+        result.push({
+            id: g.id,
+            name: g.name,
+            join_code: g.join_code,
+            master_username: g.users?.username || '?',
+            created_at: g.created_at,
+            members: sortedMembers,
+            member_count: sortedMembers.length
+        });
+    }
+
+    res.json({ guilds: result, total: result.length });
+});
+
 // ==================== ADMIN DASHBOARD ====================
 
 app.get('/api/admin/dashboard', authMiddleware, adminMiddleware, async (req, res) => {
