@@ -473,77 +473,56 @@ app.get('/api/admin/guilds', authMiddleware, adminMiddleware, async (req, res) =
 // ==================== ADMIN DASHBOARD ====================
 
 app.get('/api/admin/dashboard', authMiddleware, adminMiddleware, async (req, res) => {
-    const { count: totalUsers } = await supabase
-        .from('users')
-        .select('*', { count: 'exact', head: true })
-        .eq('is_admin', 0);
-
     const today = new Date().toISOString().split('T')[0];
-    const { count: premiumUsers } = await supabase
-        .from('users')
-        .select('*', { count: 'exact', head: true })
-        .eq('is_admin', 0)
-        .not('premium_until', 'is', null)
-        .gte('premium_until', today);
-
-    const freeUsers = totalUsers - premiumUsers;
-    const maxUsers = await getMaxUsers();
-    const slotsLeft = Math.max(0, maxUsers - totalUsers);
-
-    const { count: totalPayments } = await supabase
-        .from('payments')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'confirmed');
-
-    const { data: eurPayments } = await supabase
-        .from('payments')
-        .select('amount')
-        .eq('status', 'confirmed')
-        .eq('currency', 'EUR');
-    const revenueEur = (eurPayments || []).reduce((sum, p) => sum + p.amount, 0);
-
-    const { data: brlPayments } = await supabase
-        .from('payments')
-        .select('amount')
-        .eq('status', 'confirmed')
-        .eq('currency', 'BRL');
-    const revenueBrl = (brlPayments || []).reduce((sum, p) => sum + p.amount, 0);
-
-    const { count: totalCampaigns } = await supabase
-        .from('campaigns')
-        .select('*', { count: 'exact', head: true });
-
-    const { count: totalGuilds } = await supabase
-        .from('guilds')
-        .select('*', { count: 'exact', head: true });
-
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-    const { count: recentSignups } = await supabase
-        .from('users')
-        .select('*', { count: 'exact', head: true })
-        .eq('is_admin', 0)
-        .gte('created_at', sevenDaysAgo);
 
-    const { data: recentPayments } = await supabase
-        .from('payments')
-        .select('id, user_id, plan, amount, currency, status, created_at, confirmed_at')
-        .order('created_at', { ascending: false })
-        .limit(10);
+    // Run all queries in parallel for speed
+    const [
+        usersResult,
+        premiumResult,
+        paymentsCountResult,
+        eurResult,
+        brlResult,
+        campaignsResult,
+        guildsResult,
+        recentSignupsResult,
+        recentPaymentsResult,
+        maxUsers
+    ] = await Promise.all([
+        supabase.from('users').select('*', { count: 'exact', head: true }).eq('is_admin', 0),
+        supabase.from('users').select('*', { count: 'exact', head: true }).eq('is_admin', 0).not('premium_until', 'is', null).gte('premium_until', today),
+        supabase.from('payments').select('*', { count: 'exact', head: true }).eq('status', 'confirmed'),
+        supabase.from('payments').select('amount').eq('status', 'confirmed').eq('currency', 'EUR'),
+        supabase.from('payments').select('amount').eq('status', 'confirmed').eq('currency', 'BRL'),
+        supabase.from('campaigns').select('*', { count: 'exact', head: true }),
+        supabase.from('guilds').select('*', { count: 'exact', head: true }),
+        supabase.from('users').select('*', { count: 'exact', head: true }).eq('is_admin', 0).gte('created_at', sevenDaysAgo),
+        supabase.from('payments').select('id, user_id, plan, amount, currency, status, created_at, confirmed_at, users!payments_user_id_fkey(username)').order('created_at', { ascending: false }).limit(10),
+        getMaxUsers()
+    ]);
 
-    for (const p of recentPayments || []) {
-        const { data: u } = await supabase
-            .from('users')
-            .select('username')
-            .eq('id', p.user_id)
-            .single();
-        p.username = u ? u.username : '?';
-    }
+    const totalUsers = usersResult.count || 0;
+    const premiumUsers = premiumResult.count || 0;
+    const freeUsers = totalUsers - premiumUsers;
+    const slotsLeft = Math.max(0, maxUsers - totalUsers);
+    const totalPayments = paymentsCountResult.count || 0;
+    const revenueEur = (eurResult.data || []).reduce((sum, p) => sum + p.amount, 0);
+    const revenueBrl = (brlResult.data || []).reduce((sum, p) => sum + p.amount, 0);
+    const totalCampaigns = campaignsResult.count || 0;
+    const totalGuilds = guildsResult.count || 0;
+    const recentSignups = recentSignupsResult.count || 0;
+
+    const recentPayments = (recentPaymentsResult.data || []).map(p => ({
+        ...p,
+        username: p.users?.username || '?',
+        users: undefined
+    }));
 
     res.json({
         totalUsers, premiumUsers, freeUsers, slotsLeft, maxUsers,
         totalPayments, revenueEur, revenueBrl,
         totalCampaigns, totalGuilds, recentSignups,
-        recentPayments: recentPayments || []
+        recentPayments
     });
 });
 
