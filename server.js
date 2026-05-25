@@ -268,11 +268,15 @@ app.post('/api/auth/logout', (req, res) => {
 });
 
 app.get('/api/auth/me', authMiddleware, async (req, res) => {
-    const { data: user } = await supabase
+    const { data: user, error } = await supabase
         .from('users')
-        .select('id, username, email, is_admin, created_at, last_login, enabled_alarms')
+        .select('id, username, email, is_admin, created_at, last_login, enabled_alarms, elite_timers')
         .eq('id', req.user.id)
         .single();
+    if (error) {
+        console.error('GET /api/auth/me query error:', error.message);
+        return res.status(500).json({ error: 'Erro ao buscar usuário' });
+    }
     if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
     res.json({ user });
 });
