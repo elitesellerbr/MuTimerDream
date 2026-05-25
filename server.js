@@ -332,7 +332,7 @@ app.post('/api/admin/users/:id/premium', authMiddleware, adminMiddleware, async 
 
     const { data: user } = await supabase
         .from('users')
-        .select('id')
+        .select('id, username, email')
         .eq('id', userId)
         .single();
     if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
@@ -361,6 +361,11 @@ app.post('/api/admin/users/:id/premium', authMiddleware, adminMiddleware, async 
         .from('users')
         .update({ premium_until: premiumUntil.toISOString().split('T')[0], premium_plan: plan })
         .eq('id', userId);
+
+    // Send VIP activation email
+    if (user.email) {
+        sendEmail(user.email, '👑 VIP Ativado — MU Timer Dream', buildVipActivatedHtml(user.username, plan, premiumUntil)).catch(() => {});
+    }
 
     res.json({ ok: true, premium_until: premiumUntil.toISOString().split('T')[0] });
 });
@@ -691,6 +696,71 @@ function buildEmailHtml(subject, body) {
             <div style="color:#c0c0d0;font-size:14px;line-height:1.6;">${safeBody}</div>
         </div>
         <p style="text-align:center;color:#555577;font-size:11px;margin-top:16px;">MU Timer Dream — mudream.online</p>
+    </div></body></html>`;
+}
+
+function buildVipActivatedHtml(username, plan, premiumUntil) {
+    const safeUser = escapeHtml(username);
+    const planLabel = plan === 'year' ? 'Anual' : 'Mensal';
+    const dateFormatted = new Date(premiumUntil).toLocaleDateString('pt-BR');
+    return `<!DOCTYPE html><html><head><meta charset="utf-8"></head>
+    <body style="margin:0;padding:0;background:#0a0a1a;font-family:Arial,sans-serif;">
+    <div style="max-width:600px;margin:0 auto;padding:20px;">
+        <div style="text-align:center;padding:24px;background:linear-gradient(135deg,#1a1a35,#0d0d20);border-radius:12px 12px 0 0;">
+            <h1 style="color:#f5a623;margin:0;font-size:26px;">⚔️ MU Timer Dream</h1>
+            <p style="color:#8888aa;margin:6px 0 0;font-size:12px;">RAMPAGE X-20 • Event Notifier</p>
+        </div>
+        <div style="background:#1a1a35;padding:28px;border-radius:0 0 12px 12px;border:1px solid #2a2a4a;border-top:none;">
+            <h2 style="color:#f5a623;margin:0 0 12px;">👑 VIP Ativado!</h2>
+            <p style="color:#c0c0d0;font-size:14px;line-height:1.7;">Olá <strong style="color:#f5a623;">${safeUser}</strong>,</p>
+            <p style="color:#c0c0d0;font-size:14px;line-height:1.7;">Seu plano <strong style="color:#f5a623;">VIP ${planLabel}</strong> foi ativado com sucesso!</p>
+            <div style="background:#0d0d20;border:1px solid #f5a623;border-radius:8px;padding:16px;margin:16px 0;">
+                <p style="color:#e8e8f0;margin:0 0 8px;font-size:14px;">📋 <strong>Detalhes do plano:</strong></p>
+                <p style="color:#c0c0d0;margin:4px 0;font-size:13px;">• Plano: VIP ${planLabel}</p>
+                <p style="color:#c0c0d0;margin:4px 0;font-size:13px;">• Válido até: <strong style="color:#f5a623;">${dateFormatted}</strong></p>
+            </div>
+            <p style="color:#c0c0d0;font-size:14px;line-height:1.7;">Benefícios VIP:</p>
+            <ul style="color:#c0c0d0;font-size:14px;line-height:2;">
+                <li>👑 Badge exclusivo VIP</li>
+                <li>⏰ Alarmes ilimitados</li>
+                <li>🤖 MUCHAT sem limites</li>
+                <li>⚔️ Prioridade no suporte</li>
+            </ul>
+            <div style="text-align:center;margin-top:24px;">
+                <a href="${APP_URL}" style="display:inline-block;background:#f5a623;color:#0a0a1a;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:14px;">ACESSAR O APP</a>
+            </div>
+        </div>
+        <p style="text-align:center;color:#555577;font-size:11px;margin-top:16px;">MU Timer Dream — mutimerdream.com</p>
+    </div></body></html>`;
+}
+
+function buildDonationThankYouHtml(username, amount, currency, method) {
+    const safeUser = escapeHtml(username);
+    const methodLabel = method === 'pix' ? 'PIX' : 'Revolut';
+    const currencySymbol = currency === 'BRL' ? 'R$' : '€';
+    return `<!DOCTYPE html><html><head><meta charset="utf-8"></head>
+    <body style="margin:0;padding:0;background:#0a0a1a;font-family:Arial,sans-serif;">
+    <div style="max-width:600px;margin:0 auto;padding:20px;">
+        <div style="text-align:center;padding:24px;background:linear-gradient(135deg,#1a1a35,#0d0d20);border-radius:12px 12px 0 0;">
+            <h1 style="color:#f5a623;margin:0;font-size:26px;">⚔️ MU Timer Dream</h1>
+            <p style="color:#8888aa;margin:6px 0 0;font-size:12px;">RAMPAGE X-20 • Event Notifier</p>
+        </div>
+        <div style="background:#1a1a35;padding:28px;border-radius:0 0 12px 12px;border:1px solid #2a2a4a;border-top:none;">
+            <h2 style="color:#f5a623;margin:0 0 12px;">💛 Obrigado pela doação!</h2>
+            <p style="color:#c0c0d0;font-size:14px;line-height:1.7;">Olá <strong style="color:#f5a623;">${safeUser}</strong>,</p>
+            <p style="color:#c0c0d0;font-size:14px;line-height:1.7;">Recebemos sua doação e agradecemos imensamente pelo apoio!</p>
+            <div style="background:#0d0d20;border:1px solid #f5a623;border-radius:8px;padding:16px;margin:16px 0;">
+                <p style="color:#e8e8f0;margin:0 0 8px;font-size:14px;">📋 <strong>Comprovante:</strong></p>
+                <p style="color:#c0c0d0;margin:4px 0;font-size:13px;">• Valor: <strong style="color:#f5a623;">${currencySymbol} ${amount}</strong></p>
+                <p style="color:#c0c0d0;margin:4px 0;font-size:13px;">• Método: ${methodLabel}</p>
+                <p style="color:#c0c0d0;margin:4px 0;font-size:13px;">• Data: ${new Date().toLocaleDateString('pt-BR')}</p>
+            </div>
+            <p style="color:#c0c0d0;font-size:14px;line-height:1.7;">Sua contribuição nos ajuda a manter o servidor e criar novas funcionalidades. Muito obrigado! 🙏</p>
+            <div style="text-align:center;margin-top:24px;">
+                <a href="${APP_URL}" style="display:inline-block;background:#f5a623;color:#0a0a1a;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:14px;">VOLTAR AO APP</a>
+            </div>
+        </div>
+        <p style="text-align:center;color:#555577;font-size:11px;margin-top:16px;">MU Timer Dream — mutimerdream.com</p>
     </div></body></html>`;
 }
 
@@ -1233,6 +1303,39 @@ app.post('/api/donate/pix', (req, res) => {
     }
     const payload = buildPixPayload(PIX_KEY, PIX_NAME, PIX_CITY, amount);
     res.json({ payload });
+});
+
+// Admin confirms a donation and sends thank-you email
+app.post('/api/admin/users/:id/donation', authMiddleware, adminMiddleware, async (req, res) => {
+    const userId = parseInt(req.params.id);
+    const { amount, currency, method, notes } = req.body;
+    if (!amount || !currency) return res.status(400).json({ error: 'Preencha valor e moeda' });
+
+    const { data: user } = await supabase
+        .from('users')
+        .select('id, username, email')
+        .eq('id', userId)
+        .single();
+    if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
+
+    await supabase.from('payments').insert({
+        user_id: userId,
+        type: 'donation',
+        plan: null,
+        amount: parseFloat(amount),
+        currency,
+        status: 'confirmed',
+        notes: notes || null,
+        confirmed_at: new Date().toISOString(),
+        confirmed_by: req.user.id
+    });
+
+    // Send thank-you email
+    if (user.email) {
+        sendEmail(user.email, '💛 Obrigado pela doação — MU Timer Dream', buildDonationThankYouHtml(user.username, amount, currency, method || 'pix')).catch(() => {});
+    }
+
+    res.json({ ok: true });
 });
 
 function buildPixPayload(key, name, city, amount) {
