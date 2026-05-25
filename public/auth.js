@@ -67,11 +67,26 @@ function initAuth() {
     });
 
     document.getElementById('closeAuth').addEventListener('click', () => {
+        if (modal.dataset.required === 'true' && !currentUser) {
+            // User must login — go back to landing
+            modal.style.display = 'none';
+            modal.dataset.required = '';
+            goToLanding();
+            return;
+        }
         modal.style.display = 'none';
     });
 
     modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.style.display = 'none';
+        if (e.target === modal) {
+            if (modal.dataset.required === 'true' && !currentUser) {
+                modal.style.display = 'none';
+                modal.dataset.required = '';
+                goToLanding();
+                return;
+            }
+            modal.style.display = 'none';
+        }
     });
 
     document.querySelectorAll('.auth-tab').forEach(tab => {
@@ -96,6 +111,7 @@ function initAuth() {
             const data = await apiCall('/api/auth/login', 'POST', { login, password });
             currentUser = data.user;
             updateAuthUI();
+            modal.dataset.required = '';
             modal.style.display = 'none';
             document.getElementById('loginUser').value = '';
             document.getElementById('loginPass').value = '';
@@ -134,6 +150,7 @@ function initAuth() {
             }
             currentUser = data.user;
             updateAuthUI();
+            modal.dataset.required = '';
             modal.style.display = 'none';
             document.getElementById('regUser').value = '';
             document.getElementById('regEmail').value = '';

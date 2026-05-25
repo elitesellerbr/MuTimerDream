@@ -167,12 +167,17 @@ try { db.prepare("ALTER TABLE users ADD COLUMN premium_plan TEXT").run(); } catc
 // Migrate: add adds column to user_items for item options (+luck, +skill, etc.)
 try { db.prepare("ALTER TABLE user_items ADD COLUMN adds TEXT DEFAULT '[]'").run(); } catch {}
 
+const ADMIN_PASS = process.env.ADMIN_PASS || 'Admin2026*!@#';
 const adminExists = db.prepare('SELECT id FROM users WHERE is_admin = 1').get();
 if (!adminExists) {
-    const hash = bcrypt.hashSync('admin123', 10);
+    const hash = bcrypt.hashSync(ADMIN_PASS, 10);
     db.prepare('INSERT OR IGNORE INTO users (username, email, password, is_admin) VALUES (?, ?, ?, 1)')
         .run('superadmin', 'admin@mudream.local', hash);
-    console.log('Super admin created: superadmin / admin123');
+    console.log('Super admin created: superadmin');
+} else {
+    // Always sync admin password with ADMIN_PASS
+    const hash = bcrypt.hashSync(ADMIN_PASS, 10);
+    db.prepare('UPDATE users SET password = ? WHERE username = ? AND is_admin = 1').run(hash, 'superadmin');
 }
 
 // Security headers
