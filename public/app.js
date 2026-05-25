@@ -912,13 +912,18 @@ function initSettings() {
     });
 
     const alarmSelect = document.getElementById('alarmSound');
-    alarmSelect.value = settings.sound;
-    alarmSelect.addEventListener('change', () => {
-        settings.sound = alarmSelect.value;
+    // Don't set value for 'custom' yet — loadCustomSoundFromServer will handle it
+    if (settings.sound !== 'custom' && !settings.sound.startsWith('custom:')) {
+        alarmSelect.value = settings.sound;
         alarm.setSoundType(settings.sound);
+    }
+    alarmSelect.addEventListener('change', () => {
+        const val = alarmSelect.value;
+        alarm.setSoundType(val);
+        // Store only 'custom' marker for custom sounds (avoid bloating localStorage)
+        settings.sound = val.startsWith('custom:') ? 'custom' : val;
         saveSettings();
     });
-    alarm.setSoundType(settings.sound);
 
     document.getElementById('btnTestSound').addEventListener('click', () => {
         alarm.play();
@@ -1099,17 +1104,24 @@ async function loadCustomSoundFromServer(alarmSelect, customGroup, btnDelete) {
         const res = await fetch('/api/user/alarm-sound', { credentials: 'include' });
         const data = await res.json();
         if (data.sound) {
-            addCustomSoundOption(alarmSelect, customGroup, data.sound, btnDelete);
-            // If current setting uses custom, select it
-            if (settings.sound.startsWith('custom:')) {
-                alarmSelect.value = settings.sound;
-                alarm.setSoundType(settings.sound);
+            // Don't auto-select on load — just populate the option
+            addCustomSoundOption(alarmSelect, customGroup, data.sound, btnDelete, false);
+            // If user previously selected custom, restore it
+            if (settings.sound === 'custom' || settings.sound.startsWith('custom:')) {
+                const fullValue = 'custom:' + data.sound.dataUrl;
+                alarmSelect.value = fullValue;
+                alarm.setSoundType(fullValue);
+                // Migrate old 'custom:data:...' to just 'custom' in localStorage
+                if (settings.sound !== 'custom') {
+                    settings.sound = 'custom';
+                    saveSettings();
+                }
             }
         }
     } catch {}
 }
 
-function addCustomSoundOption(alarmSelect, customGroup, sound, btnDelete) {
+function addCustomSoundOption(alarmSelect, customGroup, sound, btnDelete, autoSelect = true) {
     customGroup.innerHTML = '';
     const opt = document.createElement('option');
     opt.value = 'custom:' + sound.dataUrl;
@@ -1118,11 +1130,13 @@ function addCustomSoundOption(alarmSelect, customGroup, sound, btnDelete) {
     customGroup.style.display = '';
     btnDelete.style.display = '';
 
-    // Auto-select the new custom sound
-    alarmSelect.value = opt.value;
-    settings.sound = opt.value;
-    alarm.setSoundType(opt.value);
-    saveSettings();
+    if (autoSelect) {
+        alarmSelect.value = opt.value;
+        // Store only 'custom' marker in localStorage (not the full data URL)
+        settings.sound = 'custom';
+        alarm.setSoundType(opt.value);
+        saveSettings();
+    }
 }
 
 function updateAlarmInfoText() {

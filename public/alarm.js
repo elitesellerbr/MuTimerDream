@@ -91,8 +91,18 @@ class AlarmSystem {
         this.customSoundUrl = url;
         try {
             const ctx = this.getAudioContext();
-            const resp = await fetch(url);
-            const arrayBuf = await resp.arrayBuffer();
+            let arrayBuf;
+            if (url.startsWith('data:')) {
+                // Decode base64 data URL directly (more efficient than fetch)
+                const base64 = url.split(',')[1];
+                const binary = atob(base64);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                arrayBuf = bytes.buffer;
+            } else {
+                const resp = await fetch(url);
+                arrayBuf = await resp.arrayBuffer();
+            }
             this.customBuffer = await ctx.decodeAudioData(arrayBuf);
         } catch (e) {
             console.warn('Failed to load custom sound:', e);
