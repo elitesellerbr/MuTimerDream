@@ -57,6 +57,7 @@ async function checkSession() {
         currentUser = null;
     }
     updateAuthUI();
+    if (currentUser && currentUser.is_admin) loadAdminData();
 }
 
 function initAuth() {
