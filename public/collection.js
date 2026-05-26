@@ -16,16 +16,6 @@ const AVAILABLE_ADDS = [
 
 const ITEM_IMG_BASE = 'https://dreamassets.fra1.cdn.digitaloceanspaces.com/items_seasons/6plus/';
 const ITEM_IMG_MAP = {
-    'light-saber': '0/15', 'legendary-sword': '0/9', 'heliacal-sword': '0/17', 'double-blade': '0/13',
-    'lightning-sword': '0/14', 'sword-of-destruction': '0/16', 'dark-breaker': '0/20', 'crystal-sword': '0/10',
-    'chaos-dragon-axe': '0/11', 'sword-of-archangel': '0/19',
-    'battle-axe': '1/1', 'crescent-axe': '1/4', 'nikea-axe': '1/6', 'larkan-axe': '1/7', 'chaos-nature-axe': '1/9',
-    'morning-star': '2/1', 'flail': '2/3', 'great-hammer': '2/5', 'crystal-morning-star': '2/7',
-    'skull-staff': '5/0', 'angelic-staff': '5/1', 'serpent-staff': '5/2', 'thunder-staff': '5/4',
-    'resurrection-staff': '5/6', 'chaos-lightning-staff': '5/8', 'staff-of-destruction': '5/9',
-    'silver-bow': '4/5', 'chaos-nature-bow': '4/7', 'celestial-bow': '4/17',
-    'arrow-viper-bow': '4/20', 'saint-crossbow': '4/16', 'divine-cb-of-archangel': '4/18',
-    'great-scepter': '2/10', 'lord-scepter': '2/11', 'great-lord-scepter': '2/12', 'soleil-scepter': '2/14',
     'dk-dragon-helm': '7/1', 'dk-dragon-armor': '8/1', 'dk-dragon-pants': '9/1', 'dk-dragon-gloves': '10/1', 'dk-dragon-boots': '11/1',
     'dk-bdragon-helm': '7/16', 'dk-bdragon-armor': '8/16', 'dk-bdragon-pants': '9/16', 'dk-bdragon-gloves': '10/16', 'dk-bdragon-boots': '11/16',
     'dk-dphoenix-helm': '7/17', 'dk-dphoenix-armor': '8/17', 'dk-dphoenix-pants': '9/17', 'dk-dphoenix-gloves': '10/17', 'dk-dphoenix-boots': '11/17',
@@ -276,6 +266,7 @@ function renderCollectionCategories(names, searchQuery) {
                                 </div>
                                 <div class="collection-item-right">
                                     ${!has && !readOnly ? `<button class="btn-adds" data-item="${item.id}" title="Editar adds">⚙️</button>` : ''}
+                                    ${has && !readOnly ? `<button class="btn-remove-item" data-item="${item.id}" title="Remover item">❌</button>` : ''}
                                     <span class="collection-item-check">${has ? '✅' : '⬜'}</span>
                                 </div>
                             </div>
@@ -289,9 +280,9 @@ function renderCollectionCategories(names, searchQuery) {
 
 function getItemIcon(category) {
     const icons = {
-        'swords': '⚔️', 'axes': '🪓', 'maces': '🔨', 'staffs': '🪄',
-        'bows': '🏹', 'scepters': '👑', 'shields': '🛡️', 'wings': '🪽', 'rings': '💍',
-        'sets-dk': '🛡️', 'sets-dw': '🧙', 'sets-elf': '🧝', 'sets-mg': '⚡', 'sets-dl': '👹', 'sets-sum': '📖'
+        'shields': '🛡️', 'wings': '🪽', 'rings': '💍',
+        'sets-dk': '🛡️', 'sets-dw': '🧙', 'sets-elf': '🧝', 'sets-mg': '⚡',
+        'sets-dl': '👹', 'sets-sum': '📖', 'sets-rf': '👊'
     };
     return icons[category] || '📦';
 }
@@ -326,11 +317,33 @@ function bindCollectionItemClicks(container) {
             return;
         }
 
+        // Check if clicked on remove button
+        const removeBtn = e.target.closest('.btn-remove-item');
+        if (removeBtn) {
+            e.stopPropagation();
+            e.preventDefault();
+            const removeId = removeBtn.dataset.item;
+            try {
+                const res = await fetch('/api/collection/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ itemId: removeId })
+                });
+                const data = await res.json();
+                if (!data.obtained) {
+                    collectionItems.delete(removeId);
+                }
+                renderCollection(container);
+            } catch {}
+            return;
+        }
+
         // Check if clicked on a collection item (toggle obtained)
         const item = e.target.closest('.collection-item:not(.readonly)');
         if (!item) return;
-        // Double check not from adds area
-        if (e.target.closest('.collection-item-right') && e.target.closest('.btn-adds')) return;
+        // Double check not from adds/remove area
+        if (e.target.closest('.btn-adds') || e.target.closest('.btn-remove-item')) return;
 
         const itemId = item.dataset.item;
         try {

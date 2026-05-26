@@ -1,11 +1,5 @@
 const EXC_ITEMS_DATA = {
     categories: [
-        { id: 'swords', icon: '⚔️' },
-        { id: 'axes', icon: '🪓' },
-        { id: 'maces', icon: '🔨' },
-        { id: 'staffs', icon: '🪄' },
-        { id: 'bows', icon: '🏹' },
-        { id: 'scepters', icon: '👑' },
         { id: 'sets-dk', icon: '🛡️' },
         { id: 'sets-dw', icon: '🧙' },
         { id: 'sets-elf', icon: '🧝' },
@@ -18,54 +12,6 @@ const EXC_ITEMS_DATA = {
         { id: 'rings', icon: '💍' },
     ],
     items: [
-        // ===== SWORDS =====
-        { id: 'light-saber', name: 'Light Saber', category: 'swords', tier: 4 },
-        { id: 'legendary-sword', name: 'Legendary Sword', category: 'swords', tier: 3 },
-        { id: 'heliacal-sword', name: 'Heliacal Sword', category: 'swords', tier: 3 },
-        { id: 'double-blade', name: 'Double Blade', category: 'swords', tier: 3 },
-        { id: 'lightning-sword', name: 'Lightning Sword', category: 'swords', tier: 2 },
-        { id: 'sword-of-destruction', name: 'Sword of Destruction', category: 'swords', tier: 4 },
-        { id: 'dark-breaker', name: 'Dark Breaker', category: 'swords', tier: 4 },
-        { id: 'crystal-sword', name: 'Crystal Sword', category: 'swords', tier: 2 },
-        { id: 'chaos-dragon-axe', name: 'Chaos Dragon Axe', category: 'swords', tier: 3 },
-        { id: 'sword-of-archangel', name: 'Sword of Archangel', category: 'swords', tier: 5 },
-
-        // ===== AXES =====
-        { id: 'battle-axe', name: 'Battle Axe', category: 'axes', tier: 1 },
-        { id: 'crescent-axe', name: 'Crescent Axe', category: 'axes', tier: 2 },
-        { id: 'nikea-axe', name: 'Nikea Axe', category: 'axes', tier: 3 },
-        { id: 'larkan-axe', name: 'Larkan Axe', category: 'axes', tier: 3 },
-        { id: 'chaos-nature-axe', name: 'Chaos Nature Axe', category: 'axes', tier: 4 },
-
-        // ===== MACES =====
-        { id: 'morning-star', name: 'Morning Star', category: 'maces', tier: 2 },
-        { id: 'flail', name: 'Flail', category: 'maces', tier: 2 },
-        { id: 'great-hammer', name: 'Great Hammer', category: 'maces', tier: 3 },
-        { id: 'crystal-morning-star', name: 'Crystal Morning Star', category: 'maces', tier: 3 },
-
-        // ===== STAFFS =====
-        { id: 'skull-staff', name: 'Skull Staff', category: 'staffs', tier: 2 },
-        { id: 'angelic-staff', name: 'Angelic Staff', category: 'staffs', tier: 2 },
-        { id: 'serpent-staff', name: 'Serpent Staff', category: 'staffs', tier: 3 },
-        { id: 'thunder-staff', name: 'Thunder Staff', category: 'staffs', tier: 3 },
-        { id: 'resurrection-staff', name: 'Staff of Resurrection', category: 'staffs', tier: 4 },
-        { id: 'chaos-lightning-staff', name: 'Chaos Lightning Staff', category: 'staffs', tier: 4 },
-        { id: 'staff-of-destruction', name: 'Staff of Destruction', category: 'staffs', tier: 5 },
-
-        // ===== BOWS =====
-        { id: 'silver-bow', name: 'Silver Bow', category: 'bows', tier: 2 },
-        { id: 'chaos-nature-bow', name: 'Chaos Nature Bow', category: 'bows', tier: 3 },
-        { id: 'celestial-bow', name: 'Celestial Bow', category: 'bows', tier: 4 },
-        { id: 'arrow-viper-bow', name: 'Arrow Viper Bow', category: 'bows', tier: 3 },
-        { id: 'saint-crossbow', name: 'Saint Crossbow', category: 'bows', tier: 3 },
-        { id: 'divine-cb-of-archangel', name: 'Divine CB of Archangel', category: 'bows', tier: 5 },
-
-        // ===== SCEPTERS =====
-        { id: 'great-scepter', name: 'Great Scepter', category: 'scepters', tier: 3 },
-        { id: 'lord-scepter', name: 'Lord Scepter', category: 'scepters', tier: 4 },
-        { id: 'great-lord-scepter', name: 'Great Lord Scepter', category: 'scepters', tier: 5 },
-        { id: 'soleil-scepter', name: 'Soleil Scepter', category: 'scepters', tier: 4 },
-
         // ===== DK SETS =====
         { id: 'dk-leather-helm', name: 'Leather Helm', category: 'sets-dk', tier: 1 },
         { id: 'dk-leather-armor', name: 'Leather Armor', category: 'sets-dk', tier: 1 },
