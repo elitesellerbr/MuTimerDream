@@ -16,22 +16,56 @@ const AVAILABLE_ADDS = [
 
 const ITEM_IMG_BASE = 'https://dreamassets.fra1.cdn.digitaloceanspaces.com/items_seasons/6plus/';
 const ITEM_IMG_MAP = {
+    // DK Sets
+    'dk-leather-helm': '7/5', 'dk-leather-armor': '8/5', 'dk-leather-pants': '9/5', 'dk-leather-gloves': '10/5', 'dk-leather-boots': '11/5',
+    'dk-bronze-helm': '7/0', 'dk-bronze-armor': '8/0', 'dk-bronze-pants': '9/0', 'dk-bronze-gloves': '10/0', 'dk-bronze-boots': '11/0',
+    'dk-scale-helm': '7/6', 'dk-scale-armor': '8/6', 'dk-scale-pants': '9/6', 'dk-scale-gloves': '10/6', 'dk-scale-boots': '11/6',
+    'dk-brass-helm': '7/8', 'dk-brass-armor': '8/8', 'dk-brass-pants': '9/8', 'dk-brass-gloves': '10/8', 'dk-brass-boots': '11/8',
+    'dk-plate-helm': '7/9', 'dk-plate-armor': '8/9', 'dk-plate-pants': '9/9', 'dk-plate-gloves': '10/9', 'dk-plate-boots': '11/9',
     'dk-dragon-helm': '7/1', 'dk-dragon-armor': '8/1', 'dk-dragon-pants': '9/1', 'dk-dragon-gloves': '10/1', 'dk-dragon-boots': '11/1',
     'dk-bdragon-helm': '7/16', 'dk-bdragon-armor': '8/16', 'dk-bdragon-pants': '9/16', 'dk-bdragon-gloves': '10/16', 'dk-bdragon-boots': '11/16',
     'dk-dphoenix-helm': '7/17', 'dk-dphoenix-armor': '8/17', 'dk-dphoenix-pants': '9/17', 'dk-dphoenix-gloves': '10/17', 'dk-dphoenix-boots': '11/17',
     'dk-gdragon-helm': '7/21', 'dk-gdragon-armor': '8/21', 'dk-gdragon-pants': '9/21', 'dk-gdragon-gloves': '10/21', 'dk-gdragon-boots': '11/21',
+    // DW Sets
     'dw-pad-helm': '7/2', 'dw-pad-armor': '8/2', 'dw-pad-pants': '9/2', 'dw-pad-gloves': '10/2', 'dw-pad-boots': '11/2',
+    'dw-bone-helm': '7/4', 'dw-bone-armor': '8/4', 'dw-bone-pants': '9/4', 'dw-bone-gloves': '10/4', 'dw-bone-boots': '11/4',
+    'dw-sphinx-helm': '7/7', 'dw-sphinx-armor': '8/7', 'dw-sphinx-pants': '9/7', 'dw-sphinx-gloves': '10/7', 'dw-sphinx-boots': '11/7',
     'dw-legendary-helm': '7/3', 'dw-legendary-armor': '8/3', 'dw-legendary-pants': '9/3', 'dw-legendary-gloves': '10/3', 'dw-legendary-boots': '11/3',
     'dw-gsoul-helm': '7/18', 'dw-gsoul-armor': '8/18', 'dw-gsoul-pants': '9/18', 'dw-gsoul-gloves': '10/18', 'dw-gsoul-boots': '11/18',
+    'dw-dsoul-helm': '7/19', 'dw-dsoul-armor': '8/19', 'dw-dsoul-pants': '9/19', 'dw-dsoul-gloves': '10/19', 'dw-dsoul-boots': '11/19',
+    // Elf Sets
     'elf-vine-helm': '7/10', 'elf-vine-armor': '8/10', 'elf-vine-pants': '9/10', 'elf-vine-gloves': '10/10', 'elf-vine-boots': '11/10',
+    'elf-silk-helm': '7/11', 'elf-silk-armor': '8/11', 'elf-silk-pants': '9/11', 'elf-silk-gloves': '10/11', 'elf-silk-boots': '11/11',
+    'elf-wind-helm': '7/12', 'elf-wind-armor': '8/12', 'elf-wind-pants': '9/12', 'elf-wind-gloves': '10/12', 'elf-wind-boots': '11/12',
     'elf-spirit-helm': '7/13', 'elf-spirit-armor': '8/13', 'elf-spirit-pants': '9/13', 'elf-spirit-gloves': '10/13', 'elf-spirit-boots': '11/13',
-    'elf-rspirit-helm': '7/24', 'elf-rspirit-armor': '8/24', 'elf-rspirit-pants': '9/24', 'elf-rspirit-gloves': '10/24', 'elf-rspirit-boots': '11/24',
-    'mg-storm-helm': '7/15', 'mg-storm-armor': '8/15', 'mg-storm-pants': '9/15', 'mg-storm-gloves': '10/15', 'mg-storm-boots': '11/15',
-    'mg-thunder-helm': '7/20', 'mg-thunder-armor': '8/20', 'mg-thunder-pants': '9/20', 'mg-thunder-gloves': '10/20', 'mg-thunder-boots': '11/20',
+    'elf-guardian-helm': '7/14', 'elf-guardian-armor': '8/14', 'elf-guardian-pants': '9/14', 'elf-guardian-gloves': '10/14', 'elf-guardian-boots': '11/14',
+    'elf-hspirit-helm': '7/25', 'elf-hspirit-armor': '8/25', 'elf-hspirit-pants': '9/25', 'elf-hspirit-gloves': '10/25', 'elf-hspirit-boots': '11/25',
+    'elf-iris-helm': '7/22', 'elf-iris-armor': '8/22', 'elf-iris-pants': '9/22', 'elf-iris-gloves': '10/22', 'elf-iris-boots': '11/22',
+    // MG Sets (no helm)
+    'mg-storm-armor': '8/15', 'mg-storm-pants': '9/15', 'mg-storm-gloves': '10/15', 'mg-storm-boots': '11/15',
+    'mg-thunder-armor': '8/20', 'mg-thunder-pants': '9/20', 'mg-thunder-gloves': '10/20', 'mg-thunder-boots': '11/20',
+    'mg-hurricane-armor': '8/43', 'mg-hurricane-pants': '9/43', 'mg-hurricane-gloves': '10/43', 'mg-hurricane-boots': '11/43',
+    // DL Sets
+    'dl-leather-helm': '7/29', 'dl-leather-armor': '8/29', 'dl-leather-pants': '9/29', 'dl-leather-gloves': '10/29', 'dl-leather-boots': '11/29',
+    'dl-bronze-helm': '7/30', 'dl-bronze-armor': '8/30', 'dl-bronze-pants': '9/30', 'dl-bronze-gloves': '10/30', 'dl-bronze-boots': '11/30',
+    'dl-scale-helm': '7/31', 'dl-scale-armor': '8/31', 'dl-scale-pants': '9/31', 'dl-scale-gloves': '10/31', 'dl-scale-boots': '11/31',
+    'dl-lplate-helm': '7/26', 'dl-lplate-armor': '8/26', 'dl-lplate-pants': '9/26', 'dl-lplate-gloves': '10/26', 'dl-lplate-boots': '11/26',
+    'dl-adamantine-helm': '7/27', 'dl-adamantine-armor': '8/27', 'dl-adamantine-pants': '9/27', 'dl-adamantine-gloves': '10/27', 'dl-adamantine-boots': '11/27',
+    'dl-dsteel-helm': '7/34', 'dl-dsteel-armor': '8/34', 'dl-dsteel-pants': '9/34', 'dl-dsteel-gloves': '10/34', 'dl-dsteel-boots': '11/34',
     'dl-sunlight-helm': '7/33', 'dl-sunlight-armor': '8/33', 'dl-sunlight-pants': '9/33', 'dl-sunlight-gloves': '10/33', 'dl-sunlight-boots': '11/33',
     'dl-dmaster-helm': '7/28', 'dl-dmaster-armor': '8/28', 'dl-dmaster-pants': '9/28', 'dl-dmaster-gloves': '10/28', 'dl-dmaster-boots': '11/28',
-    'sum-eclipse-helm': '7/35', 'sum-eclipse-armor': '8/35', 'sum-eclipse-pants': '9/35', 'sum-eclipse-gloves': '10/35', 'sum-eclipse-boots': '11/35',
-    'sum-iris-helm': '7/36', 'sum-iris-armor': '8/36', 'sum-iris-pants': '9/36', 'sum-iris-gloves': '10/36', 'sum-iris-boots': '11/36',
+    // Summoner Sets
+    'sum-vwind-helm': '7/38', 'sum-vwind-armor': '8/38', 'sum-vwind-pants': '9/38', 'sum-vwind-gloves': '10/38', 'sum-vwind-boots': '11/38',
+    'sum-rwing-helm': '7/39', 'sum-rwing-armor': '8/39', 'sum-rwing-pants': '9/39', 'sum-rwing-gloves': '10/39', 'sum-rwing-boots': '11/39',
+    'sum-ancient-helm': '7/40', 'sum-ancient-armor': '8/40', 'sum-ancient-pants': '9/40', 'sum-ancient-gloves': '10/40', 'sum-ancient-boots': '11/40',
+    'sum-demonic-helm': '7/41', 'sum-demonic-armor': '8/41', 'sum-demonic-pants': '9/41', 'sum-demonic-gloves': '10/41', 'sum-demonic-boots': '11/41',
+    'sum-sblitz-helm': '7/42', 'sum-sblitz-armor': '8/42', 'sum-sblitz-pants': '9/42', 'sum-sblitz-gloves': '10/42', 'sum-sblitz-boots': '11/42',
+    // RF Sets (no gloves)
+    'rf-plate-helm': '7/44', 'rf-plate-armor': '8/44', 'rf-plate-pants': '9/44', 'rf-plate-boots': '11/44',
+    'rf-sfire-helm': '7/45', 'rf-sfire-armor': '8/45', 'rf-sfire-pants': '9/45', 'rf-sfire-boots': '11/45',
+    'rf-szahard-helm': '7/46', 'rf-szahard-armor': '8/46', 'rf-szahard-pants': '9/46', 'rf-szahard-boots': '11/46',
+    'rf-pgrove-helm': '7/50', 'rf-pgrove-armor': '8/50', 'rf-pgrove-pants': '9/50', 'rf-pgrove-boots': '11/50',
+    // Shields
     'dragon-slayer-shield': '6/5', 'grand-soul-shield': '6/15', 'elemental-shield': '6/18',
     'crimson-glory': '6/16', 'salamander-shield': '6/8'
 };
