@@ -3821,40 +3821,26 @@ input[type="checkbox"] {
 
 /* ==================== ELITE MONSTERS ==================== */
 
-.elite-header {
-    margin-top: 12px;
+.elite-card {
+    margin-bottom: 6px;
 }
 
-.elite-header:first-child {
-    margin-top: 0;
-}
-
-.elite-header .event-card {
+.elite-card .event-card {
     cursor: default;
     border-color: var(--card-accent, var(--accent));
     background: linear-gradient(135deg, var(--bg-card), rgba(245, 166, 35, 0.05));
 }
 
-.elite-map-row {
+.elite-status {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 14px 8px 20px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    margin-top: 4px;
-    margin-left: 12px;
-    font-size: 13px;
-}
-
-.elite-map-name {
-    flex: 1;
-    color: var(--text-secondary);
+    gap: 8px;
+    margin-left: auto;
+    flex-shrink: 0;
 }
 
 .elite-timer {
-    min-width: 80px;
+    min-width: 70px;
     text-align: center;
     font-size: 13px;
     font-variant-numeric: tabular-nums;
@@ -3865,7 +3851,7 @@ input[type="checkbox"] {
     color: var(--bg-primary) !important;
     font-weight: 600;
     font-size: 12px;
-    padding: 4px 10px !important;
+    padding: 4px 12px !important;
     border-radius: 6px;
     border: none;
     cursor: pointer;
@@ -3893,13 +3879,11 @@ input[type="checkbox"] {
 }
 
 @media (max-width: 600px) {
-    .elite-map-row {
-        margin-left: 4px;
-        padding: 6px 10px;
-        gap: 6px;
+    .elite-status {
+        gap: 4px;
     }
     .elite-timer {
-        min-width: 60px;
+        min-width: 55px;
         font-size: 12px;
     }
     .btn-elite-kill {
