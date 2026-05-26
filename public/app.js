@@ -1182,7 +1182,41 @@ function initAlertDismiss() {
 document.addEventListener('DOMContentLoaded', initLanding);
 
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+    navigator.serviceWorker.register('sw.js').then(reg => {
+        // Check for updates every 30 minutes
+        setInterval(() => reg.update(), 30 * 60 * 1000);
+
+        reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            if (!newWorker) return;
+            newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'activated' && navigator.serviceWorker.controller) {
+                    // New SW activated — show update banner
+                    showUpdateBanner();
+                }
+            });
+        });
+    }).catch(() => {});
+
+    // If a new SW takes control while page is open, show banner
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) showUpdateBanner();
+    });
+}
+
+function showUpdateBanner() {
+    if (document.getElementById('updateBanner')) return;
+    const banner = document.createElement('div');
+    banner.id = 'updateBanner';
+    banner.innerHTML = `
+        <div class="update-banner">
+            <span>🔄 Nova atualização disponível!</span>
+            <button onclick="location.reload()">Atualizar</button>
+            <button class="update-dismiss" onclick="this.closest('.update-banner').remove()">✕</button>
+        </div>
+    `;
+    document.body.appendChild(banner);
 }
 
 // ==================== PWA INSTALL ====================
