@@ -452,12 +452,18 @@ function createEventCard(occ, showToggle = true) {
 
     // Blood Castle crystal button
     const isBcActive = occ.id === 'blood-castle' && occ.isActive;
-    const bcEndMs = isBcActive ? (occ.duration * 60000) + occ.msUntil : 0; // ms remaining until event ends
-    const bcCrystalHtml = isBcActive
-        ? (bcCrystalActive && bcCrystalActive.serverTime === occ.serverTime
-            ? `<div class="bc-crystal-status">💎 Cristal pego! Alarme em <span class="bc-crystal-countdown">${formatBcCrystalCountdown(bcEndMs)}</span></div>`
-            : `<button class="btn-bc-crystal" data-server-time="${occ.serverTime}" data-duration="${occ.duration}">💎 Peguei o Cristal</button>`)
-        : '';
+    const bcCrystalValid = bcCrystalActive && bcCrystalActive.endsAt > Date.now();
+    const bcMsLeft = bcCrystalValid ? bcCrystalActive.endsAt - Date.now() : 0;
+    let bcCrystalHtml = '';
+    if (isBcActive) {
+        if (bcCrystalValid) {
+            bcCrystalHtml = `<div class="bc-crystal-status">💎 Cristal pego! Entregue em <span class="bc-crystal-countdown">${formatBcCrystalCountdown(bcMsLeft)}</span></div>`;
+        } else {
+            // Calculate when this BC ends (absolute timestamp)
+            const bcEndsAt = Date.now() + (occ.duration * 60000) + occ.msUntil;
+            bcCrystalHtml = `<button class="btn-bc-crystal" data-ends-at="${bcEndsAt}">💎 Peguei o Cristal</button>`;
+        }
+    }
 
     card.innerHTML = `
         ${iconHtml}
@@ -481,9 +487,10 @@ function createEventCard(occ, showToggle = true) {
     if (crystalBtn) {
         crystalBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            bcCrystalActive = { serverTime: occ.serverTime, eventDate: occ.eventDate.toISOString(), duration: occ.duration };
+            const endsAt = parseInt(crystalBtn.dataset.endsAt);
+            bcCrystalActive = { endsAt };
             localStorage.setItem('mudream_bc_crystal', JSON.stringify(bcCrystalActive));
-            showToast('💎 Cristal marcado! Você receberá um alarme 1 minuto antes do BC acabar.', 'success', 5000);
+            showToast('💎 Cristal marcado! Alarme 1 minuto antes do BC acabar.', 'success', 5000);
             renderAll(true);
         });
     }
@@ -694,28 +701,26 @@ function formatBcCrystalCountdown(msRemaining) {
 }
 
 function checkBcCrystalAlarm() {
-    if (!bcCrystalActive) return;
-    // Find the active BC occurrence matching the saved crystal
-    const bcEvent = EVENTS_DATA.events.find(e => e.id === 'blood-castle');
-    if (!bcEvent) return;
-    const occs = getNextOccurrences(bcEvent);
-    const activeOcc = occs.find(o => o.isActive && o.serverTime === bcCrystalActive.serverTime);
-    if (!activeOcc) {
-        // BC ended or not active anymore, clear crystal
+    if (!bcCrystalActive || !bcCrystalActive.endsAt) return;
+    const msRemaining = bcCrystalActive.endsAt - Date.now();
+
+    // BC already ended — clear crystal
+    if (msRemaining <= 0) {
         bcCrystalActive = null;
         localStorage.removeItem('mudream_bc_crystal');
         return;
     }
-    const msRemaining = (activeOcc.duration * 60000) + activeOcc.msUntil; // msUntil is negative when active
-    const alarmKey = `bc-crystal-${bcCrystalActive.serverTime}`;
+
     // Fire alarm when 1 minute or less remaining
-    if (msRemaining <= 60000 && msRemaining > 0 && !firedAlarms.has(alarmKey)) {
+    const alarmKey = `bc-crystal-${bcCrystalActive.endsAt}`;
+    if (msRemaining <= 60000 && !firedAlarms.has(alarmKey)) {
         firedAlarms.add(alarmKey);
         const msg = '🚨💎 Blood Castle acaba em 1 minuto! Entregue o Cristal AGORA!';
         if (settings.soundAlarm) alarm.play();
         if (settings.browserNotif) alarm.sendNotification('MU Timer Dream', msg.replace(/[🚨💎]/g, ''));
         showAlertBanner(msg);
     }
+
     // Update crystal countdown on card
     const cdEl = document.querySelector('.bc-crystal-countdown');
     if (cdEl) cdEl.textContent = formatBcCrystalCountdown(msRemaining);
