@@ -33,16 +33,7 @@ const ITEM_IMG_MAP = {
     'sum-eclipse-helm': '7/35', 'sum-eclipse-armor': '8/35', 'sum-eclipse-pants': '9/35', 'sum-eclipse-gloves': '10/35', 'sum-eclipse-boots': '11/35',
     'sum-iris-helm': '7/36', 'sum-iris-armor': '8/36', 'sum-iris-pants': '9/36', 'sum-iris-gloves': '10/36', 'sum-iris-boots': '11/36',
     'dragon-slayer-shield': '6/5', 'grand-soul-shield': '6/15', 'elemental-shield': '6/18',
-    'crimson-glory': '6/16', 'salamander-shield': '6/8',
-    'wings-elf': '12/0', 'wings-heaven': '12/1', 'wings-satan': '12/2', 'wings-spirits': '12/3',
-    'wings-soul': '12/4', 'wings-dragon': '12/5', 'cape-lord': '12/30',
-    'wings-darkness': '12/6', 'cape-fighter': '12/43', 'wings-despair': '12/42',
-    'wings-storm': '12/36', 'wings-eternal': '12/37', 'cape-emperor': '12/38',
-    'wings-illusion': '12/44', 'wings-dimension': '12/7',
-    'ring-ice': '13/8', 'ring-poison': '13/9', 'ring-fire': '13/21', 'ring-earth': '13/22',
-    'ring-wind': '13/23', 'ring-magic': '13/24',
-    'pendant-lightning': '13/12', 'pendant-fire': '13/13', 'pendant-ice': '13/25',
-    'pendant-wind': '13/26', 'pendant-water': '13/27', 'pendant-ability': '13/28'
+    'crimson-glory': '6/16', 'salamander-shield': '6/8'
 };
 
 function initCollection() {
@@ -280,7 +271,7 @@ function renderCollectionCategories(names, searchQuery) {
 
 function getItemIcon(category) {
     const icons = {
-        'shields': '🛡️', 'wings': '🪽', 'rings': '💍',
+        'shields': '🛡️',
         'sets-dk': '🛡️', 'sets-dw': '🧙', 'sets-elf': '🧝', 'sets-mg': '⚡',
         'sets-dl': '👹', 'sets-sum': '📖', 'sets-rf': '👊'
     };

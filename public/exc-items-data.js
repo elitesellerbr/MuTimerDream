@@ -8,8 +8,6 @@ const EXC_ITEMS_DATA = {
         { id: 'sets-sum', icon: '📖' },
         { id: 'sets-rf', icon: '👊' },
         { id: 'shields', icon: '🛡️' },
-        { id: 'wings', icon: '🪽' },
-        { id: 'rings', icon: '💍' },
     ],
     items: [
         // ===== DK SETS =====
@@ -235,36 +233,5 @@ const EXC_ITEMS_DATA = {
         { id: 'elemental-shield', name: 'Elemental Shield', category: 'shields', tier: 4 },
         { id: 'crimson-glory', name: 'Crimson Glory', category: 'shields', tier: 5 },
         { id: 'salamander-shield', name: 'Salamander Shield', category: 'shields', tier: 3 },
-
-        // ===== WINGS =====
-        { id: 'wings-elf', name: 'Wings of Elf', category: 'wings', tier: 2 },
-        { id: 'wings-heaven', name: 'Wings of Heaven', category: 'wings', tier: 2 },
-        { id: 'wings-satan', name: 'Wings of Satan', category: 'wings', tier: 2 },
-        { id: 'wings-spirits', name: 'Wings of Spirits', category: 'wings', tier: 3 },
-        { id: 'wings-soul', name: 'Wings of Soul', category: 'wings', tier: 3 },
-        { id: 'wings-dragon', name: 'Wings of Dragon', category: 'wings', tier: 3 },
-        { id: 'cape-lord', name: 'Cape of Lord', category: 'wings', tier: 3 },
-        { id: 'wings-darkness', name: 'Wings of Darkness', category: 'wings', tier: 4 },
-        { id: 'cape-fighter', name: 'Cape of Fighter', category: 'wings', tier: 4 },
-        { id: 'wings-despair', name: 'Wings of Despair', category: 'wings', tier: 4 },
-        { id: 'wings-storm', name: 'Wings of Storm', category: 'wings', tier: 5 },
-        { id: 'wings-eternal', name: 'Wings of Eternal', category: 'wings', tier: 5 },
-        { id: 'cape-emperor', name: 'Cape of Emperor', category: 'wings', tier: 5 },
-        { id: 'wings-illusion', name: 'Wings of Illusion', category: 'wings', tier: 4 },
-        { id: 'wings-dimension', name: 'Wings of Dimension', category: 'wings', tier: 5 },
-
-        // ===== RINGS & PENDANTS =====
-        { id: 'ring-ice', name: 'Ring of Ice', category: 'rings', tier: 2 },
-        { id: 'ring-poison', name: 'Ring of Poison', category: 'rings', tier: 2 },
-        { id: 'ring-fire', name: 'Ring of Fire', category: 'rings', tier: 3 },
-        { id: 'ring-earth', name: 'Ring of Earth', category: 'rings', tier: 3 },
-        { id: 'ring-wind', name: 'Ring of Wind', category: 'rings', tier: 3 },
-        { id: 'ring-magic', name: 'Ring of Magic', category: 'rings', tier: 4 },
-        { id: 'pendant-lightning', name: 'Pendant of Lightning', category: 'rings', tier: 3 },
-        { id: 'pendant-fire', name: 'Pendant of Fire', category: 'rings', tier: 3 },
-        { id: 'pendant-ice', name: 'Pendant of Ice', category: 'rings', tier: 3 },
-        { id: 'pendant-wind', name: 'Pendant of Wind', category: 'rings', tier: 3 },
-        { id: 'pendant-water', name: 'Pendant of Water', category: 'rings', tier: 3 },
-        { id: 'pendant-ability', name: 'Pendant of Ability', category: 'rings', tier: 4 },
     ]
 };
