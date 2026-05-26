@@ -193,8 +193,9 @@ function renderGuildPanel(data) {
         <div id="guildEvents" class="admin-section"></div>
         ${isLeader ? '<div id="guildReport" class="admin-section"></div>' : ''}
 
-        <div style="margin-top:16px;text-align:center">
+        <div style="margin-top:16px;text-align:center;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
             <button class="btn-sm btn-danger" id="btnLeaveGuild">${t('guildLeave')}</button>
+            ${currentUser && currentUser.is_admin ? `<button class="btn-sm btn-danger" id="btnDeleteGuild" style="background:#b71c1c;">🗑️ Excluir Guild</button>` : ''}
         </div>
     `;
 
@@ -232,6 +233,20 @@ function renderGuildPanel(data) {
             loadGuild();
         } catch (e) { showToast(e.message, 'error'); }
     });
+
+    const btnDeleteGuild = document.getElementById('btnDeleteGuild');
+    if (btnDeleteGuild) {
+        btnDeleteGuild.addEventListener('click', async () => {
+            const yes = await customConfirm(`Excluir a guild "${escapeHtml(data.guild.name)}" permanentemente? Todos os membros serão removidos.`, '🗑️');
+            if (!yes) return;
+            try {
+                await apiCall(`/api/admin/guild/${data.guild.id}`, 'DELETE');
+                guildData = null;
+                showToast('Guild excluída ✓', 'success');
+                loadGuild();
+            } catch (e) { showToast(e.message, 'error'); }
+        });
+    }
 }
 
 function renderGuildMembers(data) {

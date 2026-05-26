@@ -1116,6 +1116,20 @@ app.post('/api/guild/leave', authMiddleware, async (req, res) => {
     res.json({ ok: true });
 });
 
+// Admin: delete any guild
+app.delete('/api/admin/guild/:id', authMiddleware, async (req, res) => {
+    if (!req.user.is_admin) return res.status(403).json({ error: 'Acesso negado' });
+    const guildId = parseInt(req.params.id);
+    try {
+        await supabase.from('guild_event_signups').delete().eq('guild_id', guildId);
+        await supabase.from('guild_members').delete().eq('guild_id', guildId);
+        await supabase.from('guilds').delete().eq('id', guildId);
+        res.json({ ok: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 app.delete('/api/guild/members/:id', authMiddleware, async (req, res) => {
     const memberId = parseInt(req.params.id);
     const { data: myMember } = await supabase

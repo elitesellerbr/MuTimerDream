@@ -1,9 +1,10 @@
-const CACHE_NAME = 'mudream-timer-v5';
+const CACHE_NAME = 'mudream-timer-v6';
 const ASSETS = [
     '/',
     '/index.html',
     '/styles.css',
     '/events-data.js',
+    '/exc-items-data.js',
     '/alarm.js',
     '/app.js',
     '/auth.js',

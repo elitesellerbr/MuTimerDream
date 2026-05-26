@@ -421,7 +421,10 @@ async function loadAdminGuilds() {
                             <strong style="color:#f5a623;font-size:16px;">⚔️ ${escapeHtml(g.name)}</strong>
                             <span style="color:#8888aa;font-size:12px;margin-left:8px;">Código: <code style="background:#0d0d20;padding:2px 6px;border-radius:4px;color:#f5a623;">${escapeHtml(g.join_code)}</code></span>
                         </div>
-                        <span style="color:#8888aa;font-size:12px;">${g.member_count} membro${g.member_count !== 1 ? 's' : ''} · Criada ${formatDate(g.created_at)}</span>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <span style="color:#8888aa;font-size:12px;">${g.member_count} membro${g.member_count !== 1 ? 's' : ''} · Criada ${formatDate(g.created_at)}</span>
+                            <button class="btn-sm btn-danger" onclick="deleteGuild(${g.id}, '${escapeHtml(g.name).replace(/'/g, "\\'")}')" title="Excluir guild">🗑️</button>
+                        </div>
                     </div>
                     <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));gap:6px;">
                         ${g.members.map(m => `
@@ -446,6 +449,19 @@ async function deleteUser(id) {
         await apiCall(`/api/admin/users/${id}`, 'DELETE');
         loadUsers();
         showToast(t('adminRemove') + ' ✓', 'success');
+    } catch (e) {
+        showToast(e.message, 'error');
+    }
+}
+
+async function deleteGuild(id, name) {
+    const yes = await customConfirm(`Excluir a guild "${name}" e todos os membros?`, '🗑️');
+    if (!yes) return;
+    try {
+        await apiCall(`/api/admin/guild/${id}`, 'DELETE');
+        loadAdminGuilds();
+        loadDashboard();
+        showToast('Guild excluída ✓', 'success');
     } catch (e) {
         showToast(e.message, 'error');
     }
