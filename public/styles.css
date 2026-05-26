@@ -3914,6 +3914,27 @@ input[type="checkbox"] {
     min-width: auto;
     line-height: 1;
 }
+.btn-elite-add {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid #66bb6a;
+    background: transparent;
+    color: #66bb6a;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+    transition: all 0.15s;
+}
+.btn-elite-add:hover {
+    background: #66bb6a;
+    color: #1a1a2e;
+}
 .btn-elite-reset:hover {
     color: var(--accent) !important;
     border-color: var(--accent) !important;

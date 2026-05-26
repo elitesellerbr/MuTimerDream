@@ -201,6 +201,12 @@ function clearEliteTimer(key) {
     renderElites();
 }
 
+function addEliteKill(key) {
+    eliteKillCounts[key] = (eliteKillCounts[key] || 0) + 1;
+    saveEliteKillCounts();
+    renderElites();
+}
+
 function resetEliteCount(key) {
     eliteKillCounts[key] = 0;
     saveEliteKillCounts();
@@ -265,6 +271,7 @@ function renderElites() {
                 <div class="elite-count" title="Kills: ${killCount}/${maxKills}">
                     <div class="elite-count-bar"><div class="elite-count-fill" style="width:${countPct}%;background:${countColor}"></div></div>
                     <span class="elite-count-label" style="color:${countColor}">${killCount}/${maxKills}</span>
+                    <button class="btn-elite-add" onclick="addEliteKill('${key}')" title="Adicionar kill">+</button>
                     ${killCount > 0 ? `<button class="btn-elite-reset" onclick="resetEliteCount('${key}')" title="Zerar contador">↺</button>` : ''}
                 </div>
                 <div class="elite-status">
