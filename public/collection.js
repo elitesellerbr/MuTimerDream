@@ -65,9 +65,6 @@ const ITEM_IMG_MAP = {
     'rf-sfire-helm': '7/45', 'rf-sfire-armor': '8/45', 'rf-sfire-pants': '9/45', 'rf-sfire-boots': '11/45',
     'rf-szahard-helm': '7/46', 'rf-szahard-armor': '8/46', 'rf-szahard-pants': '9/46', 'rf-szahard-boots': '11/46',
     'rf-pgrove-helm': '7/50', 'rf-pgrove-armor': '8/50', 'rf-pgrove-pants': '9/50', 'rf-pgrove-boots': '11/50',
-    // Shields
-    'dragon-slayer-shield': '6/5', 'grand-soul-shield': '6/15', 'elemental-shield': '6/18',
-    'crimson-glory': '6/16', 'salamander-shield': '6/8'
 };
 
 function initCollection() {
@@ -151,14 +148,12 @@ function renderCollection(container) {
         pt: {
             'swords': 'Espadas', 'axes': 'Machados', 'maces': 'Maças', 'staffs': 'Cajados',
             'bows': 'Arcos', 'scepters': 'Cetros', 'sets-dk': 'Sets DK', 'sets-dw': 'Sets DW',
-            'sets-elf': 'Sets ELF', 'sets-mg': 'Sets MG', 'sets-dl': 'Sets DL', 'sets-sum': 'Sets SUM',
-            'shields': 'Escudos', 'wings': 'Asas', 'rings': 'Anéis & Pendentes'
+            'sets-elf': 'Sets ELF', 'sets-mg': 'Sets MG', 'sets-dl': 'Sets DL', 'sets-sum': 'Sets SUM'
         },
         en: {
             'swords': 'Swords', 'axes': 'Axes', 'maces': 'Maces', 'staffs': 'Staffs',
             'bows': 'Bows', 'scepters': 'Scepters', 'sets-dk': 'DK Sets', 'sets-dw': 'DW Sets',
-            'sets-elf': 'ELF Sets', 'sets-mg': 'MG Sets', 'sets-dl': 'DL Sets', 'sets-sum': 'SUM Sets',
-            'shields': 'Shields', 'wings': 'Wings', 'rings': 'Rings & Pendants'
+            'sets-elf': 'ELF Sets', 'sets-mg': 'MG Sets', 'sets-dl': 'DL Sets', 'sets-sum': 'SUM Sets'
         }
     };
 
@@ -305,7 +300,6 @@ function renderCollectionCategories(names, searchQuery) {
 
 function getItemIcon(category) {
     const icons = {
-        'shields': '🛡️',
         'sets-dk': '🛡️', 'sets-dw': '🧙', 'sets-elf': '🧝', 'sets-mg': '⚡',
         'sets-dl': '👹', 'sets-sum': '📖', 'sets-rf': '👊'
     };

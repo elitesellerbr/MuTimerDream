@@ -4,6 +4,7 @@ let settings = loadSettings();
 let enabledAlarms = loadEnabledAlarms();
 let firedAlarms = new Set();
 let eliteKillTimers = loadEliteKillTimers();
+let eliteKillCounts = loadEliteKillCounts();
 
 // ==================== TOAST SYSTEM ====================
 function showToast(message, type = 'info', duration = 4000) {
@@ -157,6 +158,13 @@ function loadEliteKillTimers() {
     try { return JSON.parse(localStorage.getItem('mudream_elite_timers')) || {}; } catch { return {}; }
 }
 
+function loadEliteKillCounts() {
+    try { return JSON.parse(localStorage.getItem('mudream_elite_counts')) || {}; } catch { return {}; }
+}
+function saveEliteKillCounts() {
+    localStorage.setItem('mudream_elite_counts', JSON.stringify(eliteKillCounts));
+}
+
 function saveEliteKillTimers() {
     localStorage.setItem('mudream_elite_timers', JSON.stringify(eliteKillTimers));
     syncEliteTimersToServer();
@@ -180,13 +188,21 @@ function syncEliteTimersToServer() {
 function markEliteKilled(eliteId, mapName) {
     const key = `${eliteId}__${mapName}`;
     eliteKillTimers[key] = Date.now();
+    eliteKillCounts[key] = (eliteKillCounts[key] || 0) + 1;
     saveEliteKillTimers();
+    saveEliteKillCounts();
     renderElites();
 }
 
 function clearEliteTimer(key) {
     delete eliteKillTimers[key];
     saveEliteKillTimers();
+    renderElites();
+}
+
+function resetEliteCount(key) {
+    eliteKillCounts[key] = 0;
+    saveEliteKillCounts();
     renderElites();
 }
 
@@ -233,12 +249,22 @@ function renderElites() {
             `;
         }
 
+        const killCount = eliteKillCounts[key] || 0;
+        const maxKills = 10;
+        const countPct = Math.min(killCount / maxKills * 100, 100);
+        const countColor = killCount >= maxKills ? '#66bb6a' : '#f5a623';
+
         card.innerHTML = `
             <div class="event-card" style="--card-accent:${elite.color};cursor:default;">
                 ${elite.img ? `<div class="event-icon event-icon-img"><img src="${elite.img}" alt="${elite.name}"></div>` : `<div class="event-icon">${elite.icon}</div>`}
                 <div class="event-info">
                     <div class="event-name">${elite.name}</div>
                     <div class="event-detail">📍 ${map}</div>
+                </div>
+                <div class="elite-count" title="Kills: ${killCount}/${maxKills}">
+                    <div class="elite-count-bar"><div class="elite-count-fill" style="width:${countPct}%;background:${countColor}"></div></div>
+                    <span class="elite-count-label" style="color:${countColor}">${killCount}/${maxKills}</span>
+                    ${killCount > 0 ? `<button class="btn-elite-reset" onclick="resetEliteCount('${key}')" title="Zerar contador">↺</button>` : ''}
                 </div>
                 <div class="elite-status">
                     ${statusHtml}

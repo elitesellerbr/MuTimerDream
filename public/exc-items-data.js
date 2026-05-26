@@ -7,7 +7,6 @@ const EXC_ITEMS_DATA = {
         { id: 'sets-dl', icon: '👹' },
         { id: 'sets-sum', icon: '📖' },
         { id: 'sets-rf', icon: '👊' },
-        { id: 'shields', icon: '🛡️' },
     ],
     items: [
         // ===== DK SETS =====
@@ -227,11 +226,5 @@ const EXC_ITEMS_DATA = {
         { id: 'rf-pgrove-pants', name: 'Piercing Grove Pants', category: 'sets-rf', tier: 4 },
         { id: 'rf-pgrove-boots', name: 'Piercing Grove Boots', category: 'sets-rf', tier: 4 },
 
-        // ===== SHIELDS =====
-        { id: 'dragon-slayer-shield', name: 'Dragon Slayer Shield', category: 'shields', tier: 3 },
-        { id: 'grand-soul-shield', name: 'Grand Soul Shield', category: 'shields', tier: 4 },
-        { id: 'elemental-shield', name: 'Elemental Shield', category: 'shields', tier: 4 },
-        { id: 'crimson-glory', name: 'Crimson Glory', category: 'shields', tier: 5 },
-        { id: 'salamander-shield', name: 'Salamander Shield', category: 'shields', tier: 3 },
     ]
 };

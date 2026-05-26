@@ -3878,6 +3878,47 @@ input[type="checkbox"] {
     border-color: var(--danger) !important;
 }
 
+.elite-count {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 90px;
+    flex-shrink: 0;
+}
+.elite-count-bar {
+    width: 50px;
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+.elite-count-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s;
+}
+.elite-count-label {
+    font-size: 13px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+.btn-elite-reset {
+    background: transparent !important;
+    color: var(--text-muted) !important;
+    font-size: 14px;
+    padding: 1px 4px !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 4px;
+    cursor: pointer;
+    min-width: auto;
+    line-height: 1;
+}
+.btn-elite-reset:hover {
+    color: var(--accent) !important;
+    border-color: var(--accent) !important;
+}
+
 @media (max-width: 600px) {
     .elite-status {
         gap: 4px;
@@ -3889,6 +3930,16 @@ input[type="checkbox"] {
     .btn-elite-kill {
         font-size: 11px;
         padding: 3px 8px !important;
+    }
+    .elite-count {
+        min-width: 70px;
+        gap: 4px;
+    }
+    .elite-count-bar {
+        width: 35px;
+    }
+    .elite-count-label {
+        font-size: 11px;
     }
 }
 
