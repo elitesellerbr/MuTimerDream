@@ -647,14 +647,15 @@ function checkAlarms() {
                     const alarmKey = `${occ.id}-${occ.serverTime}-${occ.eventDate.toDateString()}-${interval}`;
 
                     if (interval === 0) {
-                        if (minutesUntil <= 0.5 && minutesUntil >= -0.5 && !firedAlarms.has(alarmKey)) {
+                        if (minutesUntil <= 0.5 && minutesUntil >= -1 && !firedAlarms.has(alarmKey)) {
                             firedAlarms.add(alarmKey);
                             triggerAlarm(occ, 0);
                         }
                     } else {
-                        if (minutesUntil > 0 && minutesUntil <= interval && minutesUntil > interval - 1 && !firedAlarms.has(alarmKey)) {
+                        // Fire when within 10s of the target (e.g. 5:00 to 4:50)
+                        if (minutesUntil > 0 && minutesUntil <= interval && minutesUntil > interval - 0.5 && !firedAlarms.has(alarmKey)) {
                             firedAlarms.add(alarmKey);
-                            triggerAlarm(occ, Math.ceil(minutesUntil));
+                            triggerAlarm(occ, interval);
                         }
                     }
                 }
@@ -885,7 +886,7 @@ function startApp() {
 
     setInterval(updateServerClock, 1000);
     setInterval(renderAll, 5000);
-    setInterval(checkAlarms, 10000);
+    setInterval(checkAlarms, 3000);
 
     // PWA: request wake lock to keep alarms active
     requestWakeLock();
