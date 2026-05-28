@@ -1058,7 +1058,26 @@ app.get('/api/guild/my', authMiddleware, pinMiddleware, async (req, res) => {
         .eq('user_id', req.user.id)
         .single();
 
-    if (!member) return res.json({ guild: null });
+    if (!member) {
+        // User has no guild — return their pending join requests
+        const { data: pendingReqs } = await supabase
+            .from('guild_join_requests')
+            .select('id, guild_id, char_name, status, created_at, guilds(name)')
+            .eq('user_id', req.user.id)
+            .eq('status', 'pending')
+            .order('created_at', { ascending: false });
+
+        const pendingRequests = (pendingReqs || []).map(r => ({
+            id: r.id,
+            guild_id: r.guild_id,
+            guild_name: r.guilds?.name,
+            char_name: r.char_name,
+            status: r.status,
+            created_at: r.created_at
+        }));
+
+        return res.json({ guild: null, pendingRequests });
+    }
 
     const { data: members } = await supabase
         .from('guild_members')
@@ -1079,6 +1098,17 @@ app.get('/api/guild/my', authMiddleware, pinMiddleware, async (req, res) => {
     const rolePriority = { master: 0, assistant: 1, party_assistant: 2, member: 3 };
     formattedMembers.sort((a, b) => (rolePriority[a.role] || 3) - (rolePriority[b.role] || 3));
 
+    // If user is a guild leader, include pending requests count
+    let pendingRequestsCount = 0;
+    if (isGuildLeader(member)) {
+        const { count } = await supabase
+            .from('guild_join_requests')
+            .select('*', { count: 'exact', head: true })
+            .eq('guild_id', member.guild_id)
+            .eq('status', 'pending');
+        pendingRequestsCount = count || 0;
+    }
+
     res.json({
         guild: {
             id: member.guild_id,
@@ -1088,7 +1118,8 @@ app.get('/api/guild/my', authMiddleware, pinMiddleware, async (req, res) => {
             created_at: member.guilds.created_at
         },
         member: { id: member.id, char_name: member.char_name, role: member.role },
-        members: formattedMembers
+        members: formattedMembers,
+        pendingRequestsCount
     });
 });
 
@@ -1246,6 +1277,196 @@ app.get('/api/guild/events/report', authMiddleware, async (req, res) => {
     }));
 
     res.json({ report: formatted });
+});
+
+// ==================== GUILD JOIN REQUEST ROUTES ====================
+
+app.get('/api/guild/search', authMiddleware, async (req, res) => {
+    const q = (req.query.q || '').trim();
+    if (q.length < 2) return res.status(400).json({ error: 'Digite pelo menos 2 caracteres' });
+
+    // User must NOT be in a guild already
+    const { data: existing } = await supabase
+        .from('guild_members')
+        .select('id')
+        .eq('user_id', req.user.id)
+        .single();
+    if (existing) return res.status(400).json({ error: 'Você já está em uma guild' });
+
+    try {
+        const { data: guilds } = await supabase
+            .from('guilds')
+            .select('id, name, guild_members(count)')
+            .ilike('name', `%${q}%`)
+            .limit(10);
+
+        const results = (guilds || []).map(g => ({
+            id: g.id,
+            name: g.name,
+            member_count: g.guild_members?.[0]?.count || 0
+        }));
+
+        res.json({ guilds: results });
+    } catch (e) {
+        console.error('Guild search error:', e.message);
+        res.status(500).json({ error: 'Erro ao buscar guilds' });
+    }
+});
+
+app.post('/api/guild/join-request', authMiddleware, async (req, res) => {
+    const { guildId, charName } = req.body;
+    if (!guildId || !charName) return res.status(400).json({ error: 'Guild e nick são obrigatórios' });
+    if (charName.length < 1 || charName.length > 20) return res.status(400).json({ error: 'Nick deve ter 1-20 caracteres' });
+
+    // User must not be in a guild
+    const { data: existing } = await supabase
+        .from('guild_members')
+        .select('id')
+        .eq('user_id', req.user.id)
+        .single();
+    if (existing) return res.status(400).json({ error: 'Você já está em uma guild' });
+
+    // Guild must exist
+    const { data: guild } = await supabase
+        .from('guilds')
+        .select('id')
+        .eq('id', guildId)
+        .single();
+    if (!guild) return res.status(404).json({ error: 'Guild não encontrada' });
+
+    // No existing pending request for this guild
+    const { data: pendingReq } = await supabase
+        .from('guild_join_requests')
+        .select('id')
+        .eq('guild_id', guildId)
+        .eq('user_id', req.user.id)
+        .eq('status', 'pending')
+        .single();
+    if (pendingReq) return res.status(400).json({ error: 'Você já tem uma solicitação pendente para esta guild' });
+
+    try {
+        const { error } = await supabase.from('guild_join_requests').insert({
+            guild_id: guildId,
+            user_id: req.user.id,
+            char_name: charName,
+            status: 'pending'
+        });
+        if (error) {
+            if (error.code === '23505') return res.status(400).json({ error: 'Solicitação já enviada para esta guild' });
+            throw error;
+        }
+        res.json({ ok: true });
+    } catch (e) {
+        console.error('Join request error:', e.message);
+        res.status(500).json({ error: 'Erro ao enviar solicitação' });
+    }
+});
+
+app.get('/api/guild/join-requests', authMiddleware, async (req, res) => {
+    const { data: myMember } = await supabase
+        .from('guild_members')
+        .select('*, guilds!inner(master_id)')
+        .eq('user_id', req.user.id)
+        .single();
+    if (!myMember || !isGuildLeader(myMember)) return res.status(403).json({ error: 'Apenas líderes podem ver solicitações' });
+
+    const { data: requests } = await supabase
+        .from('guild_join_requests')
+        .select('id, user_id, char_name, status, created_at, users(username)')
+        .eq('guild_id', myMember.guild_id)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: true });
+
+    const formatted = (requests || []).map(r => ({
+        id: r.id,
+        user_id: r.user_id,
+        char_name: r.char_name,
+        status: r.status,
+        created_at: r.created_at,
+        username: r.users?.username
+    }));
+
+    res.json({ requests: formatted });
+});
+
+app.post('/api/guild/join-request/:id/accept', authMiddleware, async (req, res) => {
+    const requestId = parseInt(req.params.id);
+
+    const { data: myMember } = await supabase
+        .from('guild_members')
+        .select('*, guilds!inner(master_id)')
+        .eq('user_id', req.user.id)
+        .single();
+    if (!myMember || !isGuildLeader(myMember)) return res.status(403).json({ error: 'Apenas líderes podem aceitar solicitações' });
+
+    const { data: request } = await supabase
+        .from('guild_join_requests')
+        .select('*')
+        .eq('id', requestId)
+        .eq('guild_id', myMember.guild_id)
+        .eq('status', 'pending')
+        .single();
+    if (!request) return res.status(404).json({ error: 'Solicitação não encontrada ou já processada' });
+
+    // Check if user is already in another guild
+    const { data: alreadyInGuild } = await supabase
+        .from('guild_members')
+        .select('id')
+        .eq('user_id', request.user_id)
+        .single();
+    if (alreadyInGuild) return res.status(400).json({ error: 'Usuário já está em outra guild' });
+
+    try {
+        // Add user to guild
+        await supabase.from('guild_members').insert({
+            guild_id: myMember.guild_id,
+            user_id: request.user_id,
+            char_name: request.char_name,
+            role: 'member'
+        });
+
+        // Update this request to accepted
+        await supabase.from('guild_join_requests')
+            .update({ status: 'accepted' })
+            .eq('id', requestId);
+
+        // Delete all other pending requests from this user
+        await supabase.from('guild_join_requests')
+            .delete()
+            .eq('user_id', request.user_id)
+            .eq('status', 'pending');
+
+        res.json({ ok: true });
+    } catch (e) {
+        console.error('Accept join request error:', e.message);
+        res.status(500).json({ error: 'Erro ao aceitar solicitação' });
+    }
+});
+
+app.post('/api/guild/join-request/:id/reject', authMiddleware, async (req, res) => {
+    const requestId = parseInt(req.params.id);
+
+    const { data: myMember } = await supabase
+        .from('guild_members')
+        .select('*, guilds!inner(master_id)')
+        .eq('user_id', req.user.id)
+        .single();
+    if (!myMember || !isGuildLeader(myMember)) return res.status(403).json({ error: 'Apenas líderes podem rejeitar solicitações' });
+
+    const { data: request } = await supabase
+        .from('guild_join_requests')
+        .select('id')
+        .eq('id', requestId)
+        .eq('guild_id', myMember.guild_id)
+        .eq('status', 'pending')
+        .single();
+    if (!request) return res.status(404).json({ error: 'Solicitação não encontrada ou já processada' });
+
+    await supabase.from('guild_join_requests')
+        .update({ status: 'rejected' })
+        .eq('id', requestId);
+
+    res.json({ ok: true });
 });
 
 // ==================== COLLECTION ROUTES ====================

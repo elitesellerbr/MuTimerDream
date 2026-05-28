@@ -28,7 +28,7 @@ async function loadGuild() {
         if (data.guild) {
             renderGuildPanel(data);
         } else {
-            renderGuildCreate(container);
+            renderGuildCreate(container, data.pendingRequests || []);
         }
     } catch (e) {
         // Check if PIN is required
@@ -48,7 +48,19 @@ async function loadGuild() {
     }
 }
 
-function renderGuildCreate(container) {
+function renderGuildCreate(container, pendingRequests = []) {
+    const pendingHtml = pendingRequests.length > 0 ? `
+        <div class="guild-pending-list">
+            <h4>📨 ${t('guildRequestPending')}</h4>
+            ${pendingRequests.map(r => `
+                <div class="guild-pending-item">
+                    <span>⚔️ <strong>${escapeHtml(r.guildName)}</strong> — ${escapeHtml(r.charName)}</span>
+                    <span class="guild-pending-tag">⏳ ${t('guildRequestPending')}</span>
+                </div>
+            `).join('')}
+        </div>
+    ` : '';
+
     container.innerHTML = `
         <div class="guild-setup">
             <div class="guild-setup-option">
@@ -63,6 +75,23 @@ function renderGuildCreate(container) {
                 </div>
                 <button class="landing-enter" id="btnCreateGuild" style="width:100%;font-size:14px;padding:10px">${t('guildCreateBtn')}</button>
             </div>
+
+            <div class="guild-divider"><span>${t('guildOr')}</span></div>
+
+            <div class="guild-setup-option">
+                <h3>🔍 ${t('guildJoinRequest')}</h3>
+                <div class="setting-group">
+                    <label>${t('guildSearchGuild')}</label>
+                    <div class="guild-search-row">
+                        <input type="text" id="guildSearchInput" class="admin-input" placeholder="${t('guildSearchPlaceholder')}" maxlength="30">
+                        <button class="btn-sm" id="btnSearchGuild" style="padding:8px 16px">${t('guildSearchBtn')}</button>
+                    </div>
+                </div>
+                <div id="guildSearchResults"></div>
+            </div>
+
+            ${pendingHtml}
+
             <div style="margin-top:12px;text-align:center;color:#8888aa;font-size:12px">
                 <p>${t('guildOnlyMasterInfo')}</p>
             </div>
@@ -88,6 +117,58 @@ function renderGuildCreate(container) {
             btn.disabled = false;
         }
     });
+
+    document.getElementById('btnSearchGuild').addEventListener('click', () => searchGuilds());
+    document.getElementById('guildSearchInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') searchGuilds();
+    });
+}
+
+async function searchGuilds() {
+    const q = document.getElementById('guildSearchInput').value.trim();
+    if (q.length < 2) return;
+    const results = document.getElementById('guildSearchResults');
+    results.innerHTML = '<div style="text-align:center;padding:10px;color:#8888aa">⏳...</div>';
+    try {
+        const data = await guildApi(`/api/guild/search?q=${encodeURIComponent(q)}`);
+        if (!data.guilds || data.guilds.length === 0) {
+            results.innerHTML = `<div style="text-align:center;padding:10px;color:#8888aa">${t('guildSearchNoResults')}</div>`;
+            return;
+        }
+        results.innerHTML = data.guilds.map(g => `
+            <div class="guild-search-result" data-gid="${g.id}">
+                <div class="guild-search-info">
+                    <strong>⚔️ ${escapeHtml(g.name)}</strong>
+                    <span class="guild-search-count">${g.member_count} ${t('guildMembersCount')}</span>
+                </div>
+                <div class="guild-search-action">
+                    <input type="text" class="admin-input guild-join-char" placeholder="${t('guildCharPlaceholder')}" maxlength="20" style="width:140px;font-size:12px;padding:6px">
+                    <button class="btn-sm btn-join-guild" data-gid="${g.id}" style="padding:6px 12px;font-size:11px">${t('guildSendRequest')}</button>
+                </div>
+            </div>
+        `).join('');
+
+        results.querySelectorAll('.btn-join-guild').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const row = btn.closest('.guild-search-result');
+                const charName = row.querySelector('.guild-join-char').value.trim();
+                if (!charName) { showToast('Digite o nick do seu char', 'warning'); return; }
+                btn.disabled = true;
+                btn.textContent = '⏳...';
+                try {
+                    await guildApi('/api/guild/join-request', 'POST', { guildId: parseInt(btn.dataset.gid), charName });
+                    showToast(t('guildRequestSent'), 'success');
+                    loadGuild();
+                } catch (e) {
+                    showToast(e.message, 'error');
+                    btn.disabled = false;
+                    btn.textContent = t('guildSendRequest');
+                }
+            });
+        });
+    } catch (e) {
+        results.innerHTML = `<div style="text-align:center;padding:10px;color:#ff5252">${escapeHtml(e.message)}</div>`;
+    }
 }
 
 function showGuildError(msg) {
@@ -182,7 +263,7 @@ function renderGuildPanel(data) {
         </div>
 
         <div class="admin-tabs guild-tabs">
-            <button class="admin-tab active" data-gtab="members">${t('guildMembers')} (${data.members.length})</button>
+            <button class="admin-tab active" data-gtab="members">${t('guildMembers')} (${data.members.length})${data.pendingRequestsCount > 0 ? ` <span class="badge">${data.pendingRequestsCount}</span>` : ''}</button>
             <button class="admin-tab" data-gtab="collections">📦 ${t('guildCollections')}</button>
             <button class="admin-tab" data-gtab="events">${t('guildEvents')}</button>
             ${isLeader ? `<button class="admin-tab" data-gtab="report">${t('guildReport')}</button>` : ''}
@@ -256,6 +337,16 @@ function renderGuildMembers(data) {
     const isAssistant = data.member.role === 'assistant';
     const canManageRoles = isMaster || isAssistant;
 
+    let pendingRequestsHtml = '';
+    if (isLeader && data.pendingRequestsCount > 0) {
+        pendingRequestsHtml = `
+            <div class="guild-pending-requests" id="guildPendingRequests">
+                <h4>📨 ${t('guildPendingRequests')} (${data.pendingRequestsCount})</h4>
+                <div id="pendingRequestsList"><div style="text-align:center;padding:10px;color:#8888aa">⏳...</div></div>
+            </div>
+        `;
+    }
+
     let addMemberHtml = '';
     if (isLeader) {
         addMemberHtml = `
@@ -272,6 +363,7 @@ function renderGuildMembers(data) {
     }
 
     container.innerHTML = `
+        ${pendingRequestsHtml}
         ${addMemberHtml}
         <div class="guild-members-list">
             ${data.members.map(m => {
@@ -378,6 +470,58 @@ function renderGuildMembers(data) {
             } catch (e) { showToast(e.message, 'error'); }
         });
     });
+
+    // Load pending requests if leader
+    if (isLeader && data.pendingRequestsCount > 0) {
+        loadPendingRequests();
+    }
+}
+
+async function loadPendingRequests() {
+    const listEl = document.getElementById('pendingRequestsList');
+    if (!listEl) return;
+    try {
+        const data = await guildApi('/api/guild/join-requests');
+        if (!data.requests || data.requests.length === 0) {
+            listEl.innerHTML = '<div style="text-align:center;padding:8px;color:#8888aa">Nenhum pedido pendente</div>';
+            return;
+        }
+        listEl.innerHTML = data.requests.map(r => `
+            <div class="guild-request-card">
+                <div class="guild-request-info">
+                    <strong>${escapeHtml(r.char_name)}</strong>
+                    <span style="color:#8888aa;font-size:11px">@${escapeHtml(r.username)}</span>
+                </div>
+                <div class="guild-request-actions">
+                    <button class="btn-sm btn-accept-request" data-rid="${r.id}" style="background:#388e3c;color:#fff;padding:5px 12px;font-size:11px">✅ ${t('guildAccept')}</button>
+                    <button class="btn-sm btn-reject-request" data-rid="${r.id}" style="background:#c62828;color:#fff;padding:5px 12px;font-size:11px">❌ ${t('guildReject')}</button>
+                </div>
+            </div>
+        `).join('');
+
+        listEl.querySelectorAll('.btn-accept-request').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                btn.disabled = true;
+                try {
+                    await guildApi(`/api/guild/join-request/${btn.dataset.rid}/accept`, 'POST');
+                    showToast(t('guildRequestAccepted'), 'success');
+                    loadGuild();
+                } catch (e) { showToast(e.message, 'error'); btn.disabled = false; }
+            });
+        });
+        listEl.querySelectorAll('.btn-reject-request').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                btn.disabled = true;
+                try {
+                    await guildApi(`/api/guild/join-request/${btn.dataset.rid}/reject`, 'POST');
+                    showToast(t('guildRequestRejected'), 'success');
+                    loadPendingRequests();
+                } catch (e) { showToast(e.message, 'error'); btn.disabled = false; }
+            });
+        });
+    } catch (e) {
+        listEl.innerHTML = `<div style="color:#ff5252;padding:8px">${escapeHtml(e.message)}</div>`;
+    }
 }
 
 async function loadGuildCollections() {
