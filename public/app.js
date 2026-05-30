@@ -451,17 +451,27 @@ function createEventCard(occ, showToggle = true) {
         : `<div class="event-icon">${occ.icon}</div>`;
 
     // Blood Castle crystal button
+    // BC timeline: 0-5min entry, 5-6min transition, 6-21min gameplay (15min)
+    // Crystal button only shows during gameplay phase (after 6min from event start)
     const isBcActive = occ.id === 'blood-castle' && occ.isActive;
+    const bcMsElapsed = isBcActive ? -occ.msUntil : 0; // ms since event started
+    const bcInGameplay = isBcActive && bcMsElapsed >= 6 * 60000; // after 6min = gameplay phase
     const bcCrystalValid = bcCrystalActive && bcCrystalActive.endsAt > Date.now();
     const bcMsLeft = bcCrystalValid ? bcCrystalActive.endsAt - Date.now() : 0;
     let bcCrystalHtml = '';
     if (isBcActive) {
         if (bcCrystalValid) {
             bcCrystalHtml = `<div class="bc-crystal-status">💎 Cristal pego! Entregue em <span class="bc-crystal-countdown">${formatBcCrystalCountdown(bcMsLeft)}</span></div>`;
-        } else {
-            // Calculate when this BC ends (absolute timestamp)
+        } else if (bcInGameplay) {
+            // Calculate when BC gameplay ends (event start + 21min)
             const bcEndsAt = Date.now() + (occ.duration * 60000) + occ.msUntil;
             bcCrystalHtml = `<button class="btn-bc-crystal" data-ends-at="${bcEndsAt}">💎 Peguei o Cristal</button>`;
+        } else {
+            // Still in entry/transition phase — show waiting message
+            const gameplayStartsIn = Math.ceil((6 * 60000 - bcMsElapsed) / 1000);
+            const mins = Math.floor(gameplayStartsIn / 60);
+            const secs = gameplayStartsIn % 60;
+            bcCrystalHtml = `<div class="bc-crystal-status" style="color:var(--text-muted)">⏳ Gameplay começa em ${mins}:${String(secs).padStart(2, '0')}</div>`;
         }
     }
 

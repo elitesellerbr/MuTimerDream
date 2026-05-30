@@ -11,7 +11,7 @@ const EVENTS_DATA = {
             category: 'events',
             description: 'Evento PvE - Mate monstros, destrua o portão e entregue a Arma do Arcanjo',
             times: ['00:30', '01:30', '02:30', '03:30', '04:30', '05:30', '06:30', '07:30', '08:30', '09:30', '10:30', '11:30', '12:30', '13:30', '14:30', '15:30', '16:30', '17:30', '18:30', '19:30', '20:30', '21:30', '22:30', '23:30'],
-            duration: 15
+            duration: 21
         },
         {
             id: 'devil-square',
