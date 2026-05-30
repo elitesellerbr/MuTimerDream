@@ -8,6 +8,7 @@ const AVAILABLE_ADDS = [
     { id: 'luck', label: '+Luck', icon: '🍀', color: '#4caf50' },
     { id: 'skill', label: '+Skill', icon: '⚡', color: '#ff9800' },
     { id: 'additional', label: '+DD', icon: '💥', color: '#f44336' },
+    { id: 'pvm', label: '+PvM', icon: '🗡️', color: '#ff5722' },
     { id: 'sd', label: '+SD', icon: '🛡️', color: '#9c27b0' },
     { id: 'life', label: '+Life', icon: '❤️', color: '#e91e63' },
     { id: 'mana', label: '+Mana', icon: '💙', color: '#2196f3' },
