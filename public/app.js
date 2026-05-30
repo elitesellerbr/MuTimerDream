@@ -6,6 +6,7 @@ let firedAlarms = new Set();
 let eliteKillTimers = loadEliteKillTimers();
 let eliteKillCounts = loadEliteKillCounts();
 let bcCrystalActive = JSON.parse(localStorage.getItem('mudream_bc_crystal') || 'null');
+let ccDiedAt = JSON.parse(localStorage.getItem('mudream_cc_died') || 'null');
 
 // ==================== TOAST SYSTEM ====================
 function showToast(message, type = 'info', duration = 4000) {
@@ -475,6 +476,21 @@ function createEventCard(occ, showToggle = true) {
         }
     }
 
+    // Chaos Castle "MORRI!!!" button
+    const isCcActive = occ.id === 'chaos-castle' && occ.isActive;
+    const ccMsElapsed = isCcActive ? -occ.msUntil : 0;
+    const ccInGameplay = isCcActive && ccMsElapsed >= 6 * 60000;
+    const ccEventEndsAt = isCcActive ? Date.now() + (occ.duration * 60000) + occ.msUntil : 0;
+    const ccDiedValid = ccDiedAt && ccDiedAt.eventEndsAt === ccEventEndsAt;
+    let ccDiedHtml = '';
+    if (isCcActive) {
+        if (ccDiedValid) {
+            ccDiedHtml = `<div class="bc-crystal-status" style="color:#e53935">💀 Você morreu no Chaos Castle!</div>`;
+        } else if (ccInGameplay) {
+            ccDiedHtml = `<button class="btn-cc-died" data-ends-at="${ccEventEndsAt}">💀 MORRI!!!</button>`;
+        }
+    }
+
     card.innerHTML = `
         ${iconHtml}
         <div class="event-info">
@@ -485,6 +501,7 @@ function createEventCard(occ, showToggle = true) {
             </div>
             ${occ.description ? `<div class="event-detail" style="margin-top:2px"><span style="color:var(--text-muted)">${occ.description}</span></div>` : ''}
             ${bcCrystalHtml}
+            ${ccDiedHtml}
         </div>
         <div class="event-right">
             <div class="event-countdown ${countdownClass}">${countdownText}</div>
@@ -501,6 +518,19 @@ function createEventCard(occ, showToggle = true) {
             bcCrystalActive = { endsAt };
             localStorage.setItem('mudream_bc_crystal', JSON.stringify(bcCrystalActive));
             showToast('💎 Cristal marcado! Alarme 1 minuto antes do BC acabar.', 'success', 5000);
+            renderAll(true);
+        });
+    }
+
+    // Bind CC died button
+    const ccDiedBtn = card.querySelector('.btn-cc-died');
+    if (ccDiedBtn) {
+        ccDiedBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const eventEndsAt = parseInt(ccDiedBtn.dataset.endsAt);
+            ccDiedAt = { eventEndsAt };
+            localStorage.setItem('mudream_cc_died', JSON.stringify(ccDiedAt));
+            showToast('💀 Marcado! Alarmes do Chaos Castle pausados.', 'info', 5000);
             renderAll(true);
         });
     }
@@ -725,6 +755,16 @@ function checkGateAlarms() {
                 const msElapsed = -occ.msUntil;
                 const gate = event.gateClose; // minutes until gate closes
 
+                // Check if player died in CC — suppress post-gate alarms
+                const eventEndsAt = Math.round(Date.now() + (event.duration * 60000) + occ.msUntil);
+                const playerDied = occ.id === 'chaos-castle' && ccDiedAt && Math.abs(ccDiedAt.eventEndsAt - eventEndsAt) < 60000;
+
+                // Clear ccDiedAt when CC ends
+                if (occ.id === 'chaos-castle' && msElapsed >= event.duration * 60000 && ccDiedAt) {
+                    ccDiedAt = null;
+                    localStorage.removeItem('mudream_cc_died');
+                }
+
                 const gateWarnings = [
                     { id: 'g3', atMs: (gate - 3) * 60000, msg: `🏰 ${occ.name} fecha em 3 minutos! Corre pra entrar!` },
                     { id: 'g2', atMs: (gate - 2) * 60000, msg: `🏰 ${occ.name} fecha em 2 minutos! Vai logo!` },
@@ -735,13 +775,15 @@ function checkGateAlarms() {
 
                 for (const w of gateWarnings) {
                     if (w.atMs < 0) continue; // skip if gate < 3 min
+                    // Skip end alarm if player died in CC
+                    if (playerDied && w.id === 'end') continue;
                     const alarmKey = `gate-${occ.id}-${occ.serverTime}-${occ.eventDate.toDateString()}-${w.id}`;
                     if (firedAlarms.has(alarmKey)) continue;
 
                     if (msElapsed >= w.atMs && msElapsed < w.atMs + 30000) {
                         firedAlarms.add(alarmKey);
                         if (settings.soundAlarm) alarm.play();
-                        if (settings.browserNotif) alarm.sendNotification('MU Timer Dream', w.msg.replace(/[🏰⚠️🚫]/g, ''));
+                        if (settings.browserNotif) alarm.sendNotification('MU Timer Dream', w.msg.replace(/[🏰⚠️🚫🏁]/g, ''));
                         showAlertBanner(w.msg);
                     }
                 }
