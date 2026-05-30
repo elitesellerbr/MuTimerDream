@@ -39,6 +39,17 @@ const EVENTS_DATA = {
             gateClose: 5
         },
         {
+            id: 'colossus-invasion',
+            name: 'Invasão do Colossus',
+            icon: '🛡️',
+            img: 'https://muonlinefanz.com/tools/npc/data/graphics/Colossus/Colossus.jpg',
+            color: '#00838f',
+            category: 'events',
+            description: 'PvPvE - Derrote Colossus Guardians em Ruined Devias para Jewel of Guardian',
+            times: ['13:00', '17:00', '21:00'],
+            duration: 20
+        },
+        {
             id: 'battle-royale',
             name: 'Batalha Real',
             icon: '🎯',
