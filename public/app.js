@@ -653,7 +653,13 @@ function checkAlarms() {
             for (const occ of occs) {
                 const minutesUntil = occ.msUntil / 60000;
 
-                for (const interval of getAlarmIntervals()) {
+                // Build alarm intervals: standard + event-specific earlyWarning
+                const intervals = getAlarmIntervals();
+                if (event.earlyWarning && !intervals.includes(event.earlyWarning)) {
+                    intervals.push(event.earlyWarning);
+                }
+
+                for (const interval of intervals) {
                     const alarmKey = `${occ.id}-${occ.serverTime}-${occ.eventDate.toDateString()}-${interval}`;
 
                     if (interval === 0) {

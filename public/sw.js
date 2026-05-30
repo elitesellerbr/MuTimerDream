@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mudream-timer-v19';
+const CACHE_NAME = 'mudream-timer-v20';
 const ASSETS = [
     '/',
     '/index.html',

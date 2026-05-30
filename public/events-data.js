@@ -44,7 +44,8 @@ const EVENTS_DATA = {
             category: 'events',
             description: 'PvP 50vs50 - Times lutam com equipamento inicial, colete loot para vencer',
             times: ['02:00', '08:00', '14:00', '20:00', '23:00'],
-            duration: 10
+            duration: 10,
+            earlyWarning: 7
         },
         {
             id: 'golden-invasion',
