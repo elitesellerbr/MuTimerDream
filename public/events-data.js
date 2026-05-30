@@ -42,6 +42,7 @@ const EVENTS_DATA = {
             id: 'colossus-invasion',
             name: 'Invasão do Colossus',
             icon: '🛡️',
+            img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/383/body/wc5-Xa7j3BKEdMrXv-nwX.gif',
             color: '#00838f',
             category: 'events',
             description: 'PvPvE - Derrote Colossus Guardians em Ruined Devias para Jewel of Guardian',
