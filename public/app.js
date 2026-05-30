@@ -726,15 +726,16 @@ function checkGateAlarms() {
                 const gate = event.gateClose; // minutes until gate closes
 
                 const gateWarnings = [
-                    { minBefore: 3, atMs: (gate - 3) * 60000, msg: `🏰 ${occ.name} fecha em 3 minutos! Corre pra entrar!` },
-                    { minBefore: 2, atMs: (gate - 2) * 60000, msg: `🏰 ${occ.name} fecha em 2 minutos! Vai logo!` },
-                    { minBefore: 1, atMs: (gate - 1) * 60000, msg: `⚠️ ${occ.name} fecha em 1 minuto! Última chance!` },
-                    { minBefore: 0, atMs: gate * 60000, msg: `🚫 ${occ.name} FECHOU! Não dá mais pra entrar!` }
+                    { id: 'g3', atMs: (gate - 3) * 60000, msg: `🏰 ${occ.name} fecha em 3 minutos! Corre pra entrar!` },
+                    { id: 'g2', atMs: (gate - 2) * 60000, msg: `🏰 ${occ.name} fecha em 2 minutos! Vai logo!` },
+                    { id: 'g1', atMs: (gate - 1) * 60000, msg: `⚠️ ${occ.name} fecha em 1 minuto! Última chance!` },
+                    { id: 'g0', atMs: gate * 60000, msg: `🚫 ${occ.name} FECHOU! Não dá mais pra entrar!` },
+                    { id: 'end', atMs: event.duration * 60000, msg: `🏁 ${occ.name} ACABOU!` }
                 ];
 
                 for (const w of gateWarnings) {
                     if (w.atMs < 0) continue; // skip if gate < 3 min
-                    const alarmKey = `gate-${occ.id}-${occ.serverTime}-${occ.eventDate.toDateString()}-${w.minBefore}`;
+                    const alarmKey = `gate-${occ.id}-${occ.serverTime}-${occ.eventDate.toDateString()}-${w.id}`;
                     if (firedAlarms.has(alarmKey)) continue;
 
                     if (msElapsed >= w.atMs && msElapsed < w.atMs + 30000) {
