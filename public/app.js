@@ -659,12 +659,49 @@ function updateCountdowns() {
             }
         }
     }
+    // Update BC gameplay countdown and crystal countdown
+    updateBcCountdowns();
     // Update upcoming count
     const upcoming = getAllUpcoming();
     const count = document.getElementById('upcomingCount');
     if (count) count.textContent = upcoming.length;
     // Update elite timers
     updateEliteCountdowns();
+}
+
+function updateBcCountdowns() {
+    // Update "Gameplay começa em X:XX" for BC/DS/CC
+    const bcEvent = EVENTS_DATA.events.find(e => e.id === 'blood-castle');
+    const gatedEvents = EVENTS_DATA.events.filter(e => e.gateClose);
+    for (const event of gatedEvents) {
+        const occs = getNextOccurrences(event);
+        for (const occ of occs) {
+            if (!occ.isActive) continue;
+            const msElapsed = -occ.msUntil;
+            const gameplayStartMs = (event.gateClose + 1) * 60000; // gateClose + 1min transition
+            if (msElapsed < gameplayStartMs) {
+                // Find the status element for this event and update countdown
+                const cards = document.querySelectorAll(`.alarm-toggle[data-id="${occ.id}"]`);
+                cards.forEach(toggle => {
+                    const card = toggle.closest('.event-card');
+                    if (card) {
+                        const statusEl = card.querySelector('.bc-crystal-status');
+                        if (statusEl && statusEl.style.color && statusEl.textContent.includes('Gameplay')) {
+                            const remaining = Math.ceil((gameplayStartMs - msElapsed) / 1000);
+                            const mins = Math.floor(remaining / 60);
+                            const secs = remaining % 60;
+                            statusEl.textContent = `⏳ Gameplay começa em ${mins}:${String(secs).padStart(2, '0')}`;
+                        }
+                    }
+                });
+            }
+        }
+    }
+    // Update BC crystal countdown
+    if (bcCrystalActive && bcCrystalActive.endsAt > Date.now()) {
+        const cdEl = document.querySelector('.bc-crystal-countdown');
+        if (cdEl) cdEl.textContent = formatBcCrystalCountdown(bcCrystalActive.endsAt - Date.now());
+    }
 }
 
 function updateServerClock() {
@@ -983,7 +1020,7 @@ function startApp() {
     }
 
     setInterval(updateServerClock, 1000);
-    setInterval(renderAll, 5000);
+    setInterval(renderAll, 1000);
     setInterval(checkAlarms, 3000);
 
     // PWA: request wake lock to keep alarms active
