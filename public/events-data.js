@@ -11,7 +11,8 @@ const EVENTS_DATA = {
             category: 'events',
             description: 'Evento PvE - Mate monstros, destrua o portão e entregue a Arma do Arcanjo',
             times: ['00:30', '01:30', '02:30', '03:30', '04:30', '05:30', '06:30', '07:30', '08:30', '09:30', '10:30', '11:30', '12:30', '13:30', '14:30', '15:30', '16:30', '17:30', '18:30', '19:30', '20:30', '21:30', '22:30', '23:30'],
-            duration: 21
+            duration: 21,
+            gateClose: 5
         },
         {
             id: 'devil-square',
@@ -22,7 +23,8 @@ const EVENTS_DATA = {
             category: 'events',
             description: 'Evento PvE - Ondas de monstros para ganhar experiência e Zen',
             times: ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'],
-            duration: 15
+            duration: 21,
+            gateClose: 5
         },
         {
             id: 'chaos-castle',
@@ -33,7 +35,8 @@ const EVENTS_DATA = {
             category: 'events',
             description: 'Evento PvP - Lute contra jogadores e monstros, último sobrevivente vence',
             times: ['01:55', '03:55', '05:55', '07:55', '09:55', '11:55', '13:55', '15:55', '17:55', '19:55', '21:55', '23:55'],
-            duration: 10
+            duration: 16,
+            gateClose: 5
         },
         {
             id: 'battle-royale',

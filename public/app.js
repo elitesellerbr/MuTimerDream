@@ -682,8 +682,8 @@ function checkAlarms() {
     // Check elite respawn alarms
     checkEliteAlarms();
 
-    // Check Blood Castle gate closing warnings
-    checkBcGateAlarm();
+    // Check gate closing warnings (BC, DS, CC, etc.)
+    checkGateAlarms();
 
     // Check Blood Castle crystal alarm
     checkBcCrystalAlarm();
@@ -713,34 +713,37 @@ function triggerAlarm(occ, minutesUntil) {
     showAlertBanner(msg);
 }
 
-function checkBcGateAlarm() {
-    if (!enabledAlarms.has('blood-castle')) return;
-    const bcEvent = EVENTS_DATA.events.find(e => e.id === 'blood-castle');
-    if (!bcEvent) return;
+function checkGateAlarms() {
+    // Check gate closing warnings for any event with gateClose property
+    for (const cat of ['events', 'bosses', 'cherry']) {
+        for (const event of EVENTS_DATA[cat]) {
+            if (!event.gateClose || !enabledAlarms.has(event.id)) continue;
 
-    const occs = getNextOccurrences(bcEvent);
-    for (const occ of occs) {
-        if (!occ.isActive) continue;
-        const msElapsed = -occ.msUntil;
-        const gateClosesAt = 5 * 60000; // gate closes at 5min
+            const occs = getNextOccurrences(event);
+            for (const occ of occs) {
+                if (!occ.isActive) continue;
+                const msElapsed = -occ.msUntil;
+                const gate = event.gateClose; // minutes until gate closes
 
-        // Warnings at 3, 2, 1 min before gate closes and at gate close
-        const gateWarnings = [
-            { minBefore: 3, atMs: (5 - 3) * 60000, msg: '🏰 Blood Castle fecha em 3 minutos! Corre pra entrar!' },
-            { minBefore: 2, atMs: (5 - 2) * 60000, msg: '🏰 Blood Castle fecha em 2 minutos! Vai logo!' },
-            { minBefore: 1, atMs: (5 - 1) * 60000, msg: '⚠️ Blood Castle fecha em 1 minuto! Última chance!' },
-            { minBefore: 0, atMs: gateClosesAt, msg: '🚫 Blood Castle FECHOU! Não dá mais pra entrar!' }
-        ];
+                const gateWarnings = [
+                    { minBefore: 3, atMs: (gate - 3) * 60000, msg: `🏰 ${occ.name} fecha em 3 minutos! Corre pra entrar!` },
+                    { minBefore: 2, atMs: (gate - 2) * 60000, msg: `🏰 ${occ.name} fecha em 2 minutos! Vai logo!` },
+                    { minBefore: 1, atMs: (gate - 1) * 60000, msg: `⚠️ ${occ.name} fecha em 1 minuto! Última chance!` },
+                    { minBefore: 0, atMs: gate * 60000, msg: `🚫 ${occ.name} FECHOU! Não dá mais pra entrar!` }
+                ];
 
-        for (const w of gateWarnings) {
-            const alarmKey = `bc-gate-${occ.serverTime}-${occ.eventDate.toDateString()}-${w.minBefore}`;
-            if (firedAlarms.has(alarmKey)) continue;
+                for (const w of gateWarnings) {
+                    if (w.atMs < 0) continue; // skip if gate < 3 min
+                    const alarmKey = `gate-${occ.id}-${occ.serverTime}-${occ.eventDate.toDateString()}-${w.minBefore}`;
+                    if (firedAlarms.has(alarmKey)) continue;
 
-            if (msElapsed >= w.atMs && msElapsed < w.atMs + 30000) {
-                firedAlarms.add(alarmKey);
-                if (settings.soundAlarm) alarm.play();
-                if (settings.browserNotif) alarm.sendNotification('MU Timer Dream', w.msg.replace(/[🏰⚠️🚫]/g, ''));
-                showAlertBanner(w.msg);
+                    if (msElapsed >= w.atMs && msElapsed < w.atMs + 30000) {
+                        firedAlarms.add(alarmKey);
+                        if (settings.soundAlarm) alarm.play();
+                        if (settings.browserNotif) alarm.sendNotification('MU Timer Dream', w.msg.replace(/[🏰⚠️🚫]/g, ''));
+                        showAlertBanner(w.msg);
+                    }
+                }
             }
         }
     }
