@@ -971,6 +971,23 @@ function initLanding() {
         })
         .catch(() => { /* Not logged in — stay on landing */ });
 
+    // Landing language switcher
+    const landingLangBtns = document.querySelectorAll('.landing-lang-btn');
+    const syncLandingLang = () => {
+        landingLangBtns.forEach(b => {
+            b.classList.toggle('active', b.dataset.lang === currentLang);
+        });
+    };
+    syncLandingLang();
+    landingLangBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            setLanguage(btn.dataset.lang);
+            syncLandingLang();
+            const langSelect = document.getElementById('langSelect');
+            if (langSelect) langSelect.value = btn.dataset.lang;
+        });
+    });
+
     document.getElementById('btnEnter').addEventListener('click', () => {
         landing.style.transition = 'opacity 0.5s, transform 0.5s';
         landing.style.opacity = '0';
