@@ -2064,6 +2064,83 @@ input[type="checkbox"] {
     transform: translateY(-1px);
 }
 
+.iban-card {
+    background: linear-gradient(135deg, rgba(33, 150, 243, 0.08), rgba(0, 117, 235, 0.04));
+    border: 1px solid rgba(33, 150, 243, 0.3);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.iban-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    color: #4fc3f7;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(33, 150, 243, 0.2);
+}
+.iban-icon {
+    font-size: 18px;
+}
+.iban-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.iban-label {
+    color: var(--text-muted, #aaa);
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 80px;
+}
+.iban-value {
+    flex: 1;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 6px 10px;
+    border-radius: 6px;
+    word-break: break-all;
+    user-select: all;
+}
+.iban-copy {
+    background: rgba(33, 150, 243, 0.2);
+    color: #4fc3f7;
+    border: 1px solid rgba(33, 150, 243, 0.4);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.iban-copy:hover {
+    background: rgba(33, 150, 243, 0.35);
+}
+.iban-note {
+    font-size: 11px;
+    color: var(--text-muted, #aaa);
+    margin: 4px 0 0 0;
+    text-align: center;
+    font-style: italic;
+}
+@media (max-width: 600px) {
+    .iban-label {
+        min-width: 60px;
+        font-size: 11px;
+    }
+    .iban-value {
+        font-size: 11px;
+        padding: 5px 8px;
+    }
+}
+
 .pix-btn {
     background: linear-gradient(135deg, #32bcad 0%, #00897b 100%);
     color: #fff;

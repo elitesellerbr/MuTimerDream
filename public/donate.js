@@ -59,10 +59,16 @@ function initDonate() {
         }
     });
 
-    document.getElementById('btnPayRevolut').addEventListener('click', () => {
-        const amount = parseFloat(valueInput.value);
-        if (!amount || amount < 1) return alert(t('donateInvalidValue'));
-        openRevolut(amount, currencySelect.value);
+    // IBAN/BIC copy buttons
+    document.querySelectorAll('.iban-copy').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const target = document.getElementById(btn.dataset.copy);
+            if (!target) return;
+            navigator.clipboard.writeText(target.textContent.trim()).then(() => {
+                btn.textContent = t('donateCopied');
+                setTimeout(() => { btn.textContent = t('donateCopy'); }, 2000);
+            });
+        });
     });
 
     document.getElementById('btnPayPix').addEventListener('click', async () => {
@@ -79,20 +85,6 @@ function initDonate() {
             setTimeout(() => { btn.textContent = t('donateCopy'); }, 2000);
         });
     });
-}
-
-async function openRevolut(amount, currency) {
-    try {
-        const res = await fetch('/api/donate/revolut-link?' + new URLSearchParams({ amount, currency }));
-        const data = await res.json();
-        if (data.url) {
-            window.open(data.url, '_blank');
-        } else {
-            alert(data.error || 'Link Revolut não configurado. Configure REVOLUT_ME_LINK no .env');
-        }
-    } catch {
-        alert('Erro ao gerar link de pagamento');
-    }
 }
 
 async function generatePix(amount) {

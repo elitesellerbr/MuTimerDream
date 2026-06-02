@@ -577,10 +577,27 @@
                     </div>
 
                     <div id="donateMethodEU" class="donate-method">
-                        <button class="donate-btn revolut-btn" id="btnPayRevolut">
-                            <span class="donate-btn-icon">🔄</span>
-                            <span data-i18n="donatePayRevolut">Pagar com Revolut</span>
-                        </button>
+                        <div class="iban-card">
+                            <div class="iban-header">
+                                <span class="iban-icon">🏦</span>
+                                <span data-i18n="donateIbanTitle">Transferência Bancária Internacional</span>
+                            </div>
+                            <div class="iban-row">
+                                <span class="iban-label" data-i18n="donateIbanName">Titular:</span>
+                                <span class="iban-value">Jhonata Barbosa</span>
+                            </div>
+                            <div class="iban-row">
+                                <span class="iban-label">IBAN:</span>
+                                <span class="iban-value" id="ibanValue">IT23F0364601600526371187805</span>
+                                <button class="btn-sm iban-copy" data-copy="ibanValue" data-i18n="donateCopy">Copiar</button>
+                            </div>
+                            <div class="iban-row">
+                                <span class="iban-label">BIC/SWIFT:</span>
+                                <span class="iban-value" id="bicValue">NTSBITM1XXX</span>
+                                <button class="btn-sm iban-copy" data-copy="bicValue" data-i18n="donateCopy">Copiar</button>
+                            </div>
+                            <p class="iban-note" data-i18n="donateIbanNote">Use estes dados na sua app bancária ou Revolut, Wise, N26, etc.</p>
+                        </div>
                     </div>
 
                     <div id="donateMethodBR" class="donate-method" style="display:none">
