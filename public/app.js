@@ -517,7 +517,8 @@ function createEventCard(occ, showToggle = true) {
             const endsAt = parseInt(crystalBtn.dataset.endsAt);
             bcCrystalActive = { endsAt };
             localStorage.setItem('mudream_bc_crystal', JSON.stringify(bcCrystalActive));
-            showToast('💎 Cristal marcado! Alarme 1 minuto antes do BC acabar.', 'success', 5000);
+            scheduleBcCrystalTimeouts(endsAt);
+            showToast('💎 Cristal marcado! Alarmes em 3, 2 e 1 minutos antes do fim.', 'success', 5000);
             renderAll(true);
         });
     }
@@ -836,6 +837,39 @@ function formatBcCrystalCountdown(msRemaining) {
     return `${mins}:${String(secs).padStart(2, '0')}`;
 }
 
+let _bcCrystalTimeouts = [];
+function scheduleBcCrystalTimeouts(endsAt) {
+    // Clear any previous timeouts
+    _bcCrystalTimeouts.forEach(id => clearTimeout(id));
+    _bcCrystalTimeouts = [];
+    // Schedule timeouts for 3min, 2min, 1min before BC ends
+    const warnings = [
+        { id: 'cr3', atMs: 180000, msg: '💎 Blood Castle acaba em 3 minutos! Vai entregar o Cristal!' },
+        { id: 'cr2', atMs: 120000, msg: '💎 Blood Castle acaba em 2 minutos! Entregue o Cristal!' },
+        { id: 'cr1', atMs: 60000, msg: '🚨💎 Blood Castle acaba em 1 minuto! Entregue o Cristal AGORA!' }
+    ];
+    for (const w of warnings) {
+        const fireAt = endsAt - w.atMs;
+        const delay = fireAt - Date.now();
+        if (delay > 0) {
+            const tid = setTimeout(() => {
+                const alarmKey = `bc-crystal-${endsAt}-${w.id}`;
+                if (firedAlarms.has(alarmKey)) return;
+                firedAlarms.add(alarmKey);
+                if (settings.soundAlarm) alarm.play();
+                if (settings.browserNotif) alarm.sendNotification('MU Timer Dream', w.msg.replace(/[🚨💎]/g, ''));
+                showAlertBanner(w.msg);
+            }, delay);
+            _bcCrystalTimeouts.push(tid);
+        }
+    }
+}
+
+// Re-schedule on page load if crystal active
+if (bcCrystalActive && bcCrystalActive.endsAt > Date.now()) {
+    scheduleBcCrystalTimeouts(bcCrystalActive.endsAt);
+}
+
 function checkBcCrystalAlarm() {
     if (!bcCrystalActive || !bcCrystalActive.endsAt) return;
     const msRemaining = bcCrystalActive.endsAt - Date.now();
@@ -847,14 +881,22 @@ function checkBcCrystalAlarm() {
         return;
     }
 
-    // Fire alarm when 1 minute or less remaining
-    const alarmKey = `bc-crystal-${bcCrystalActive.endsAt}`;
-    if (msRemaining <= 60000 && !firedAlarms.has(alarmKey)) {
-        firedAlarms.add(alarmKey);
-        const msg = '🚨💎 Blood Castle acaba em 1 minuto! Entregue o Cristal AGORA!';
-        if (settings.soundAlarm) alarm.play();
-        if (settings.browserNotif) alarm.sendNotification('MU Timer Dream', msg.replace(/[🚨💎]/g, ''));
-        showAlertBanner(msg);
+    // Multiple warnings: 3min, 2min, 1min before BC ends
+    const warnings = [
+        { id: 'cr3', atMs: 180000, msg: '💎 Blood Castle acaba em 3 minutos! Vai entregar o Cristal!' },
+        { id: 'cr2', atMs: 120000, msg: '💎 Blood Castle acaba em 2 minutos! Entregue o Cristal!' },
+        { id: 'cr1', atMs: 60000, msg: '🚨💎 Blood Castle acaba em 1 minuto! Entregue o Cristal AGORA!' }
+    ];
+
+    for (const w of warnings) {
+        const alarmKey = `bc-crystal-${bcCrystalActive.endsAt}-${w.id}`;
+        // Fire if we're within the window (or past it but not yet fired — catches background throttling)
+        if (msRemaining <= w.atMs && msRemaining > 0 && !firedAlarms.has(alarmKey)) {
+            firedAlarms.add(alarmKey);
+            if (settings.soundAlarm) alarm.play();
+            if (settings.browserNotif) alarm.sendNotification('MU Timer Dream', w.msg.replace(/[🚨💎]/g, ''));
+            showAlertBanner(w.msg);
+        }
     }
 
     // Update crystal countdown on card
@@ -1043,7 +1085,22 @@ function startApp() {
     // PWA: request wake lock to keep alarms active
     requestWakeLock();
     document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') requestWakeLock();
+        if (document.visibilityState === 'visible') {
+            requestWakeLock();
+            // Force immediate refresh to catch up after background throttling
+            checkAlarms();
+            renderAll(true);
+        }
+    });
+
+    // Catch up after device wake / network reconnect
+    window.addEventListener('focus', () => {
+        checkAlarms();
+        renderAll(true);
+    });
+    window.addEventListener('online', () => {
+        checkAlarms();
+        renderAll(true);
     });
 }
 
