@@ -248,10 +248,10 @@ const EVENTS_DATA = {
             img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/455/body/-4Ydi-xNXdkqPiSqscZFg.gif',
             color: '#880e4f',
             category: 'bosses',
-            description: 'Localização: Crywolf & Barracks - Respawn: 7-8h após morte',
+            description: 'Localização: Crywolf & Barracks - Respawn: 3-4h após morte',
             times: [],
             duration: 0,
-            respawnInfo: '7-8 horas após a morte'
+            respawnInfo: '3-4 horas após a morte'
         }
     ],
 
@@ -353,6 +353,19 @@ const EVENTS_DATA = {
             duration: 0,
             respawnMinutes: 60,
             respawnInfo: '1 hora após a morte'
+        },
+        {
+            id: 'mines-of-guardian',
+            name: 'Mines of Guardian',
+            icon: '⛏️',
+            color: '#00bcd4',
+            category: 'elites',
+            map: 'Ruined Devias',
+            description: 'Ruined Devias (10 spawns) - Dropa Jewel of Guardian',
+            times: [],
+            duration: 0,
+            respawnMinutes: 60,
+            respawnInfo: '45-75 minutos após a morte'
         }
     ],
 
