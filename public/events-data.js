@@ -50,6 +50,16 @@ const EVENTS_DATA = {
             duration: 20
         },
         {
+            id: 'golden-invasion',
+            name: 'Golden Invasion',
+            icon: '👑',
+            color: '#ffb300',
+            category: 'events',
+            description: 'Invasão de Golden Monsters em todos os mapas - Drop especial',
+            times: ['00:36', '04:36', '08:36', '12:36', '16:36', '20:36'],
+            duration: 30
+        },
+        {
             id: 'battle-royale',
             name: 'Batalha Real',
             icon: '🎯',
