@@ -376,6 +376,19 @@ const EVENTS_DATA = {
             duration: 0,
             respawnMinutes: 60,
             respawnInfo: '45-75 minutos após a morte'
+        },
+        {
+            id: 'mortragon',
+            name: 'Mortragon',
+            icon: '🐲',
+            color: '#6a1b9a',
+            category: 'elites',
+            map: 'Shadow Abyss',
+            description: 'Shadow Abyss',
+            times: [],
+            duration: 0,
+            respawnMinutes: 60,
+            respawnInfo: '1 hora após a morte'
         }
     ],
 
