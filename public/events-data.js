@@ -262,6 +262,57 @@ const EVENTS_DATA = {
             times: [],
             duration: 0,
             respawnInfo: '3-4 horas após a morte'
+        },
+        {
+            id: 'abbadon',
+            name: 'Abbadon',
+            icon: '😈',
+            color: '#b71c1c',
+            category: 'bosses',
+            description: 'Localização: Twisted Karutan - Drop: 2 Weapons, 4 Armors',
+            times: ['03:50', '17:50'],
+            duration: 0
+        },
+        {
+            id: 'infernal-overlord',
+            name: 'Infernal Overlord',
+            icon: '🔥',
+            color: '#ff5722',
+            category: 'bosses',
+            description: 'Localização: Kanturu Labyrinth - Drop: 5-7 Items',
+            times: ['04:50', '20:50'],
+            duration: 0
+        },
+        {
+            id: 'aurindra',
+            name: 'Aurindra',
+            icon: '🦅',
+            color: '#7e57c2',
+            category: 'bosses',
+            description: 'Localização: Crimson Icarus - Drop: Wing lvl 2, Phoenix Feather, Wing lvl 2.5',
+            times: ['23:50'],
+            duration: 0
+        },
+        {
+            id: 'pouch-of-blessing',
+            name: 'Pouch of Blessing',
+            icon: '🎁',
+            color: '#ec407a',
+            category: 'bosses',
+            description: 'Localização: Dreamland (50 spawns) - Colete 10 e troque no NPC Cherry Blossom',
+            times: ['05:25', '11:25', '17:25', '23:25'],
+            duration: 0
+        },
+        {
+            id: 'frigidon',
+            name: 'Frigidon (Cryonox)',
+            icon: '❄️',
+            color: '#0288d1',
+            category: 'bosses',
+            description: 'Localização: Twisted Karutan (4) + Land of Trials (2) - Dropa stones for Guild Shrine',
+            times: [],
+            duration: 0,
+            respawnInfo: '5-7 horas após a morte'
         }
     ],
 
