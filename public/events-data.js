@@ -517,17 +517,6 @@ const EVENTS_DATA = {
             description: 'Dreamland - Colete 30 galhos para trocar no NPC',
             times: ['01:25', '07:25', '13:25', '19:25'],
             duration: 0
-        },
-        {
-            id: 'pouch-of-blessing',
-            name: 'Pouch of Blessing',
-            icon: '🎒',
-            img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/475/body/DpTtcEAozg3MdmQa1TNSL.gif',
-            color: '#ab47bc',
-            category: 'cherry',
-            description: 'Dreamland - Colete 50 galhos para trocar no NPC',
-            times: ['03:25', '09:25', '15:25', '21:25'],
-            duration: 0
         }
     ]
 };
