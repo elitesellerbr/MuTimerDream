@@ -176,36 +176,14 @@ const EVENTS_DATA = {
             duration: 0
         },
         {
-            id: 'abbadon',
-            name: 'Abbadon',
-            icon: '😈',
-            img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/490/body/9nIwsJ_IbyWO7bpERGIrY.gif',
-            color: '#880e4f',
-            category: 'bosses',
-            description: 'Localização: Ruined Lorencia, Twisted Karutan, Shadow Abyss',
-            times: ['03:50', '09:50', '15:50', '21:50'],
-            duration: 0
-        },
-        {
             id: 'frigidon',
             name: 'Frigidon',
             icon: '🥶',
             img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/569/body/9DpdTbEAjju_xtoCDX8-k.gif',
             color: '#0288d1',
             category: 'bosses',
-            description: 'Localização: Ruined Devias (3 spawns)',
+            description: 'Localização: Twisted Karutan (4) + Land of Trials (2) - Dropa stones for Guild Shrine',
             times: ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00'],
-            duration: 0
-        },
-        {
-            id: 'infernal-overlord',
-            name: 'Infernal Overlord',
-            icon: '🔥',
-            img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/96/body/PFnAU0WZhu0BwBLZ40cvP.gif',
-            color: '#bf360c',
-            category: 'bosses',
-            description: 'Localização: Ruined Lorencia, Twisted Karutan, Shadow Abyss',
-            times: ['02:50', '08:50', '14:50', '20:50'],
             duration: 0
         },
         {
@@ -220,25 +198,14 @@ const EVENTS_DATA = {
             duration: 0
         },
         {
-            id: 'aurindra',
-            name: 'Aurindra',
-            icon: '🦅',
-            img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/484/body/8jH0lPKlzQb94DhHDCdAG.gif',
-            color: '#ff6f00',
-            category: 'bosses',
-            description: 'Localização: Crimson Icarus',
-            times: ['11:40', '23:40'],
-            duration: 0
-        },
-        {
             id: 'lord-of-kundun',
             name: 'Lord of Kundun',
             icon: '👹',
             img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/218/body/JalNb7K9ipEOikEljDVQZ.gif',
             color: '#311b92',
             category: 'bosses',
-            description: 'Localização: Ruined Lorencia, Twisted Karutan, Shadow Abyss',
-            times: ['04:40', '16:40'],
+            description: 'Localização: Shadow Abyss - Drop: 2-3 Armas, 1-2 Ancient',
+            times: ['01:50', '15:50'],
             duration: 0
         },
         {
@@ -283,7 +250,7 @@ const EVENTS_DATA = {
             color: '#7e57c2',
             category: 'bosses',
             description: 'Localização: Crimson Icarus - Drop: Wing lvl 2, Phoenix Feather, Wing lvl 2.5',
-            times: ['23:50'],
+            times: ['11:40', '23:40'],
             duration: 0
         },
         {
@@ -294,20 +261,8 @@ const EVENTS_DATA = {
             color: '#ec407a',
             category: 'bosses',
             description: 'Localização: Dreamland (50 spawns) - Colete 10 e troque no NPC Cherry Blossom',
-            times: ['05:25', '11:25', '17:25', '23:25'],
+            times: ['03:25', '09:25', '15:25', '21:25'],
             duration: 0
-        },
-        {
-            id: 'frigidon',
-            name: 'Frigidon (Cryonox)',
-            icon: '❄️',
-            img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/569/body/9DpdTbEAjju_xtoCDX8-k.gif',
-            color: '#0288d1',
-            category: 'bosses',
-            description: 'Localização: Twisted Karutan (4) + Land of Trials (2) - Dropa stones for Guild Shrine',
-            times: [],
-            duration: 0,
-            respawnInfo: '5-7 horas após a morte'
         }
     ],
 
