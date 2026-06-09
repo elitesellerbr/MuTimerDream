@@ -161,6 +161,20 @@ class AlarmSystem {
         });
     }
 
+    /* ── Elite sound: aggressive "battle horn" — distinct from event alarms ── */
+    playElite() {
+        const ctx = this.getAudioContext();
+        const now = ctx.currentTime;
+        // Low descending war horn
+        this.playNote(ctx, 220, now,        0.18, 0.5, 'sawtooth');
+        this.playNote(ctx, 165, now + 0.18, 0.18, 0.5, 'sawtooth');
+        this.playNote(ctx, 220, now + 0.36, 0.18, 0.5, 'sawtooth');
+        // Then a sharp metallic "clang" — square wave high notes
+        this.playNote(ctx, 1568, now + 0.6,  0.12, 0.35, 'square');
+        this.playNote(ctx, 2093, now + 0.72, 0.12, 0.35, 'square');
+        this.playNote(ctx, 2637, now + 0.84, 0.4,  0.4,  'square');
+    }
+
     /* ── Custom sound playback ── */
 
     playCustom() {
@@ -232,6 +246,24 @@ class AlarmSystem {
         } catch (e) {
             console.warn('Audio playback failed:', e);
             if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+        }
+    }
+
+    /* ── Elite-specific play (always uses battle horn, ignores soundType) ── */
+    async playForElite() {
+        try {
+            const ctx = this.getAudioContext();
+            if (ctx.state === 'suspended') {
+                try { await ctx.resume(); } catch {}
+            }
+            if (ctx.state === 'running') {
+                this.playElite();
+            } else if (navigator.vibrate) {
+                navigator.vibrate([300, 80, 300, 80, 500]);
+            }
+        } catch (e) {
+            console.warn('Elite alarm failed:', e);
+            if (navigator.vibrate) navigator.vibrate([300, 100, 300]);
         }
     }
 

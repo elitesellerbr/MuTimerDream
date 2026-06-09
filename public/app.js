@@ -321,13 +321,13 @@ function checkEliteAlarms() {
                 firedAlarms.add(alarmKey);
                 const msg = `🟢 ${elite.name} respawnou em ${map}!`;
                 showToast(msg, 'success', 8000);
-                alarm.play();
+                alarm.playForElite();
                 alarm.sendNotification('MU Timer Dream', msg);
             } else if (interval > 0 && minutesUntil > 0 && minutesUntil <= interval && minutesUntil > interval - 1) {
                 firedAlarms.add(alarmKey);
                 const msg = `⏰ ${elite.name} respawna em ${Math.ceil(minutesUntil)} min — ${map}`;
                 showToast(msg, 'warning', 6000);
-                alarm.play();
+                alarm.playForElite();
                 alarm.sendNotification('MU Timer Dream', msg);
             }
         }
