@@ -250,7 +250,7 @@ const EVENTS_DATA = {
             color: '#7e57c2',
             category: 'bosses',
             description: 'Localização: Crimson Icarus - Drop: Wing lvl 2, Phoenix Feather, Wing lvl 2.5',
-            times: ['11:40', '23:40'],
+            times: ['23:50'],
             duration: 0
         },
         {
