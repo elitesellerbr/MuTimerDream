@@ -771,7 +771,7 @@ function triggerAlarm(occ, minutesUntil) {
     }
 
     if (settings.soundAlarm) {
-        alarm.play();
+        alarm.playForEvent(occ.id);
     }
 
     if (settings.browserNotif) {

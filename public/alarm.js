@@ -175,6 +175,34 @@ class AlarmSystem {
         this.playNote(ctx, 2637, now + 0.84, 0.4,  0.4,  'square');
     }
 
+    /* ── Frigidon sound: icy crystalline tinkle ── */
+    playFrigidon() {
+        const ctx = this.getAudioContext();
+        const now = ctx.currentTime;
+        // High shimmering "ice" notes (triangle = soft)
+        [2093, 2637, 3136, 2637, 3520, 4186].forEach((f, i) => {
+            this.playNote(ctx, f, now + i * 0.1, 0.5, 0.22, 'triangle');
+        });
+        // Low rumble underneath for "frost giant" feel
+        this.playNote(ctx, 110, now,      0.8, 0.35, 'sawtooth');
+        this.playNote(ctx, 82,  now + 0.4, 0.8, 0.35, 'sawtooth');
+    }
+
+    /* ── Golden Invasion sound: classic bugle call (reveille style) ── */
+    playBugle() {
+        const ctx = this.getAudioContext();
+        const now = ctx.currentTime;
+        // G major triad bugle call — only G, B, D natural harmonics like real bugle
+        // Pattern: short-short-long-short-long (charge!)
+        const G = 392, B = 494, D = 587, Ghi = 784;
+        this.playNote(ctx, G,   now,        0.12, 0.45, 'square');
+        this.playNote(ctx, B,   now + 0.13, 0.12, 0.45, 'square');
+        this.playNote(ctx, D,   now + 0.26, 0.35, 0.5,  'square');
+        this.playNote(ctx, B,   now + 0.65, 0.12, 0.45, 'square');
+        this.playNote(ctx, D,   now + 0.78, 0.15, 0.45, 'square');
+        this.playNote(ctx, Ghi, now + 0.95, 0.6,  0.55, 'square');
+    }
+
     /* ── Custom sound playback ── */
 
     playCustom() {
@@ -245,6 +273,33 @@ class AlarmSystem {
             }
         } catch (e) {
             console.warn('Audio playback failed:', e);
+            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+        }
+    }
+
+    /* ── Per-event sound override — picks special sounds for specific events ── */
+    async playForEvent(eventId) {
+        // Map of event IDs to dedicated sounds
+        const specialSounds = {
+            'golden-invasion': 'playBugle',
+            'frigidon': 'playFrigidon'
+        };
+        const method = specialSounds[eventId];
+        if (!method) {
+            return this.play();
+        }
+        try {
+            const ctx = this.getAudioContext();
+            if (ctx.state === 'suspended') {
+                try { await ctx.resume(); } catch {}
+            }
+            if (ctx.state === 'running') {
+                this[method]();
+            } else if (navigator.vibrate) {
+                navigator.vibrate([250, 100, 250, 100, 400]);
+            }
+        } catch (e) {
+            console.warn('Event alarm failed:', e);
             if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
         }
     }
