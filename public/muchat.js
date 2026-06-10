@@ -118,7 +118,17 @@ class MuChat {
         muHelper: { url: 'https://mudream.online/about/main/mu-helper', label: 'MU Helper' },
         cherryBlossom: { url: 'https://mudream.online/about/events/cherry-blossom', label: 'Cherry Blossom' },
         lostWords: { url: 'https://mudream.online/about/events/lost-words', label: 'Lost Words' },
-        scrollsOrbs: { url: 'https://mudream.online/about/items/skills', label: 'Scrolls & Orbs' }
+        scrollsOrbs: { url: 'https://mudream.online/about/items/skills', label: 'Scrolls & Orbs' },
+        patch72: { url: 'https://mudream.online/pt/news/90', label: 'MUDREAM 7.2 RAMPAGE' },
+        patch73: { url: 'https://mudream.online/pt/news/91', label: 'MUDREAM 7.3 RAMPAGE' },
+        colossusInvasion: { url: 'https://mudream.online/pt/news/91', label: 'Invasão do Colossus' },
+        wingsLevel3: { url: 'https://mudream.online/pt/news/91', label: 'Wings Level 3' },
+        pvpOptions: { url: 'https://mudream.online/pt/news/91', label: 'Opções de PvP' },
+        harmonyOptions: { url: 'https://mudream.online/pt/news/90', label: 'Harmony System' },
+        ancientT5: { url: 'https://mudream.online/pt/news/90', label: 'Ancient T5' },
+        nightmareLair: { url: 'https://mudream.online/pt/news/90', label: 'Nightmare\'s Lair' },
+        crywolfDungeon: { url: 'https://mudream.online/pt/news/90', label: 'Curse of Crywolf' },
+        guildShrine: { url: 'https://mudream.online/pt/news/90', label: 'Guild Shrine' }
     };
 
     findAnswer(query) {

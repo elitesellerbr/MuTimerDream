@@ -5,7 +5,7 @@ const MUCHAT_KB = {
         <ul>
         <li><strong>Rates:</strong> Dinâmico X20</li>
         <li><strong>Fórmula de Zen:</strong> 150×Level do Monstro + Drop de Zen do Item</li>
-        <li><strong>Nível máx. do item:</strong> +13</li>
+        <li><strong>Nível máx. do item:</strong> +15 (patch 7.3 — antes era +13)</li>
         <li><strong>Máx. de clientes abertos:</strong> 3</li>
         <li><strong>Máx. de opção Excellent:</strong> 4</li>
         <li><strong>Máx. de membros da guild:</strong> 20</li>
@@ -443,11 +443,12 @@ const MUCHAT_KB = {
         answer: `<strong>Horários dos Eventos (Horário do Servidor UTC+2)</strong><br><br>
         <strong>⏰ Eventos Regulares:</strong>
         <ul>
-        <li>🏰 Blood Castle — A cada 2h (00:00, 02:00, 04:00...)</li>
-        <li>👹 Devil Square — A cada 2h (01:00, 03:00, 05:00...)</li>
-        <li>⚔️ Chaos Castle — A cada 2h (00:30, 02:30, 04:30...)</li>
+        <li>🏰 Blood Castle — A cada 1h em xx:30</li>
+        <li>👹 Devil Square — A cada 1h em xx:00</li>
+        <li>⚔️ Chaos Castle — A cada 4h (01:55, 05:55, 09:55, 13:55, 17:55, 21:55)</li>
         <li>🎯 Batalha Real — 02:00, 08:00, 14:00, 20:00, 23:00</li>
-        <li>✨ Golden Invasion — 00:36, 04:36, 08:36, 12:36, 16:36, 20:36</li>
+        <li>✨ Golden Invasion — 00:31, 04:31, 08:31, 12:31, 16:31, 20:31</li>
+        <li>🛡️ Invasão do Colossus — 13:00, 17:00, 21:00 (Ruined Devias, 20min)</li>
         <li>🏯 Castle Siege — <strong>Domingo 20:00</strong></li>
         </ul><br>
         <strong>🌸 Cherry Blossom:</strong>
@@ -651,6 +652,353 @@ const MUCHAT_KB = {
         <li><strong>Enter</strong> — Chat</li>
         </ul><br>
         Dica: Use <strong>TAB</strong> para navegar pelo mapa e encontrar NPCs!`
+    },
+
+    patch72: {
+        keywords: ['7.2', 'patch 7.2', 'rampage 7.2', 'novidades 7.2', 'twisted karutan', 'kanturu labyrinth'],
+        answer: `<strong>MUDREAM 7.2 RAMPAGE — Resumo</strong><br><br>
+        <ul>
+        <li>🆕 Novo motor do jogo até <strong>240 FPS</strong> e gráficos flexíveis</li>
+        <li>🗺️ Novos mapas: <strong>Kanturu Labyrinth</strong> (Lv 270) e <strong>Twisted Karutan</strong> (Lv 290)</li>
+        <li>👹 Novos Bosses: Abbadon, Lord of Kundun (Shadow Abyss), Infernal Overlord, Aurindra</li>
+        <li>🦇 Novos Mini-bosses: Muggron, Kharzul, Vescrya, Borgar (Shadow Abyss)</li>
+        <li>🐲 Novos Elites: Dreadhorn, Moltragon (Shadow Abyss)</li>
+        <li>🛡️ Sets <strong>Ancient T5</strong> com Jewel of Ascension</li>
+        <li>🐴 Montarias Level 1: Fenrir Destroy/Protect, Ghost Horse</li>
+        <li>🍎 Frutas — Stats Cap aumentado para <strong>500 pontos</strong></li>
+        <li>💎 Brincos de Honra/Ancestral</li>
+        <li>⚙️ Sistema <strong>Harmony Options</strong></li>
+        <li>🏰 Dungeon Covil do Pesadelo (Nightmare's Lair)</li>
+        <li>🐺 Dungeon Maldição de Crywolf</li>
+        <li>🎨 Tingimento (Dye) & Transmog 2.0</li>
+        </ul>`
+    },
+
+    patch73: {
+        keywords: ['7.3', 'patch 7.3', 'rampage 7.3', 'wings 3', 'asa 3', 'wings level 3', 'pvp option', 'item +14', 'item +15'],
+        answer: `<strong>MUDREAM 7.3 RAMPAGE — Resumo</strong><br><br>
+        <ul>
+        <li>🪽 Novas <strong>Wings Level 3</strong> com craft em 3 etapas (Condor Shard → Condor Feather → Wing Lv3)</li>
+        <li>⚔️ Novo Evento: <strong>Invasão do Colossus</strong> (Ruined Devias, 13:00/17:00/21:00, dropa Jewel of Guardian)</li>
+        <li>🎯 Novo Sistema: <strong>Opções de PvP</strong> (+1 a +10 com Jewel of Guardian + Chaos + Harmony)</li>
+        <li>📈 Item Level máximo aumentado para <strong>+14 e +15</strong></li>
+        <li>⛏️ Mines of Guardian (10 spawns Ruined Devias, respawn 45-75min)</li>
+        <li>🦇 Muggron respawn reduzido de 7-8h → <strong>3-4h</strong></li>
+        <li>👹 Lord of Kundun agora dropa <strong>Ancient Tier 4</strong></li>
+        <li>💰 Drop de Zen aumentado em Kanturu, Kanturu Island, Kanturu Labyrinth, Twisted Karutan</li>
+        <li>💎 Drop de Jewels aumentado para monstros Lv 112-150+</li>
+        <li>🔝 Excellent Tier 5 em Kanturu Labyrinth, Tier 6 em Twisted Karutan</li>
+        </ul>`
+    },
+
+    colossusInvasion: {
+        keywords: ['colossus', 'colosso', 'colossus invasion', 'colossus guardian', 'jewel of guardian', 'ruined devias'],
+        answer: `<strong>Invasão do Colossus (Colossus Invasion)</strong><br><br>
+        Evento PvPvE em grande escala (patch 7.3)!<br><br>
+        <ul>
+        <li><strong>Horários:</strong> 13:00, 17:00, 21:00 (servidor)</li>
+        <li><strong>Duração:</strong> 20 minutos</li>
+        <li><strong>Local:</strong> Ruined Devias (Lv 250+)</li>
+        <li><strong>Acesso:</strong> Portal Dreamland (108, 109)</li>
+        <li><strong>Spawns:</strong> 20 Colossus Guardians aleatórios pelo mapa</li>
+        <li><strong>Drop:</strong> 40% de chance de <strong>Jewel of Guardian</strong> por kill</li>
+        </ul><br>
+        ⚠️ Zona PvP ativa! Use Jewel of Guardian para ativar/upar Opções de PvP no Chaos Goblin.`
+    },
+
+    abbadon: {
+        keywords: ['abbadon', 'twisted karutan'],
+        answer: `<strong>Abbadon</strong><br><br>
+        Boss agendado de Twisted Karutan (patch 7.2)!<br><br>
+        <ul>
+        <li><strong>Localização:</strong> Twisted Karutan</li>
+        <li><strong>Horários:</strong> 03:50, 17:50 (servidor)</li>
+        <li><strong>Drop:</strong> 2 Armas + 4 Armaduras (Excellent T5+)</li>
+        </ul>`
+    },
+
+    infernalOverlord: {
+        keywords: ['infernal overlord', 'infernal', 'kanturu labyrinth'],
+        answer: `<strong>Infernal Overlord</strong><br><br>
+        Boss agendado de Kanturu Labyrinth (patch 7.2)!<br><br>
+        <ul>
+        <li><strong>Localização:</strong> Kanturu Labyrinth</li>
+        <li><strong>Horários:</strong> 04:50, 20:50 (servidor)</li>
+        <li><strong>Drop:</strong> 5-7 itens</li>
+        </ul>`
+    },
+
+    aurindra: {
+        keywords: ['aurindra', 'crimson icarus', 'phoenix feather'],
+        answer: `<strong>Aurindra</strong><br><br>
+        Boss raro de Crimson Icarus (patch 7.2)!<br><br>
+        <ul>
+        <li><strong>Localização:</strong> Crimson Icarus</li>
+        <li><strong>Horário:</strong> 23:50 (1x por dia)</li>
+        <li><strong>Drop:</strong> Wing lvl 2, Phoenix Feather, Wing lvl 2.5</li>
+        </ul><br>
+        ⚠️ Recompensa mais valiosa tem menor chance!`
+    },
+
+    lordOfKundunNew: {
+        keywords: ['lord of kundun', 'kundun', 'shadow abyss boss', 'ancient t4'],
+        answer: `<strong>Lord of Kundun (Shadow Abyss)</strong><br><br>
+        Boss principal de Shadow Abyss (patch 7.2 + 7.3)!<br><br>
+        <ul>
+        <li><strong>Localização:</strong> Shadow Abyss</li>
+        <li><strong>Horários:</strong> 01:50, 15:50 (servidor)</li>
+        <li><strong>Drop:</strong> 2-3 Armas + 1-2 itens <strong>Ancient T4</strong> (atualizado em 7.3)</li>
+        </ul>`
+    },
+
+    pouchOfBlessing: {
+        keywords: ['pouch', 'pouch of blessing', 'bolsa', 'bencao'],
+        answer: `<strong>Pouch of Blessing</strong><br><br>
+        Monstro Cherry Blossom de Dreamland!<br><br>
+        <ul>
+        <li><strong>Localização:</strong> Dreamland (50 spawns)</li>
+        <li><strong>Horários:</strong> 03:25, 09:25, 15:25, 21:25</li>
+        <li><strong>Como funciona:</strong> Colete 10 e troque no NPC Cherry Blossom</li>
+        </ul>`
+    },
+
+    frigidon: {
+        keywords: ['frigidon', 'cryonox', 'guild shrine', 'santuario guild', 'pedra guild'],
+        answer: `<strong>Frigidon / Cryonox</strong><br><br>
+        Boss agendado para Santuário da Guild!<br><br>
+        <ul>
+        <li><strong>Localização:</strong> Twisted Karutan (4) + Land of Trials (2)</li>
+        <li><strong>Horários:</strong> a cada 3h (00:00, 03:00, 06:00, 09:00, 12:00, 15:00, 18:00, 21:00)</li>
+        <li><strong>Drop:</strong> 1 pedra aleatória para <strong>Guild Shrine</strong></li>
+        </ul><br>
+        Cryonox dropa pedras pra ativar e upar os 14 buffs do Santuário da Guild (level 1, 2, 3).`
+    },
+
+    shadowAbyssElites: {
+        keywords: ['shadow abyss', 'abyss', 'dreadhorn', 'moltragon', 'kharzul', 'vescrya', 'borgar', 'elite abyss'],
+        answer: `<strong>Elites de Shadow Abyss (patch 7.2)</strong><br><br>
+        <ul>
+        <li>🦬 <strong>Dreadhorn</strong> — 2 spawns, respawn 1-2h, dropa Escudos</li>
+        <li>🐲 <strong>Moltragon</strong> — 2 spawns, respawn 1-2h, dropa Escudos</li>
+        <li>👺 <strong>Kharzul</strong> — 1 spawn, respawn 7-8h, dropa Ancient T4</li>
+        <li>🦂 <strong>Vescrya</strong> — 1 spawn, respawn 7-8h, dropa Ancient T4</li>
+        <li>⚔️ <strong>Borgar</strong> — 1 spawn, respawn 2-3h, dropa Armas</li>
+        <li>🦇 <strong>Muggron</strong> — 6 spawns (2x Shadow Abyss, 2x Crywolf, 2x Barracks), respawn 3-4h</li>
+        </ul>`
+    },
+
+    minesOfGuardian: {
+        keywords: ['mines of guardian', 'mines guardian', 'mina', 'jewel of guardian', 'ruined devias mine'],
+        answer: `<strong>Mines of Guardian</strong><br><br>
+        Mini-bosses em Ruined Devias (patch 7.3)!<br><br>
+        <ul>
+        <li><strong>Localização:</strong> Ruined Devias</li>
+        <li><strong>Quantidade:</strong> 10 spawns</li>
+        <li><strong>Respawn:</strong> 45-75 minutos</li>
+        <li><strong>Drop:</strong> <strong>Jewel of Guardian</strong> (usado para Opções de PvP)</li>
+        </ul>`
+    },
+
+    wingsLevel3: {
+        keywords: ['wings 3', 'wings level 3', 'asa 3', 'asa nivel 3', 'condor feather', 'condor flame', 'condor shard'],
+        answer: `<strong>Wings Level 3 (patch 7.3)</strong><br><br>
+        Craft em <strong>3 etapas</strong>:<br><br>
+        <strong>Etapa 1 — Condor Flame:</strong>
+        <ul>
+        <li>10x <strong>Condor Shard</strong> → 1 Condor Flame automaticamente</li>
+        <li>Condor Shard dropa em Kalima 7 ou compra com James (Valor Coin)</li>
+        </ul>
+        <strong>Etapa 2 — Condor Feather (85% sucesso):</strong>
+        <ul>
+        <li>1x Phoenix Feather + 10x Lesser/Medium Spirit Stone + 30x Jewels + 2 bi Zen</li>
+        <li>Suporta Talisman of Luck</li>
+        </ul>
+        <strong>Etapa 3 — Wing Level 3 (70% sucesso):</strong>
+        <ul>
+        <li>1x Condor Flame + 1x Condor Feather + Wing Lv 2.5 +11 +7Add + Ancient +13 +7Add + jewels + 2 bi Zen</li>
+        <li>Suporta Talisman of Luck</li>
+        </ul>
+        ⚠️ Se falhar a Etapa 3, Wing Lv 2.5 permanece mas level resetado!`
+    },
+
+    pvpOptions: {
+        keywords: ['pvp option', 'opcao pvp', 'opcoes pvp', 'pvp options', 'jewel of guardian use'],
+        answer: `<strong>Opções de PvP (patch 7.3)</strong><br><br>
+        Bônus específicos para PvP nos itens!<br><br>
+        <strong>Por tipo de item:</strong>
+        <ul>
+        <li><strong>Armas:</strong> Dano adicional, Dano adicional (PvP)</li>
+        <li><strong>Armaduras:</strong> Defesa contra skills, Pontos de Vida Máx</li>
+        <li><strong>Escudos:</strong> Defesa contra skills, Pontos de Vida Máx</li>
+        </ul><br>
+        <strong>Como ativar:</strong> Chaos Goblin > "Add PvP option" — 1x Jewel of Chaos + 1x Jewel of Guardian + 1x Jewel of Harmony + 10kk Zen<br><br>
+        <strong>Upgrade (chances base):</strong>
+        <ul>
+        <li>+1 = 90% / +6 = 65%</li>
+        <li>+2 = 85% / +7 = 60%</li>
+        <li>+3 = 80% / +8 = 50%</li>
+        <li>+4 = 75% / +9 = 40%</li>
+        <li>+5 = 70% / +10 = 30%</li>
+        </ul>
+        ⚠️ Se falhar, volta pro +1!`
+    },
+
+    harmonyOptions: {
+        keywords: ['harmony', 'jewel of harmony', 'harmony options', 'jerridon', 'gemstone', 'nightmare lair'],
+        answer: `<strong>Sistema de Harmony Options (patch 7.2)</strong><br><br>
+        Opções extras únicas em qualquer item Excellent ou Normal!<br><br>
+        <ul>
+        <li>Use <strong>Jewel of Harmony</strong> no Jewel Bank (30% sucesso)</li>
+        <li>Opções duplicadas <strong>não somam</strong> — só o maior valor fica ativo</li>
+        <li>Adicionar/remover via NPC <strong>Jerridon (Aida 1)</strong> — 5kk normal / 10kk pessoal</li>
+        </ul><br>
+        <strong>Como conseguir Jewel of Harmony:</strong>
+        <ul>
+        <li>Trocar <strong>Gemstone</strong> com NPC Elpis após Nightmare's Lair (75% sucesso)</li>
+        <li>Destruir <strong>Mines of Harmony</strong> em Ruined Devias (10 spawns, respawn 45-75min)</li>
+        <li>Drop raro em monstros de Ruined Devias</li>
+        </ul>`
+    },
+
+    ancientT5: {
+        keywords: ['ancient t5', 'ancient tier 5', 'ancient 5', 'jewel of ascension'],
+        answer: `<strong>Ancient Set Tier 5 (patch 7.2)</strong><br><br>
+        Upgrade do Ancient T4!<br><br>
+        <strong>Passo 1 — Jewel of Ascension (80% sucesso):</strong>
+        <ul>
+        <li>1x Ancient Armadura +9 +1Add</li>
+        <li>30x Jewel of Bless</li>
+        <li>30x Jewel of Soul</li>
+        <li>5x Jewel of Chaos</li>
+        <li>100kk Zen</li>
+        </ul>
+        <strong>Passo 2:</strong> Anexa Jewel of Ascension no Ancient T4 (deve estar +9) para evoluir.<br><br>
+        ⚠️ Level do item será <strong>resetado</strong> após upgrade!`
+    },
+
+    nightmareLair: {
+        keywords: ['nightmare', 'covil do pesadelo', 'nightmare lair', 'chave do pesadelo', 'gemstone source'],
+        answer: `<strong>Dungeon: Covil do Pesadelo</strong><br><br>
+        Dungeon de 10 estágios (patch 7.2)!<br><br>
+        <ul>
+        <li>Cada membro precisa de <strong>Chave do Pesadelo</strong></li>
+        <li>Limite: 1 entrada por personagem, 2 por dispositivo</li>
+        <li>Dropa <strong>Gemstone</strong> (para Jewel of Harmony) + jewels + Box</li>
+        </ul><br>
+        <strong>Dificuldades:</strong>
+        <ul>
+        <li>Normal: 15-30 Resets necessários</li>
+        <li>Hard: 31-40 Resets</li>
+        <li>Nightmare: 41-50 Resets</li>
+        </ul><br>
+        <strong>Bosses:</strong> Left Hand of Maya, Right Hand of Maya, Nightmare<br><br>
+        EXP escala com número de jogadores (200%-400% no Normal).`
+    },
+
+    crywolfDungeon: {
+        keywords: ['crywolf dungeon', 'maldicao crywolf', 'curse of crywolf', 'balgass', 'claw of beast', 'armor of splinter', 'bless of guardian'],
+        answer: `<strong>Dungeon: Maldição de Crywolf</strong><br><br>
+        Dungeon de 23 estágios (patch 7.2)!<br><br>
+        <ul>
+        <li>Cada membro precisa de <strong>Chave do Pesadelo</strong></li>
+        <li>Limite: 1 entrada por personagem, 1 por dispositivo</li>
+        <li>Dropa <strong>Armor of Splinter, Bless of Guardian, Claw of Beast</strong> (para Fenrir/Ghost Horse)</li>
+        </ul><br>
+        <strong>Bosses:</strong> Elite Scout (Herói), Elite Werewolf (Herói), Elite Dark Elf, Balgass<br><br>
+        <strong>Dificuldades:</strong> Normal (15-30 Resets), Hard (31-40), Nightmare (41-50)`
+    },
+
+    guildShrine: {
+        keywords: ['santuario', 'guild shrine', 'shrine', 'buff guild', 'guild buff', 'sanctuary'],
+        answer: `<strong>Santuário da Guild (Guild Shrine)</strong><br><br>
+        Upgrade de guild para guilds Rank 1+ (patch 7.2)!<br><br>
+        <ul>
+        <li>Ative falando com <strong>Guild Manager</strong> em Guild Garden</li>
+        <li>Acesso via menu da guild (G)</li>
+        <li><strong>14 buffs disponíveis</strong>, cada um com 3 níveis</li>
+        </ul><br>
+        <strong>Buffs:</strong> Dano Físico, Wizardry, Vel. Ataque, Defesa Máx, Drop Zen, Exp, HP Máx, Resistências, Dano Mín/Máx, Defesa Escudo<br><br>
+        <strong>Pedras pra upar:</strong>
+        <ul>
+        <li><strong>Cryonox/Frigidons</strong> (Twisted Karutan + Land of Trials, respawn 5-7h)</li>
+        <li>Boss extra em Ruined Devias (a cada 3h)</li>
+        </ul>`
+    },
+
+    mounts: {
+        keywords: ['fenrir', 'ghost horse', 'montaria', 'mount', 'broken horn', 'fragment of horn', 'destroy', 'protect'],
+        answer: `<strong>Montarias Level 1 (patch 7.2)</strong><br><br>
+        <ul>
+        <li>🐺 Fenrir Destroy (Lvl 1)</li>
+        <li>🛡️ Fenrir Protect (Lvl 1)</li>
+        <li>🐴 Ghost Horse (Lvl 1)</li>
+        </ul><br>
+        <strong>Craft em 3 passos:</strong>
+        <ol>
+        <li><strong>Fragment of Horn</strong> (80%): 20x Armor of Splinter + 20x Bless of Guardian + jewels + 100kk Zen</li>
+        <li><strong>Broken Horn</strong> (60%): 20x Claw of Beast + 5x Fragment of Horn + jewels + 500kk Zen</li>
+        <li><strong>Montaria</strong> (40%): Broken Horn + jewels + 1 bi Zen</li>
+        </ol><br>
+        Materiais (Armor of Splinter, Bless of Guardian, Claw of Beast) dropam em <strong>Crywolf</strong> de qualquer monstro.`
+    },
+
+    fruits: {
+        keywords: ['fruta', 'frutas', 'fruit', 'stats points', 'command fruit'],
+        answer: `<strong>Frutas (patch 7.2)</strong><br><br>
+        Stats Points Cap aumentado pra <strong>500 pontos</strong>!<br><br>
+        <strong>Como conseguir:</strong>
+        <ul>
+        <li>Chaos Goblin > Regular Combination (70% sucesso)</li>
+        <li>Jewel of Chaos + Creation + Harmony + 25kk Zen</li>
+        </ul><br>
+        <strong>Re-craft Command Fruit:</strong>
+        <ul>
+        <li>3x Command Fruit + Jewel of Chaos + 25kk Zen (70% sucesso)</li>
+        </ul>`
+    },
+
+    talismanOfLuck: {
+        keywords: ['talisman', 'talisman of luck', 'sorte'],
+        answer: `<strong>Talisman of Luck (patch 7.2)</strong><br><br>
+        Item que aumenta chance de sucesso em crafts!<br><br>
+        <strong>Receita (100% sucesso):</strong>
+        <ul>
+        <li>2x Pedra Espiritual Menor</li>
+        <li>10x Jewel of Bless + 10x Jewel of Soul + 1x Jewel of Chaos</li>
+        <li>50kk Zen</li>
+        </ul><br>
+        <strong>Usado em:</strong> Ancient T4, Wings 2.5, Wings 3, Broken Horn, Fenrir/Ghost Horse, Brincos de Honra`
+    },
+
+    earringsHonor: {
+        keywords: ['brinco de honra', 'brinco ancestral', 'honor earring', 'ancestor earring'],
+        answer: `<strong>Brincos de Honra/Ancestral (patch 7.2)</strong><br><br>
+        <strong>Craft (85% sucesso):</strong>
+        <ul>
+        <li>Moldura de Honra</li>
+        <li>10x Pedra Espiritual Menor</li>
+        <li>30x Jewel of Bless, Soul, Life, Chaos, Creation</li>
+        <li>2 bi Zen</li>
+        </ul><br>
+        ⚠️ Se falhar: Brinco de Ancestral devolvido + level resetado + outros itens destruídos.<br><br>
+        Suporta Talisman of Luck.`
+    },
+
+    itemLevelPlus15: {
+        keywords: ['+14', '+15', 'item +14', 'item +15', 'level item maximo', 'max item level'],
+        answer: `<strong>Item Level +14 e +15 (patch 7.3)</strong><br><br>
+        Itens upados ganham opções extras únicas!<br><br>
+        <strong>Para +14 (30% sucesso):</strong>
+        <ul>
+        <li>20x Jewel of Bless + 20x Soul + 20x Chaos</li>
+        <li>200kk Zen — suporta Talisman of Luck</li>
+        </ul><br>
+        <strong>Para +15 (20% sucesso):</strong>
+        <ul>
+        <li>30x Jewel of Bless + 30x Soul + 30x Chaos</li>
+        <li>400kk Zen — suporta Talisman of Luck</li>
+        </ul><br>
+        Visite Chaos Goblin pra upar.`
     },
 
     guestAccess: {
