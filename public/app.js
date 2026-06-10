@@ -247,13 +247,13 @@ function renderElites() {
             `;
         } else if (hasRespawned) {
             statusHtml = `
-                <span class="elite-timer" style="color:#66bb6a;font-weight:bold;">🟢 Respawnou!</span>
-                <button class="btn-sm btn-elite-kill" onclick="markEliteKilled('${elite.id}','${map}')">⚔️ Matei</button>
+                <span class="elite-timer" style="color:#66bb6a;font-weight:bold;">${t('eliteRespawned')}</span>
+                <button class="btn-sm btn-elite-kill" onclick="markEliteKilled('${elite.id}','${map}')">${t('eliteKilled')}</button>
                 <button class="btn-sm btn-elite-clear" onclick="clearEliteTimer('${key}')" title="Limpar">✕</button>
             `;
         } else {
             statusHtml = `
-                <button class="btn-sm btn-elite-kill" onclick="markEliteKilled('${elite.id}','${map}')">⚔️ Matei</button>
+                <button class="btn-sm btn-elite-kill" onclick="markEliteKilled('${elite.id}','${map}')">${t('eliteKilled')}</button>
             `;
         }
 
@@ -296,7 +296,7 @@ function updateEliteCountdowns() {
         if (remaining !== null) {
             timerEl.textContent = formatCountdown(remaining);
             timerEl.style.color = '#f5a623';
-        } else if (timerEl.textContent !== '🟢 Respawnou!') {
+        } else if (timerEl.textContent !== t('eliteRespawned')) {
             needsFullRender = true;
         }
     });
@@ -319,13 +319,13 @@ function checkEliteAlarms() {
 
             if (interval === 0 && minutesUntil <= 0.5 && minutesUntil >= -0.5) {
                 firedAlarms.add(alarmKey);
-                const msg = `🟢 ${elite.name} respawnou em ${map}!`;
+                const msg = t('eliteRespawnedToast', { name: elite.name, map });
                 showToast(msg, 'success', 8000);
                 alarm.playForElite();
                 alarm.sendNotification('MU Timer Dream', msg);
             } else if (interval > 0 && minutesUntil > 0 && minutesUntil <= interval && minutesUntil > interval - 1) {
                 firedAlarms.add(alarmKey);
-                const msg = `⏰ ${elite.name} respawna em ${Math.ceil(minutesUntil)} min — ${map}`;
+                const msg = t('eliteRespawnsIn', { name: elite.name, min: Math.ceil(minutesUntil), map });
                 showToast(msg, 'warning', 6000);
                 alarm.playForElite();
                 alarm.sendNotification('MU Timer Dream', msg);
@@ -351,6 +351,13 @@ function serverTimeToLocal(serverHour, serverMinute) {
 
 function formatTime(h, m) {
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
+// Returns translated string when value is { pt, en } object, or raw string for legacy entries
+function localize(val) {
+    if (!val) return '';
+    if (typeof val === 'string') return val;
+    return val[currentLang] || val.pt || val.en || '';
 }
 
 function formatCountdown(ms) {
@@ -472,7 +479,7 @@ function createEventCard(occ, showToggle = true) {
             const gameplayStartsIn = Math.ceil((6 * 60000 - bcMsElapsed) / 1000);
             const mins = Math.floor(gameplayStartsIn / 60);
             const secs = gameplayStartsIn % 60;
-            bcCrystalHtml = `<div class="bc-crystal-status" style="color:var(--text-muted)">⏳ Gameplay começa em ${mins}:${String(secs).padStart(2, '0')}</div>`;
+            bcCrystalHtml = `<div class="bc-crystal-status" style="color:var(--text-muted)">${t('bcGameplayStartsIn')} ${mins}:${String(secs).padStart(2, '0')}</div>`;
         }
     }
 
@@ -485,9 +492,9 @@ function createEventCard(occ, showToggle = true) {
     let ccDiedHtml = '';
     if (isCcActive) {
         if (ccDiedValid) {
-            ccDiedHtml = `<div class="bc-crystal-status" style="color:#e53935">💀 Você morreu no Chaos Castle!</div>`;
+            ccDiedHtml = `<div class="bc-crystal-status" style="color:#e53935">${t('ccDied')}</div>`;
         } else if (ccInGameplay) {
-            ccDiedHtml = `<button class="btn-cc-died" data-ends-at="${ccEventEndsAt}">💀 MORRI!!!</button>`;
+            ccDiedHtml = `<button class="btn-cc-died" data-ends-at="${ccEventEndsAt}">${t('ccDiedBtn')}</button>`;
         }
     }
 
@@ -499,7 +506,7 @@ function createEventCard(occ, showToggle = true) {
                 <span>🕐 ${occ.serverTime} (${t('server')})</span>
                 <span>📍 ${occ.localTime} (${t('local')})</span>
             </div>
-            ${occ.description ? `<div class="event-detail" style="margin-top:2px"><span style="color:var(--text-muted)">${occ.description}</span></div>` : ''}
+            ${occ.description ? `<div class="event-detail" style="margin-top:2px"><span style="color:var(--text-muted)">${localize(occ.description)}</span></div>` : ''}
             ${bcCrystalHtml}
             ${ccDiedHtml}
         </div>
@@ -518,7 +525,7 @@ function createEventCard(occ, showToggle = true) {
             bcCrystalActive = { endsAt };
             localStorage.setItem('mudream_bc_crystal', JSON.stringify(bcCrystalActive));
             scheduleBcCrystalTimeouts(endsAt);
-            showToast('💎 Cristal marcado! Alarmes em 3, 2 e 1 minutos antes do fim.', 'success', 5000);
+            showToast(t('bcCrystalMarked'), 'success', 5000);
             renderAll(true);
         });
     }
@@ -531,7 +538,7 @@ function createEventCard(occ, showToggle = true) {
             const eventEndsAt = parseInt(ccDiedBtn.dataset.endsAt);
             ccDiedAt = { eventEndsAt };
             localStorage.setItem('mudream_cc_died', JSON.stringify(ccDiedAt));
-            showToast('💀 Marcado! Alarmes do Chaos Castle pausados.', 'info', 5000);
+            showToast(t('ccDiedMarked'), 'info', 5000);
             renderAll(true);
         });
     }
@@ -595,10 +602,10 @@ function renderCategory(category, containerId) {
                 ${respawnIcon}
                 <div class="event-info">
                     <div class="event-name">${event.name}</div>
-                    <div class="event-detail"><span>${event.description}</span></div>
+                    <div class="event-detail"><span>${localize(event.description)}</span></div>
                 </div>
                 <div class="event-right">
-                    <div class="event-countdown" style="font-size:12px;color:var(--text-secondary)">⏳ ${event.respawnInfo}</div>
+                    <div class="event-countdown" style="font-size:12px;color:var(--text-secondary)">⏳ ${localize(event.respawnInfo)}</div>
                     <div class="alarm-toggle ${isOn ? 'on' : ''}" data-id="${event.id}"></div>
                 </div>
             `;
@@ -691,7 +698,7 @@ function updateBcCountdowns() {
                             const remaining = Math.ceil((gameplayStartMs - msElapsed) / 1000);
                             const mins = Math.floor(remaining / 60);
                             const secs = remaining % 60;
-                            statusEl.textContent = `⏳ Gameplay começa em ${mins}:${String(secs).padStart(2, '0')}`;
+                            statusEl.textContent = `${t('bcGameplayStartsIn')} ${mins}:${String(secs).padStart(2, '0')}`;
                         }
                     }
                 });
@@ -844,9 +851,9 @@ function scheduleBcCrystalTimeouts(endsAt) {
     _bcCrystalTimeouts = [];
     // Schedule timeouts for 3min, 2min, 1min before BC ends
     const warnings = [
-        { id: 'cr3', atMs: 180000, msg: '💎 Blood Castle acaba em 3 minutos! Vai entregar o Cristal!' },
-        { id: 'cr2', atMs: 120000, msg: '💎 Blood Castle acaba em 2 minutos! Entregue o Cristal!' },
-        { id: 'cr1', atMs: 60000, msg: '🚨💎 Blood Castle acaba em 1 minuto! Entregue o Cristal AGORA!' }
+        { id: 'cr3', atMs: 180000, msg: t('bcCrystal3min') },
+        { id: 'cr2', atMs: 120000, msg: t('bcCrystal2min') },
+        { id: 'cr1', atMs: 60000,  msg: t('bcCrystal1min') }
     ];
     for (const w of warnings) {
         const fireAt = endsAt - w.atMs;
@@ -883,9 +890,9 @@ function checkBcCrystalAlarm() {
 
     // Multiple warnings: 3min, 2min, 1min before BC ends
     const warnings = [
-        { id: 'cr3', atMs: 180000, msg: '💎 Blood Castle acaba em 3 minutos! Vai entregar o Cristal!' },
-        { id: 'cr2', atMs: 120000, msg: '💎 Blood Castle acaba em 2 minutos! Entregue o Cristal!' },
-        { id: 'cr1', atMs: 60000, msg: '🚨💎 Blood Castle acaba em 1 minuto! Entregue o Cristal AGORA!' }
+        { id: 'cr3', atMs: 180000, msg: t('bcCrystal3min') },
+        { id: 'cr2', atMs: 120000, msg: t('bcCrystal2min') },
+        { id: 'cr1', atMs: 60000,  msg: t('bcCrystal1min') }
     ];
 
     for (const w of warnings) {

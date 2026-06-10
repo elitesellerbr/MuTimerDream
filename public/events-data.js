@@ -9,7 +9,7 @@ const EVENTS_DATA = {
             img: 'https://muonlinefanz.com/tools/npc/data/graphics/Messenger%20Of%20Archangel/Messenger%20Of%20Archangel.jpg',
             color: '#c62828',
             category: 'events',
-            description: 'Evento PvE - Mate monstros, destrua o portão e entregue a Arma do Arcanjo',
+            description: { pt: 'Evento PvE - Mate monstros, destrua o portão e entregue a Arma do Arcanjo', en: 'PvE Event - Kill monsters, destroy the gate and deliver the Archangel Weapon' },
             times: ['00:30', '01:30', '02:30', '03:30', '04:30', '05:30', '06:30', '07:30', '08:30', '09:30', '10:30', '11:30', '12:30', '13:30', '14:30', '15:30', '16:30', '17:30', '18:30', '19:30', '20:30', '21:30', '22:30', '23:30'],
             duration: 21,
             gateClose: 5
@@ -21,7 +21,7 @@ const EVENTS_DATA = {
             img: 'https://muonlinefanz.com/tools/npc/data/graphics/Charon/Charon.jpg',
             color: '#6a1b9a',
             category: 'events',
-            description: 'Evento PvE - Ondas de monstros para ganhar experiência e Zen',
+            description: { pt: 'Evento PvE - Ondas de monstros para ganhar experiência e Zen', en: 'PvE Event - Monster waves to earn experience and Zen' },
             times: ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'],
             duration: 26,
             gateClose: 5
@@ -33,7 +33,7 @@ const EVENTS_DATA = {
             img: 'https://muonlinefanz.com/tools/npc/data/graphics/Gallus%20The%20Elder/Gallus%20The%20Elder.jpg',
             color: '#e65100',
             category: 'events',
-            description: 'Evento PvP - Lute contra jogadores e monstros, último sobrevivente vence',
+            description: { pt: 'Evento PvP - Lute contra jogadores e monstros, último sobrevivente vence', en: 'PvP Event - Fight players and monsters, last survivor wins' },
             times: ['01:55', '05:55', '09:55', '13:55', '17:55', '21:55'],
             duration: 16,
             gateClose: 5
@@ -45,7 +45,7 @@ const EVENTS_DATA = {
             img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/383/body/wc5-Xa7j3BKEdMrXv-nwX.gif',
             color: '#00838f',
             category: 'events',
-            description: 'PvPvE - Derrote Colossus Guardians em Ruined Devias para Jewel of Guardian',
+            description: { pt: 'PvPvE - Derrote Colossus Guardians em Ruined Devias para Jewel of Guardian', en: 'PvPvE - Defeat Colossus Guardians in Ruined Devias for Jewel of Guardian' },
             times: ['13:00', '17:00', '21:00'],
             duration: 20
         },
@@ -56,7 +56,7 @@ const EVENTS_DATA = {
             img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/49/body/hAXpnjHzyQ7bZGCIh4ZEz_334X450.webp',
             color: '#1565c0',
             category: 'events',
-            description: 'PvP 50vs50 - Times lutam com equipamento inicial, colete loot para vencer',
+            description: { pt: 'PvP 50vs50 - Times lutam com equipamento inicial, colete loot para vencer', en: 'PvP 50vs50 - Teams fight with starter gear, collect loot to win' },
             times: ['02:00', '08:00', '14:00', '20:00', '23:00'],
             duration: 10,
             earlyWarning: 7
@@ -68,7 +68,7 @@ const EVENTS_DATA = {
             img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/112/body/asngWVm4_UTe722n8dYCF.gif',
             color: '#f9a825',
             category: 'events',
-            description: 'Monstros dourados aparecem em vários mapas com drops valiosos',
+            description: { pt: 'Monstros dourados aparecem em vários mapas com drops valiosos', en: 'Golden monsters spawn across multiple maps with valuable drops' },
             times: ['00:31', '04:31', '08:31', '12:31', '16:31', '20:31'],
             duration: 20
         },
@@ -79,7 +79,7 @@ const EVENTS_DATA = {
             img: 'https://muonlinefanz.com/tools/npc/data/graphics/Guardsman/Guardsman.jpg',
             color: '#37474f',
             category: 'events',
-            description: 'Evento semanal de guilds - Domingo às 20:00 (horário servidor)',
+            description: { pt: 'Evento semanal de guilds - Domingo às 20:00 (horário servidor)', en: 'Weekly guild event - Sunday at 20:00 (server time)' },
             times: ['20:00'],
             duration: 60,
             weekday: 0
@@ -94,7 +94,7 @@ const EVENTS_DATA = {
             img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/125/body/7NJ6PW2Az1QucmJeMCXyN.gif',
             color: '#e0e0e0',
             category: 'bosses',
-            description: 'Localização: Noria',
+            description: { pt: 'Localização: Noria', en: 'Location: Noria' },
             times: ['09:45', '12:45', '15:45', '18:45'],
             duration: 0
         },
@@ -105,7 +105,7 @@ const EVENTS_DATA = {
             img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/126/body/-GwVeKpTYRMlJCyC5IAP0.gif',
             color: '#b71c1c',
             category: 'bosses',
-            description: 'Localização: Shadow Abyss',
+            description: { pt: 'Localização: Shadow Abyss', en: 'Location: Shadow Abyss' },
             times: ['21:45', '00:45', '03:45', '06:45'],
             duration: 0
         },
@@ -116,7 +116,7 @@ const EVENTS_DATA = {
             img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/127/body/CzlHzu6gl8HQxTMl2zzSi.gif',
             color: '#4a148c',
             category: 'bosses',
-            description: 'Localização: Tarkan 2 (3 spawns)',
+            description: { pt: 'Localização: Tarkan 2 (3 spawns)', en: 'Location: Tarkan 2 (3 spawns)' },
             times: ['00:55', '06:55', '12:55', '18:55'],
             duration: 0
         },
@@ -127,7 +127,7 @@ const EVENTS_DATA = {
             img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/128/body/9glyr72i5m_9nR73DihnY.gif',
             color: '#d32f2f',
             category: 'bosses',
-            description: 'Localização: Aida (3 spawns)',
+            description: { pt: 'Localização: Aida (3 spawns)', en: 'Location: Aida (3 spawns)' },
             times: ['08:00', '20:00'],
             duration: 0
         },
@@ -138,7 +138,7 @@ const EVENTS_DATA = {
             img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/129/body/KuggfdVhYaPT8nQe7yvJs.gif',
             color: '#c62828',
             category: 'bosses',
-            description: 'Localização: Devias',
+            description: { pt: 'Localização: Devias', en: 'Location: Devias' },
             times: ['02:35', '08:35', '14:35', '20:35'],
             duration: 0
         },
@@ -149,7 +149,7 @@ const EVENTS_DATA = {
             img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/233/body/pYcl1Dt9bjQ7eyrjKSNPv.gif',
             color: '#424242',
             category: 'bosses',
-            description: 'Localização: Shadow Abyss (10 spawns)',
+            description: { pt: 'Localização: Shadow Abyss (10 spawns)', en: 'Location: Shadow Abyss (10 spawns)' },
             times: ['21:45', '00:45', '03:45', '06:45'],
             duration: 0
         },
@@ -160,7 +160,7 @@ const EVENTS_DATA = {
             img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/133/body/PrtRqamLz3NqKBygb-INq.gif',
             color: '#2e7d32',
             category: 'bosses',
-            description: 'Localização: Devias (10 spawns)',
+            description: { pt: 'Localização: Devias (10 spawns)', en: 'Location: Devias (10 spawns)' },
             times: ['02:35', '08:35', '14:35', '20:35'],
             duration: 0
         },
@@ -171,7 +171,7 @@ const EVENTS_DATA = {
             img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/234/body/aLiWVJHTzWqkoFVErIQpo.gif',
             color: '#5d4037',
             category: 'bosses',
-            description: 'Localização: Noria (5 spawns cada)',
+            description: { pt: 'Localização: Noria (5 spawns cada)', en: 'Location: Noria (5 spawns each)' },
             times: ['09:45', '12:45', '15:45', '18:45'],
             duration: 0
         },
@@ -182,7 +182,7 @@ const EVENTS_DATA = {
             img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/569/body/9DpdTbEAjju_xtoCDX8-k.gif',
             color: '#0288d1',
             category: 'bosses',
-            description: 'Localização: Twisted Karutan (4) + Land of Trials (2) - Dropa stones for Guild Shrine',
+            description: { pt: 'Localização: Twisted Karutan (4) + Land of Trials (2) - Dropa stones for Guild Shrine', en: 'Location: Twisted Karutan (4) + Land of Trials (2) - Drops stones for Guild Shrine' },
             times: ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00'],
             duration: 0
         },
@@ -193,7 +193,7 @@ const EVENTS_DATA = {
             img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/671/body/jtt9Lf5KV1tR-crKqoCnh.gif',
             color: '#4e342e',
             category: 'bosses',
-            description: 'Localização: Ruined Lorencia, Twisted Karutan, Shadow Abyss',
+            description: { pt: 'Localização: Ruined Lorencia, Twisted Karutan, Shadow Abyss', en: 'Location: Ruined Lorencia, Twisted Karutan, Shadow Abyss' },
             times: ['03:45', '09:45', '15:45', '21:45'],
             duration: 0
         },
@@ -204,7 +204,7 @@ const EVENTS_DATA = {
             img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/218/body/JalNb7K9ipEOikEljDVQZ.gif',
             color: '#311b92',
             category: 'bosses',
-            description: 'Localização: Shadow Abyss - Drop: 2-3 Armas, 1-2 Ancient T4 (7.3)',
+            description: { pt: 'Localização: Shadow Abyss - Drop: 2-3 Armas, 1-2 Ancient T4 (7.3)', en: 'Location: Shadow Abyss - Drop: 2-3 Weapons, 1-2 Ancient T4 (7.3)' },
             times: ['01:50', '15:50'],
             duration: 0
         },
@@ -215,10 +215,10 @@ const EVENTS_DATA = {
             img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/455/body/-4Ydi-xNXdkqPiSqscZFg.gif',
             color: '#880e4f',
             category: 'bosses',
-            description: 'Localização: 2x Shadow Abyss + 2x Crywolf + 2x Barracks of Balgass (6 spawns)',
+            description: { pt: 'Localização: 2x Shadow Abyss + 2x Crywolf + 2x Barracks of Balgass (6 spawns)', en: 'Location: 2x Shadow Abyss + 2x Crywolf + 2x Barracks of Balgass (6 spawns)' },
             times: [],
             duration: 0,
-            respawnInfo: '3-4 horas após a morte (patch 7.3)'
+            respawnInfo: { pt: '3-4 horas após a morte (patch 7.3)', en: '3-4 hours after death (patch 7.3)' }
         },
         {
             id: 'abbadon',
@@ -227,7 +227,7 @@ const EVENTS_DATA = {
             img: 'https://dreamassets.fra1.cdn.digitaloceanspaces.com/images/566/body/5931PHtcfP5l5KP3jdvN2_1024X786.webp',
             color: '#b71c1c',
             category: 'bosses',
-            description: 'Localização: Twisted Karutan - Drop: 2 Weapons, 4 Armors',
+            description: { pt: 'Localização: Twisted Karutan - Drop: 2 Weapons, 4 Armors', en: 'Location: Twisted Karutan - Drop: 2 Weapons, 4 Armors' },
             times: ['03:50', '17:50'],
             duration: 0
         },
@@ -238,7 +238,7 @@ const EVENTS_DATA = {
             img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/399/body/xVJkXvAbOOCXcfqdo83VN.gif',
             color: '#ff5722',
             category: 'bosses',
-            description: 'Localização: Kanturu Labyrinth - Drop: 5-7 Items',
+            description: { pt: 'Localização: Kanturu Labyrinth - Drop: 5-7 Items', en: 'Location: Kanturu Labyrinth - Drop: 5-7 Items' },
             times: ['04:50', '20:50'],
             duration: 0
         },
@@ -249,7 +249,7 @@ const EVENTS_DATA = {
             img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/96/body/PFnAU0WZhu0BwBLZ40cvP.gif',
             color: '#7e57c2',
             category: 'bosses',
-            description: 'Localização: Crimson Icarus - Drop: Wing lvl 2, Phoenix Feather, Wing lvl 2.5',
+            description: { pt: 'Localização: Crimson Icarus - Drop: Wing lvl 2, Phoenix Feather, Wing lvl 2.5', en: 'Location: Crimson Icarus - Drop: Wing lvl 2, Phoenix Feather, Wing lvl 2.5' },
             times: ['23:50'],
             duration: 0
         },
@@ -260,7 +260,7 @@ const EVENTS_DATA = {
             img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/475/body/DpTtcEAozg3MdmQa1TNSL.gif',
             color: '#ec407a',
             category: 'cherry',
-            description: 'Dreamland (50 spawns) - Colete 10 e troque no NPC Cherry Blossom',
+            description: { pt: 'Dreamland (50 spawns) - Colete 10 e troque no NPC Cherry Blossom', en: 'Dreamland (50 spawns) - Collect 10 and exchange at NPC Cherry Blossom' },
             times: ['03:25', '09:25', '15:25', '21:25'],
             duration: 0
         }
@@ -279,7 +279,7 @@ const EVENTS_DATA = {
             times: [],
             duration: 0,
             respawnMinutes: 60,
-            respawnInfo: '1 hora após a morte'
+            respawnInfo: { pt: '1 hora após a morte', en: '1 hour after death' }
         },
         {
             id: 'crystal-warden',
@@ -293,7 +293,7 @@ const EVENTS_DATA = {
             times: [],
             duration: 0,
             respawnMinutes: 60,
-            respawnInfo: '1 hora após a morte'
+            respawnInfo: { pt: '1 hora após a morte', en: '1 hour after death' }
         },
         {
             id: 'mordrax',
@@ -307,7 +307,7 @@ const EVENTS_DATA = {
             times: [],
             duration: 0,
             respawnMinutes: 60,
-            respawnInfo: '1 hora após a morte'
+            respawnInfo: { pt: '1 hora após a morte', en: '1 hour after death' }
         },
         {
             id: 'ember-golem',
@@ -321,7 +321,7 @@ const EVENTS_DATA = {
             times: [],
             duration: 0,
             respawnMinutes: 60,
-            respawnInfo: '1 hora após a morte'
+            respawnInfo: { pt: '1 hora após a morte', en: '1 hour after death' }
         },
         {
             id: 'arcane-sentinel',
@@ -335,7 +335,7 @@ const EVENTS_DATA = {
             times: [],
             duration: 0,
             respawnMinutes: 60,
-            respawnInfo: '1 hora após a morte'
+            respawnInfo: { pt: '1 hora após a morte', en: '1 hour after death' }
         },
         {
             id: 'hellcarion',
@@ -349,7 +349,7 @@ const EVENTS_DATA = {
             times: [],
             duration: 0,
             respawnMinutes: 60,
-            respawnInfo: '1 hora após a morte'
+            respawnInfo: { pt: '1 hora após a morte', en: '1 hour after death' }
         },
         {
             id: 'tidebreaker',
@@ -363,7 +363,7 @@ const EVENTS_DATA = {
             times: [],
             duration: 0,
             respawnMinutes: 60,
-            respawnInfo: '1 hora após a morte'
+            respawnInfo: { pt: '1 hora após a morte', en: '1 hour after death' }
         },
         {
             id: 'mines-of-guardian',
@@ -376,7 +376,7 @@ const EVENTS_DATA = {
             times: [],
             duration: 0,
             respawnMinutes: 60,
-            respawnInfo: '45-75 minutos após a morte'
+            respawnInfo: { pt: '45-75 minutos após a morte', en: '45-75 minutes after death' }
         },
         {
             id: 'moltragon',
@@ -390,7 +390,7 @@ const EVENTS_DATA = {
             times: [],
             duration: 0,
             respawnMinutes: 90,
-            respawnInfo: '1-2 horas após a morte'
+            respawnInfo: { pt: '1-2 horas após a morte', en: '1-2 hours after death' }
         },
         {
             id: 'dreadhorn',
@@ -404,7 +404,7 @@ const EVENTS_DATA = {
             times: [],
             duration: 0,
             respawnMinutes: 90,
-            respawnInfo: '1-2 horas após a morte'
+            respawnInfo: { pt: '1-2 horas após a morte', en: '1-2 hours after death' }
         },
         {
             id: 'kharzul',
@@ -418,7 +418,7 @@ const EVENTS_DATA = {
             times: [],
             duration: 0,
             respawnMinutes: 450,
-            respawnInfo: '7-8 horas após a morte'
+            respawnInfo: { pt: '7-8 horas após a morte', en: '7-8 hours after death' }
         },
         {
             id: 'vescrya',
@@ -432,7 +432,7 @@ const EVENTS_DATA = {
             times: [],
             duration: 0,
             respawnMinutes: 450,
-            respawnInfo: '7-8 horas após a morte'
+            respawnInfo: { pt: '7-8 horas após a morte', en: '7-8 hours after death' }
         },
         {
             id: 'borgar',
@@ -446,7 +446,7 @@ const EVENTS_DATA = {
             times: [],
             duration: 0,
             respawnMinutes: 150,
-            respawnInfo: '2-3 horas após a morte'
+            respawnInfo: { pt: '2-3 horas após a morte', en: '2-3 hours after death' }
         }
     ],
 
@@ -458,7 +458,7 @@ const EVENTS_DATA = {
             img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/473/body/d9uc1PDeQyp6-TE7bv8CO.gif',
             color: '#ec407a',
             category: 'cherry',
-            description: 'Dreamland - Colete 10 galhos para trocar no NPC',
+            description: { pt: 'Dreamland - Colete 10 galhos para trocar no NPC', en: 'Dreamland - Collect 10 branches to exchange at NPC' },
             times: ['05:25', '11:25', '17:25', '23:25'],
             duration: 0
         },
@@ -469,7 +469,7 @@ const EVENTS_DATA = {
             img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/474/body/MFf2VGiq_jQn1AqG8rl9C.gif',
             color: '#ff5722',
             category: 'cherry',
-            description: 'Dreamland - Colete 30 galhos para trocar no NPC',
+            description: { pt: 'Dreamland - Colete 30 galhos para trocar no NPC', en: 'Dreamland - Collect 30 branches to exchange at NPC' },
             times: ['01:25', '07:25', '13:25', '19:25'],
             duration: 0
         }

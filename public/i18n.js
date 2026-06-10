@@ -314,6 +314,20 @@ const TRANSLATIONS = {
         limitPayPix: 'Pagar com PIX (BRL)',
         limitContactInfo: 'Após o pagamento, envie o comprovante para ativar sua conta.',
         limitClose: 'Fechar',
+        // Elite & in-game UI
+        eliteKilled: '⚔️ Matei',
+        eliteRespawned: '🟢 Respawnou!',
+        eliteRespawnedToast: '🟢 {name} respawnou em {map}!',
+        eliteRespawnsIn: '⏰ {name} respawna em {min} min — {map}',
+        // BC crystal warnings
+        bcCrystalMarked: '💎 Cristal marcado! Alarmes em 3, 2 e 1 minutos antes do fim.',
+        ccDied: '💀 Você morreu no Chaos Castle!',
+        ccDiedMarked: '💀 Marcado! Alarmes do Chaos Castle pausados.',
+        ccDiedBtn: '💀 MORRI!!!',
+        bcGameplayStartsIn: '⏳ Gameplay começa em',
+        bcCrystal3min: '💎 Blood Castle acaba em 3 minutos! Vai entregar o Cristal!',
+        bcCrystal2min: '💎 Blood Castle acaba em 2 minutos! Entregue o Cristal!',
+        bcCrystal1min: '🚨💎 Blood Castle acaba em 1 minuto! Entregue o Cristal AGORA!',
     },
     en: {
         enterSystem: 'SIGN IN / SIGN UP',
@@ -335,6 +349,8 @@ const TRANSLATIONS = {
         tabChat: '🤖 MU IA',
         tabAdmin: '👑 Admin',
         tabGuide: '📖 Guide',
+        elitesTitle: 'Elite Monsters',
+        eliteInfo: '⚔️ Click "Killed" when you kill an Elite. The 1h timer starts and you get an alarm before respawn.',
         guideTitle: '📖 MuDream Guide',
         upcomingTitle: 'Upcoming Events',
         eventsTitle: 'Server Events',
@@ -628,13 +644,31 @@ const TRANSLATIONS = {
         limitPayPix: 'Pay with PIX (BRL)',
         limitContactInfo: 'After payment, send the receipt to activate your account.',
         limitClose: 'Close',
+        // Elite & in-game UI
+        eliteKilled: '⚔️ Killed',
+        eliteRespawned: '🟢 Respawned!',
+        eliteRespawnedToast: '🟢 {name} respawned in {map}!',
+        eliteRespawnsIn: '⏰ {name} respawns in {min} min — {map}',
+        // BC crystal warnings
+        bcCrystalMarked: '💎 Crystal marked! Alarms at 3, 2 and 1 min before end.',
+        ccDied: '💀 You died in Chaos Castle!',
+        ccDiedMarked: '💀 Marked! Chaos Castle alarms paused.',
+        ccDiedBtn: '💀 I DIED!!!',
+        bcGameplayStartsIn: '⏳ Gameplay starts in',
+        bcCrystal3min: '💎 Blood Castle ends in 3 minutes! Go deliver the Crystal!',
+        bcCrystal2min: '💎 Blood Castle ends in 2 minutes! Deliver the Crystal!',
+        bcCrystal1min: '🚨💎 Blood Castle ends in 1 minute! Deliver the Crystal NOW!',
     }
 };
 
 let currentLang = localStorage.getItem('mudream_lang') || 'pt';
 
-function t(key) {
-    return TRANSLATIONS[currentLang]?.[key] || TRANSLATIONS.pt[key] || key;
+function t(key, vars) {
+    let val = TRANSLATIONS[currentLang]?.[key] || TRANSLATIONS.pt[key] || key;
+    if (vars && typeof val === 'string') {
+        for (const k in vars) val = val.split('{' + k + '}').join(vars[k]);
+    }
+    return val;
 }
 
 function setLanguage(lang) {
