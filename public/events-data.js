@@ -34,7 +34,7 @@ const EVENTS_DATA = {
             color: '#e65100',
             category: 'events',
             description: 'Evento PvP - Lute contra jogadores e monstros, último sobrevivente vence',
-            times: ['01:55', '03:55', '05:55', '07:55', '09:55', '11:55', '13:55', '15:55', '17:55', '19:55', '21:55', '23:55'],
+            times: ['01:55', '05:55', '09:55', '13:55', '17:55', '21:55'],
             duration: 16,
             gateClose: 5
         },
