@@ -257,7 +257,7 @@ const EVENTS_DATA = {
             id: 'pouch-of-blessing',
             name: 'Pouch of Blessing',
             icon: '🎁',
-            img: 'https://dreamassets.fra1.cdn.digitaloceanspaces.com/images/567/body/RGp2BeDE0ATGUnrH5PR9c.gif',
+            img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/475/body/DpTtcEAozg3MdmQa1TNSL.gif',
             color: '#ec407a',
             category: 'cherry',
             description: 'Dreamland (50 spawns) - Colete 10 e troque no NPC Cherry Blossom',
