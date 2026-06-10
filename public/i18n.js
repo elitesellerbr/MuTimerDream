@@ -328,6 +328,8 @@ const TRANSLATIONS = {
         bcCrystal3min: '💎 Blood Castle acaba em 3 minutos! Vai entregar o Cristal!',
         bcCrystal2min: '💎 Blood Castle acaba em 2 minutos! Entregue o Cristal!',
         bcCrystal1min: '🚨💎 Blood Castle acaba em 1 minuto! Entregue o Cristal AGORA!',
+        updateAvailable: '🔄 Nova atualização disponível!',
+        updateBtn: 'Atualizar',
     },
     en: {
         enterSystem: 'SIGN IN / SIGN UP',
@@ -658,6 +660,8 @@ const TRANSLATIONS = {
         bcCrystal3min: '💎 Blood Castle ends in 3 minutes! Go deliver the Crystal!',
         bcCrystal2min: '💎 Blood Castle ends in 2 minutes! Deliver the Crystal!',
         bcCrystal1min: '🚨💎 Blood Castle ends in 1 minute! Deliver the Crystal NOW!',
+        updateAvailable: '🔄 New update available!',
+        updateBtn: 'Update',
     }
 };
 
