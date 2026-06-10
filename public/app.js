@@ -469,11 +469,11 @@ function createEventCard(occ, showToggle = true) {
     let bcCrystalHtml = '';
     if (isBcActive) {
         if (bcCrystalValid) {
-            bcCrystalHtml = `<div class="bc-crystal-status">💎 Cristal pego! Entregue em <span class="bc-crystal-countdown">${formatBcCrystalCountdown(bcMsLeft)}</span></div>`;
+            bcCrystalHtml = `<div class="bc-crystal-status">${t('bcCrystalGot')} <span class="bc-crystal-countdown">${formatBcCrystalCountdown(bcMsLeft)}</span></div>`;
         } else if (bcInGameplay) {
             // Calculate when BC gameplay ends (event start + 21min)
             const bcEndsAt = Date.now() + (occ.duration * 60000) + occ.msUntil;
-            bcCrystalHtml = `<button class="btn-bc-crystal" data-ends-at="${bcEndsAt}">💎 Peguei o Cristal</button>`;
+            bcCrystalHtml = `<button class="btn-bc-crystal" data-ends-at="${bcEndsAt}">${t('bcCrystalGotBtn')}</button>`;
         } else {
             // Still in entry/transition phase — show waiting message
             const gameplayStartsIn = Math.ceil((6 * 60000 - bcMsElapsed) / 1000);
@@ -811,11 +811,11 @@ function checkGateAlarms() {
                 }
 
                 const gateWarnings = [
-                    { id: 'g3', atMs: (gate - 3) * 60000, msg: `🏰 ${occ.name} fecha em 3 minutos! Corre pra entrar!` },
-                    { id: 'g2', atMs: (gate - 2) * 60000, msg: `🏰 ${occ.name} fecha em 2 minutos! Vai logo!` },
-                    { id: 'g1', atMs: (gate - 1) * 60000, msg: `⚠️ ${occ.name} fecha em 1 minuto! Última chance!` },
-                    { id: 'g0', atMs: gate * 60000, msg: `🚫 ${occ.name} FECHOU! Não dá mais pra entrar!` },
-                    { id: 'end', atMs: event.duration * 60000, msg: `🏁 ${occ.name} ACABOU!` }
+                    { id: 'g3', atMs: (gate - 3) * 60000, msg: t('gateCloses3', { name: occ.name }) },
+                    { id: 'g2', atMs: (gate - 2) * 60000, msg: t('gateCloses2', { name: occ.name }) },
+                    { id: 'g1', atMs: (gate - 1) * 60000, msg: t('gateCloses1', { name: occ.name }) },
+                    { id: 'g0', atMs: gate * 60000,        msg: t('gateClosed',  { name: occ.name }) },
+                    { id: 'end', atMs: event.duration * 60000, msg: t('eventEnded', { name: occ.name }) }
                 ];
 
                 for (const w of gateWarnings) {

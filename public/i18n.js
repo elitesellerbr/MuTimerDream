@@ -330,6 +330,15 @@ const TRANSLATIONS = {
         bcCrystal1min: '🚨💎 Blood Castle acaba em 1 minuto! Entregue o Cristal AGORA!',
         updateAvailable: '🔄 Nova atualização disponível!',
         updateBtn: 'Atualizar',
+        // Gate close warnings
+        gateCloses3: '🏰 {name} fecha em 3 minutos! Corre pra entrar!',
+        gateCloses2: '🏰 {name} fecha em 2 minutos! Vai logo!',
+        gateCloses1: '⚠️ {name} fecha em 1 minuto! Última chance!',
+        gateClosed:  '🚫 {name} FECHOU! Não dá mais pra entrar!',
+        eventEnded:  '🏁 {name} ACABOU!',
+        // BC Crystal UI
+        bcCrystalGot: '💎 Cristal pego! Entregue em',
+        bcCrystalGotBtn: '💎 Peguei o Cristal',
     },
     en: {
         enterSystem: 'SIGN IN / SIGN UP',
@@ -662,6 +671,15 @@ const TRANSLATIONS = {
         bcCrystal1min: '🚨💎 Blood Castle ends in 1 minute! Deliver the Crystal NOW!',
         updateAvailable: '🔄 New update available!',
         updateBtn: 'Update',
+        // Gate close warnings
+        gateCloses3: '🏰 {name} gate closes in 3 minutes! Hurry up!',
+        gateCloses2: '🏰 {name} gate closes in 2 minutes! Go now!',
+        gateCloses1: '⚠️ {name} gate closes in 1 minute! Last chance!',
+        gateClosed:  '🚫 {name} CLOSED! Cannot enter anymore!',
+        eventEnded:  '🏁 {name} ENDED!',
+        // BC Crystal UI
+        bcCrystalGot: '💎 Crystal taken! Deliver in',
+        bcCrystalGotBtn: '💎 Got the Crystal',
     }
 };
 
