@@ -259,8 +259,8 @@ const EVENTS_DATA = {
             icon: '🎁',
             img: 'https://dreamassets.fra1.cdn.digitaloceanspaces.com/images/567/body/RGp2BeDE0ATGUnrH5PR9c.gif',
             color: '#ec407a',
-            category: 'bosses',
-            description: 'Localização: Dreamland (50 spawns) - Colete 10 e troque no NPC Cherry Blossom',
+            category: 'cherry',
+            description: 'Dreamland (50 spawns) - Colete 10 e troque no NPC Cherry Blossom',
             times: ['03:25', '09:25', '15:25', '21:25'],
             duration: 0
         }
