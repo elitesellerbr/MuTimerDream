@@ -204,7 +204,7 @@ const EVENTS_DATA = {
             img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/218/body/JalNb7K9ipEOikEljDVQZ.gif',
             color: '#311b92',
             category: 'bosses',
-            description: 'Localização: Shadow Abyss - Drop: 2-3 Armas, 1-2 Ancient',
+            description: 'Localização: Shadow Abyss - Drop: 2-3 Armas, 1-2 Ancient T4 (7.3)',
             times: ['01:50', '15:50'],
             duration: 0
         },
@@ -218,7 +218,7 @@ const EVENTS_DATA = {
             description: 'Localização: 2x Shadow Abyss + 2x Crywolf + 2x Barracks of Balgass (6 spawns)',
             times: [],
             duration: 0,
-            respawnInfo: '7-8 horas após a morte'
+            respawnInfo: '3-4 horas após a morte (patch 7.3)'
         },
         {
             id: 'abbadon',
