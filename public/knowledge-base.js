@@ -763,15 +763,20 @@ const MUCHAT_KB = {
     },
 
     frigidon: {
-        keywords: ['frigidon', 'cryonox', 'guild shrine', 'santuario guild', 'pedra guild'],
-        answer: `<strong>Frigidon / Cryonox</strong><br><br>
-        Boss agendado para Santuário da Guild!<br><br>
+        keywords: ['frigidon', 'cryonox', 'guild shrine', 'santuario guild', 'pedra guild', 'ruined devias'],
+        answer: `<strong>Frigidon</strong><br><br>
+        Boss agendado de Ruined Devias para Santuário da Guild!<br><br>
         <ul>
-        <li><strong>Localização:</strong> Twisted Karutan (4) + Land of Trials (2)</li>
-        <li><strong>Horários:</strong> a cada 3h (00:00, 03:00, 06:00, 09:00, 12:00, 15:00, 18:00, 21:00)</li>
+        <li><strong>Localização:</strong> Ruined Devias (3 spawns)</li>
+        <li><strong>Horários:</strong> a cada 3h a partir de 00:00 (00:00, 03:00, 06:00, 09:00, 12:00, 15:00, 18:00, 21:00)</li>
         <li><strong>Drop:</strong> 1 pedra aleatória para <strong>Guild Shrine</strong></li>
-        </ul><br>
-        Cryonox dropa pedras pra ativar e upar os 14 buffs do Santuário da Guild (level 1, 2, 3).`
+        </ul><br><br>
+        <strong>Cryonox</strong> (boss similar mas diferente):<br>
+        <ul>
+        <li>Twisted Karutan (4) + Land of Trials (2)</li>
+        <li>Respawn 5-7h após a morte</li>
+        <li>Também dropa pedras para Guild Shrine</li>
+        </ul>`
     },
 
     shadowAbyssElites: {

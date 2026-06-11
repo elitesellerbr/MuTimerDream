@@ -182,7 +182,7 @@ const EVENTS_DATA = {
             img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/569/body/9DpdTbEAjju_xtoCDX8-k.gif',
             color: '#0288d1',
             category: 'bosses',
-            description: { pt: 'Localização: Twisted Karutan (4) + Land of Trials (2) - Dropa stones for Guild Shrine', en: 'Location: Twisted Karutan (4) + Land of Trials (2) - Drops stones for Guild Shrine' },
+            description: { pt: 'Localização: Ruined Devias (3 spawns) - Dropa pedras para Guild Shrine', en: 'Location: Ruined Devias (3 spawns) - Drops stones for Guild Shrine' },
             times: ['00:00', '03:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00'],
             duration: 0
         },
