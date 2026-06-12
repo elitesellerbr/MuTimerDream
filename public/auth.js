@@ -79,6 +79,19 @@ async function checkSession() {
 function initAuth() {
     const modal = document.getElementById('authModal');
 
+    // Global password visibility toggle (any element with .pass-toggle[data-target])
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest?.('.pass-toggle');
+        if (!btn) return;
+        const targetId = btn.dataset.target;
+        const input = document.getElementById(targetId);
+        if (!input) return;
+        const visible = input.type === 'text';
+        input.type = visible ? 'password' : 'text';
+        btn.textContent = visible ? '👁️' : '🙈';
+        btn.setAttribute('aria-pressed', String(!visible));
+    });
+
     function openAuthModal() {
         modal.style.display = 'flex';
         document.body.classList.add('modal-locked');

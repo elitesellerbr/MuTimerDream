@@ -59,7 +59,11 @@ async function sendEmail(to, subject, html) {
 
 // Initialize admin on startup
 async function initAdmin() {
-    const ADMIN_PASS = process.env.ADMIN_PASS || 'Admin2026*!@#';
+    const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'superadmin';
+    const ADMIN_EMAIL    = (process.env.ADMIN_EMAIL || 'elitesellerbr@gmail.com').toLowerCase();
+    const ADMIN_PASS     = process.env.ADMIN_PASS || 'Admin2026*!@#';
+    const hash = bcrypt.hashSync(ADMIN_PASS, 10);
+
     const { data: adminExists } = await supabase
         .from('users')
         .select('id')
@@ -68,21 +72,20 @@ async function initAdmin() {
         .single();
 
     if (!adminExists) {
-        const hash = bcrypt.hashSync(ADMIN_PASS, 10);
         await supabase.from('users').upsert({
-            username: 'superadmin',
-            email: 'admin@mudream.local',
+            username: ADMIN_USERNAME,
+            email: ADMIN_EMAIL,
             password: hash,
             is_admin: 1
         }, { onConflict: 'username' });
-        console.log('Super admin created: superadmin');
+        console.log(`Super admin created: ${ADMIN_USERNAME} (${ADMIN_EMAIL})`);
     } else {
-        const hash = bcrypt.hashSync(ADMIN_PASS, 10);
+        // Always sync username/email/password from env vars on boot
         await supabase
             .from('users')
-            .update({ password: hash })
-            .eq('username', 'superadmin')
-            .eq('is_admin', 1);
+            .update({ username: ADMIN_USERNAME, email: ADMIN_EMAIL, password: hash })
+            .eq('id', adminExists.id);
+        console.log(`Super admin synced: ${ADMIN_USERNAME} (${ADMIN_EMAIL})`);
     }
 }
 

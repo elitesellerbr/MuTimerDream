@@ -5116,3 +5116,40 @@ body.modal-locked #landingPage {
     pointer-events: none;
     user-select: none;
 }
+
+
+/* ==================== PASSWORD VISIBILITY TOGGLE ==================== */
+.pass-wrap {
+    position: relative;
+    width: 100%;
+}
+.pass-wrap .admin-input {
+    width: 100%;
+    padding-right: 44px !important;
+}
+.pass-toggle {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+}
+.pass-toggle:hover {
+    background: rgba(245, 166, 35, 0.12);
+    color: #f5a623;
+}
+.pass-toggle:focus-visible {
+    outline: 2px solid rgba(245, 166, 35, 0.5);
+    outline-offset: 1px;
+}

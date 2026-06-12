@@ -457,7 +457,10 @@
                             </div>
                             <div class="setting-group">
                                 <label data-i18n="authPassLabel">Senha</label>
-                                <input type="password" id="loginPass" placeholder="Sua senha" class="admin-input" data-i18n="authPassPlaceholder">
+                                <div class="pass-wrap">
+                                    <input type="password" id="loginPass" placeholder="Sua senha" class="admin-input" data-i18n="authPassPlaceholder">
+                                    <button type="button" class="pass-toggle" data-target="loginPass" aria-label="Mostrar/ocultar senha">👁️</button>
+                                </div>
                             </div>
                             <button class="landing-enter" id="btnLogin" style="width:100%;font-size:14px;padding:10px" data-i18n="authEnter">ENTRAR</button>
                             <a href="#" id="forgotPassLink" class="forgot-link" data-i18n="forgotLink">Esqueceu a senha?</a>
@@ -487,7 +490,10 @@
                             </div>
                             <div class="setting-group">
                                 <label data-i18n="authRegPassLabel">Senha</label>
-                                <input type="password" id="regPass" placeholder="Mínimo 4 caracteres" class="admin-input" data-i18n="authRegPassPlaceholder">
+                                <div class="pass-wrap">
+                                    <input type="password" id="regPass" placeholder="Mínimo 4 caracteres" class="admin-input" data-i18n="authRegPassPlaceholder">
+                                    <button type="button" class="pass-toggle" data-target="regPass" aria-label="Mostrar/ocultar senha">👁️</button>
+                                </div>
                             </div>
                             <button class="landing-enter" id="btnRegister" style="width:100%;font-size:14px;padding:10px" data-i18n="authRegBtn">CADASTRAR</button>
                         </div>
@@ -614,7 +620,10 @@
                         </div>
                         <div id="pinSetupForm" style="display:none">
                             <div class="pin-input-group">
-                                <input type="password" id="pinCurrentPass" class="admin-input" placeholder="Sua senha atual" maxlength="50" data-i18n-placeholder="settingsPinPassPlaceholder">
+                                <div class="pass-wrap">
+                                    <input type="password" id="pinCurrentPass" class="admin-input" placeholder="Sua senha atual" maxlength="50" data-i18n-placeholder="settingsPinPassPlaceholder">
+                                    <button type="button" class="pass-toggle" data-target="pinCurrentPass" aria-label="Mostrar/ocultar senha">👁️</button>
+                                </div>
                                 <input type="text" id="pinInput" class="admin-input pin-code-input" placeholder="000000" maxlength="6" inputmode="numeric" pattern="[0-9]*">
                                 <input type="text" id="pinConfirm" class="admin-input pin-code-input" placeholder="Confirmar PIN" maxlength="6" inputmode="numeric" pattern="[0-9]*" data-i18n-placeholder="settingsPinConfirm">
                             </div>
@@ -626,7 +635,10 @@
                         </div>
                         <div id="pinDisableForm" style="display:none">
                             <div class="pin-input-group">
-                                <input type="password" id="pinDisablePass" class="admin-input" placeholder="Sua senha atual" maxlength="50" data-i18n-placeholder="settingsPinPassPlaceholder">
+                                <div class="pass-wrap">
+                                    <input type="password" id="pinDisablePass" class="admin-input" placeholder="Sua senha atual" maxlength="50" data-i18n-placeholder="settingsPinPassPlaceholder">
+                                    <button type="button" class="pass-toggle" data-target="pinDisablePass" aria-label="Mostrar/ocultar senha">👁️</button>
+                                </div>
                             </div>
                             <div class="pin-form-actions">
                                 <button class="btn-sm btn-danger" id="btnConfirmDisablePin" data-i18n="settingsPinConfirmDisable">Confirmar Desativação</button>
