@@ -988,6 +988,39 @@ function initClassShowcase() {
     }, 3000);
 }
 
+async function loadLandingStats() {
+    try {
+        const res = await fetch('/api/stats/public');
+        if (!res.ok) return;
+        const s = await res.json();
+        animateStatValue(document.getElementById('statEvents'), s.eventsTracked);
+        animateStatValue(document.getElementById('statUsers'), s.users);
+        animateStatValue(document.getElementById('statWishlist'), s.wishlistItems);
+        animateStatValue(document.getElementById('statAlerts'), s.alertsSent);
+
+        const max = s.maxFreeUsers || 40;
+        const pct = Math.min(100, Math.round((s.users / max) * 100));
+        const fill = document.getElementById('freeSpotsFill');
+        const txt  = document.getElementById('freeSpotsText');
+        if (fill) fill.style.width = pct + '%';
+        if (txt)  txt.textContent = `${s.users} / ${max} vagas usadas`;
+    } catch {}
+}
+
+function animateStatValue(el, target) {
+    if (!el || typeof target !== 'number') return;
+    const start = 0;
+    const dur = 900;
+    const t0 = performance.now();
+    function tick(now) {
+        const p = Math.min(1, (now - t0) / dur);
+        const eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(start + (target - start) * eased).toLocaleString();
+        if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+}
+
 function initLanding() {
     const landing = document.getElementById('landingPage');
     const app = document.getElementById('app');
@@ -1005,6 +1038,7 @@ function initLanding() {
     }
 
     initClassShowcase();
+    loadLandingStats();
 
     // Auto-skip landing if user has a valid session
     fetch('/api/auth/me', { credentials: 'same-origin' })

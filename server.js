@@ -188,6 +188,31 @@ function escapeHtml(str) {
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 }
 
+// ==================== PUBLIC STATS ====================
+app.get('/api/stats/public', async (req, res) => {
+    try {
+        const [users, wishlist, alerts, maxSetting] = await Promise.all([
+            supabase.from('users').select('*', { count: 'exact', head: true }).eq('is_admin', 0),
+            supabase.from('user_wishlist').select('*', { count: 'exact', head: true }).then(r => r).catch(() => ({ count: 0 })),
+            supabase.from('user_wishlist').select('*', { count: 'exact', head: true }).not('last_match_at', 'is', null).then(r => r).catch(() => ({ count: 0 })),
+            supabase.from('settings').select('value').eq('key', 'max_users').maybeSingle()
+        ]);
+        const maxUsers = parseInt(maxSetting?.data?.value || '40');
+        const currentUsers = users.count || 0;
+        res.set('Cache-Control', 'public, max-age=120');
+        res.json({
+            users: currentUsers,
+            maxFreeUsers: maxUsers,
+            freeSlotsLeft: Math.max(0, maxUsers - currentUsers),
+            wishlistItems: wishlist.count || 0,
+            alertsSent: alerts.count || 0,
+            eventsTracked: 50  // static — count of events/bosses/elites we track
+        });
+    } catch (e) {
+        res.json({ users: 0, maxFreeUsers: 40, freeSlotsLeft: 40, wishlistItems: 0, alertsSent: 0, eventsTracked: 50 });
+    }
+});
+
 // ==================== AUTH ROUTES ====================
 
 app.post('/api/auth/register', async (req, res) => {
