@@ -268,12 +268,22 @@ function renderCollection(container) {
 
     // Watch missing items: bulk-add to wishlist
     document.getElementById('btnWatchMissing')?.addEventListener('click', async () => {
+        const btn = document.getElementById('btnWatchMissing');
         const missing = EXC_ITEMS_DATA.items.filter(i => !collectionItems.has(i.id));
         if (missing.length === 0) return;
         if (!confirm(`Adicionar ${missing.length} itens faltando à sua Wishlist do mercado RAMPAGE X-20?`)) return;
+
         const server = localStorage.getItem('mudream_wishlist_server') || 'rampage-x20';
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.classList.add('watch-loading');
+        btn.innerHTML = `<span class="watch-dots">⏳ Adicionando 0/${missing.length}</span><span class="watch-progress-fill"></span>`;
+
+        const progressFill = btn.querySelector('.watch-progress-fill');
+        const dots = btn.querySelector('.watch-dots');
         let added = 0;
-        for (const it of missing) {
+        for (let i = 0; i < missing.length; i++) {
+            const it = missing[i];
             try {
                 await fetch('/api/wishlist', {
                     method: 'POST',
@@ -283,8 +293,37 @@ function renderCollection(container) {
                 });
                 added++;
             } catch {}
+            const pct = Math.round(((i + 1) / missing.length) * 100);
+            if (progressFill) progressFill.style.width = pct + '%';
+            if (dots) dots.textContent = `⏳ Adicionando ${i + 1}/${missing.length}`;
         }
-        showToast(`🛒 ${added} itens adicionados à Wishlist!`, 'success', 5000);
+
+        // Phase 2 — scan the market
+        if (dots) dots.textContent = '🔍 Procurando no mercado...';
+        if (progressFill) progressFill.style.width = '100%';
+
+        let foundCount = 0;
+        try {
+            if (typeof loadWishlist === 'function') await loadWishlist();
+            if (typeof checkMarketForWishlist === 'function') {
+                await checkMarketForWishlist();
+                if (typeof getStoredFindings === 'function') foundCount = getStoredFindings().length;
+            }
+        } catch (e) {
+            console.warn('Market scan failed:', e.message);
+        }
+
+        btn.classList.remove('watch-loading');
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+
+        if (foundCount > 0) {
+            showToast(`✨ ${added} adicionados · ${foundCount} já achados no mercado!`, 'success', 6000);
+        } else {
+            showToast(`🛒 ${added} adicionados à Wishlist. Nenhum achado no mercado por enquanto.`, 'success', 5000);
+        }
+        // Refresh collection so finding preview shows up
+        renderCollection(container);
     });
 
     const searchInput = document.getElementById('collectionSearch');
@@ -350,7 +389,13 @@ function renderCollectionCategories(names, searchQuery) {
                                 <div class="collection-item-right">
                                     ${!has && !readOnly ? `<button class="btn-adds" data-item="${item.id}" title="Editar adds">⚙️</button>` : ''}
                                     ${has && !readOnly ? `<button class="btn-remove-item" data-item="${item.id}" title="Remover item">❌</button>` : ''}
-                                    <span class="collection-item-check">${has ? '✅' : '⬜'}</span>
+                                    ${readOnly
+                                        ? `<span class="collection-item-check">${has ? '✅' : '⬜'}</span>`
+                                        : (has
+                                            ? `<span class="collection-item-badge owned">✅ ${t('collectionOwned') || 'Comprei'}</span>`
+                                            : `<button class="btn-buy" data-item="${item.id}" title="Marcar como obtido"><span class="btn-buy-icon">🛒</span><span class="btn-buy-label">${t('collectionBuy') || 'COMPREI'}</span></button>`
+                                        )
+                                    }
                                 </div>
                             </div>
                         `;

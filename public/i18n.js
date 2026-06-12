@@ -440,6 +440,8 @@ const TRANSLATIONS = {
         payCardDesc: 'Stripe checkout',
         donateProofTitle: '📧 Após pagar (PIX ou IBAN), envie o comprovante',
         donateProofNote: 'Inclua seu nome de char e o plano escolhido (Starter/Premium/Full Access) para ativarmos sua conta.',
+        collectionBuy: 'COMPREI',
+        collectionOwned: 'Comprei',
     },
     en: {
         enterSystem: 'SIGN IN / SIGN UP',
@@ -882,6 +884,8 @@ const TRANSLATIONS = {
         payCardDesc: 'Stripe checkout',
         donateProofTitle: '📧 After paying (PIX or IBAN), send the receipt',
         donateProofNote: 'Include your char name and the chosen plan (Starter/Premium/Full Access) so we can activate your account.',
+        collectionBuy: 'BUY',
+        collectionOwned: 'Owned',
     }
 };
 

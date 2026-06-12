@@ -5535,3 +5535,80 @@ body.modal-locked #landingPage {
     padding: 6px;
 }
 .found-btn-ghost:hover { color: #fff; }
+
+
+/* ==================== COLLECTION: BUY BUTTON ==================== */
+.btn-buy {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #f5a623, #ff6600);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+    box-shadow: 0 2px 8px rgba(245, 166, 35, 0.3);
+}
+.btn-buy:hover {
+    transform: translateY(-1px) scale(1.04);
+    box-shadow: 0 4px 14px rgba(245, 166, 35, 0.55);
+    background: linear-gradient(135deg, #ff8800, #ff5500);
+}
+.btn-buy:active {
+    transform: translateY(0) scale(0.98);
+}
+.btn-buy-icon { font-size: 13px; }
+.collection-item-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+}
+.collection-item-badge.owned {
+    background: rgba(102, 187, 106, 0.18);
+    color: #66bb6a;
+    border: 1px solid rgba(102, 187, 106, 0.4);
+}
+
+/* ==================== WATCH LOADING STATE ==================== */
+.watch-loading {
+    position: relative;
+    overflow: hidden;
+    cursor: progress !important;
+    opacity: 0.95;
+}
+.watch-loading .watch-progress-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 0%;
+    background: linear-gradient(90deg, rgba(255,255,255,0.18), rgba(255,255,255,0.32));
+    transition: width 0.3s ease;
+    z-index: 0;
+    border-radius: inherit;
+}
+.watch-loading .watch-dots {
+    position: relative;
+    z-index: 1;
+    display: inline-block;
+    font-weight: 700;
+}
+.watch-loading .watch-dots::after {
+    content: '';
+    animation: watchDots 1.2s steps(4, end) infinite;
+}
+@keyframes watchDots {
+    0%   { content: ''; }
+    25%  { content: '.'; }
+    50%  { content: '..'; }
+    75%  { content: '...'; }
+    100% { content: ''; }
+}
