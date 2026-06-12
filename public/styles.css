@@ -6220,3 +6220,35 @@ body.modal-locked #landingPage {
     }
     .exch-cell-img { grid-row: span 7; align-self: start; }
 }
+
+/* ==================== MARKET LIVE STATUS ==================== */
+.wl-market-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(102, 187, 106, 0.1);
+    border: 1px solid rgba(102, 187, 106, 0.3);
+    color: #66bb6a;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+.wl-market-status strong { color: #fff; }
+.wl-market-status-warn {
+    background: rgba(245, 166, 35, 0.1);
+    border-color: rgba(245, 166, 35, 0.35);
+    color: #f5a623;
+}
+.wl-live-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #66bb6a;
+    box-shadow: 0 0 6px #66bb6a;
+    animation: liveBlink 1.5s ease-in-out infinite;
+}
+@keyframes liveBlink {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.5; transform: scale(0.85); }
+}

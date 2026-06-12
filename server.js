@@ -576,6 +576,78 @@ async function sendWishlistWhatsApp(phone, matches) {
     });
 }
 
+// ==================== MARKET SCRAPER (mudream.online) ====================
+// Fetches the public mudream.online market page server-side (browser CORS blocks
+// it from the client). In-memory cache to avoid hammering the source.
+
+const MARKET_CACHE = new Map(); // key: serverId, value: { ts, items }
+const MARKET_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+async function fetchMarketPage(serverId = 12) {
+    const headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+        'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Cache-Control': 'no-cache',
+        'Sec-Ch-Ua': '"Chromium";v="131", "Google Chrome";v="131"',
+        'Sec-Ch-Ua-Mobile': '?0',
+        'Sec-Ch-Ua-Platform': '"Windows"',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'none',
+        'Sec-Fetch-User': '?1',
+        'Upgrade-Insecure-Requests': '1'
+    };
+    try {
+        const url = `https://mudream.online/pt/market?server=${serverId}`;
+        const res = await fetch(url, { headers });
+        if (!res.ok) {
+            return { ok: false, status: res.status, items: [] };
+        }
+        const html = await res.text();
+        const items = parseMarketHtml(html);
+        return { ok: true, items, fetchedAt: new Date().toISOString() };
+    } catch (e) {
+        return { ok: false, error: e.message, items: [] };
+    }
+}
+
+function parseMarketHtml(html) {
+    const items = [];
+    // Extract <img> tags inside item-card-like contexts.
+    // MU Dream uses a Next.js app — items render as <img alt="Name +N (xQty)" src="items_seasons/..." />
+    const imgRegex = /<img[^>]+alt="([^"]+)"[^>]+src="(https:\/\/dreamassets[^"]+items_seasons[^"]+)"/g;
+    let m;
+    while ((m = imgRegex.exec(html)) !== null) {
+        const alt = m[1];
+        const src = m[2];
+        if (!alt || /logo|menu/i.test(src)) continue;
+        items.push({ name: alt, image: src });
+    }
+    return items;
+}
+
+app.get('/api/market/scan', async (req, res) => {
+    const serverId = parseInt(req.query.server) || 12;
+    const cached = MARKET_CACHE.get(serverId);
+    if (cached && Date.now() - cached.ts < MARKET_TTL_MS) {
+        return res.json({ ok: true, items: cached.items, cached: true, age: Date.now() - cached.ts, total: cached.items.length });
+    }
+    const result = await fetchMarketPage(serverId);
+    if (result.ok) {
+        MARKET_CACHE.set(serverId, { ts: Date.now(), items: result.items });
+    }
+    res.json({
+        ok: result.ok,
+        items: result.items || [],
+        total: (result.items || []).length,
+        error: result.error,
+        status: result.status,
+        cached: false
+    });
+});
+
 // ==================== EXCHANGE ROUTES ====================
 // Tables required: exchange_listings, user_contact_info
 // Migration: data/exchange-migration.sql

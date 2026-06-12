@@ -101,8 +101,15 @@ function renderWishlist() {
     const isPwaInstalled = window.matchMedia('(display-mode: standalone)').matches;
     const pushPermission = (typeof Notification !== 'undefined') ? Notification.permission : 'denied';
 
+    // Market scan status
+    const marketLots = parseInt(localStorage.getItem('mudream_market_lots') || '0');
+    const marketLastScan = localStorage.getItem('mudream_market_last_scan');
+    const marketStatus = marketLots > 0
+        ? `<div class="wl-market-status"><span class="wl-live-dot"></span> Live · <strong>${marketLots.toLocaleString()}</strong> itens no mercado${marketLastScan ? ` · scan ${timeAgo(marketLastScan)}` : ''}</div>`
+        : `<div class="wl-market-status wl-market-status-warn">⚠️ Aguardando primeiro scan do mercado...</div>`;
+
     const findings = getStoredFindings();
-    const findingsHtml = findings.length === 0 ? '' : `
+    const findingsHtml = findings.length === 0 ? marketStatus : marketStatus + `
         <div class="wl-findings-panel">
             <div class="wl-findings-header">
                 <div class="wl-findings-title">✨ Encontrados no mercado <span class="wl-findings-count">${findings.length}</span></div>
@@ -502,12 +509,21 @@ async function checkMarketForWishlist() {
     if (!server) return;
 
     try {
-        // Try fetching market JSON if MU Dream exposes one, fallback to HTML parse
-        const url = `https://mudream.online/pt/market?server=${server.mdId}`;
-        const res = await fetch(url, { credentials: 'omit', mode: 'cors' });
-        if (!res.ok) return;
-        const html = await res.text();
-        const matches = parseMarketHtml(html, items);
+        // Use backend proxy — direct fetch to mudream.online is blocked by CORS.
+        const res = await fetch(`/api/market/scan?server=${server.mdId}`, { credentials: 'same-origin' });
+        if (!res.ok) {
+            console.warn('Market scan endpoint failed:', res.status);
+            return;
+        }
+        const data = await res.json();
+        if (!data.ok && (!data.items || data.items.length === 0)) {
+            console.warn('Market scan returned no items:', data.error || data.status);
+            return;
+        }
+        const matches = matchWishlistAgainstMarket(data.items || [], items);
+        // Store the total market size for display
+        try { localStorage.setItem('mudream_market_lots', String(data.total || 0)); } catch {}
+        try { localStorage.setItem('mudream_market_last_scan', new Date().toISOString()); } catch {}
         if (matches.length === 0) return;
 
         // Send matches to backend so it can dispatch notifications
@@ -538,6 +554,30 @@ async function checkMarketForWishlist() {
         // CORS or Cloudflare may block — log silently for now
         console.warn('Market check failed:', e.message);
     }
+}
+
+// Compares a list of market items (from backend) against the user's wishlist
+function matchWishlistAgainstMarket(marketItems, wishlistItems) {
+    const matches = [];
+    for (const mi of marketItems) {
+        const nameLower = (mi.name || '').toLowerCase();
+        if (!nameLower) continue;
+        for (const wi of wishlistItems) {
+            const target = (wi.itemName || '').toLowerCase().trim();
+            if (target && !nameLower.includes(target)) continue;
+            matches.push({
+                wishlistId: wi.id,
+                itemName: mi.name,
+                imgSrc: mi.image,
+                options: [],
+                price: null,
+                detailUrl: 'https://mudream.online/pt/market',
+                foundAt: new Date().toISOString()
+            });
+            break;
+        }
+    }
+    return matches;
 }
 
 function parseMarketHtml(html, wishlistItems) {
