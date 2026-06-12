@@ -438,7 +438,7 @@ const TRANSLATIONS = {
         payIbanDesc: 'Transferência bancária (€)',
         payCardName: 'Cartão (em breve)',
         payCardDesc: 'Stripe checkout',
-        donateProofTitle: '📧 Após pagar, envie o comprovante',
+        donateProofTitle: '📧 Após pagar (PIX ou IBAN), envie o comprovante',
         donateProofNote: 'Inclua seu nome de char e o plano escolhido (Starter/Premium/Full Access) para ativarmos sua conta.',
     },
     en: {
@@ -880,7 +880,7 @@ const TRANSLATIONS = {
         payIbanDesc: 'Bank transfer (€)',
         payCardName: 'Card (soon)',
         payCardDesc: 'Stripe checkout',
-        donateProofTitle: '📧 After paying, send the receipt',
+        donateProofTitle: '📧 After paying (PIX or IBAN), send the receipt',
         donateProofNote: 'Include your char name and the chosen plan (Starter/Premium/Full Access) so we can activate your account.',
     }
 };
