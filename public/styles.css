@@ -5649,3 +5649,129 @@ body.modal-locked #landingPage {
     0%, 100% { box-shadow: 0 2px 8px rgba(52, 211, 153, 0.35); }
     50%      { box-shadow: 0 2px 16px rgba(52, 211, 153, 0.7); }
 }
+
+
+/* ==================== RESPONSIVE FILL — wide-screen polish ==================== */
+/* Main content max-width + center it so super-ultrawide doesn't sprawl */
+.app-layout #mainContent {
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* Event/boss/elite/cherry lists → responsive grid on wider screens */
+@media (min-width: 900px) {
+    .event-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        gap: 10px;
+    }
+    .event-card {
+        min-height: 78px;
+    }
+}
+@media (min-width: 1400px) {
+    .event-list {
+        grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    }
+}
+
+/* Collection — wider item cards on big screens */
+@media (min-width: 900px) {
+    .collection-items {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 6px;
+    }
+}
+@media (min-width: 1400px) {
+    .collection-items {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+}
+
+/* Wishlist findings grid — more columns on wide screens */
+@media (min-width: 900px) {
+    .wl-findings-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+}
+@media (min-width: 1400px) {
+    .wl-findings-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+}
+
+/* Wishlist filter grid — make it expand wider */
+@media (min-width: 900px) {
+    .wishlist-filter-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+}
+
+/* Pricing modal cards never stretch beyond comfortable read-width per card */
+@media (min-width: 1100px) {
+    .pricing-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Two-column layout for sections that have a sidebar-ish content (e.g. Upcoming + filters) */
+@media (min-width: 1200px) {
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+    }
+}
+
+/* Compact event-card layout on wide screens — show time on the right cleanly */
+@media (min-width: 900px) {
+    .event-card .event-info { min-width: 0; flex: 1; }
+    .event-card .event-right { white-space: nowrap; }
+}
+
+/* Calculators side-by-side on big screens */
+@media (min-width: 900px) {
+    .calc-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Stats cards: 4 columns on desktop, 2 on tablet, full-width on mobile */
+@media (min-width: 700px) {
+    .landing-stats {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Feature cards: 3 across on desktop */
+@media (min-width: 900px) {
+    .landing-feature-cards {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Tighten sidebar gap on smaller laptops */
+@media (min-width: 901px) and (max-width: 1100px) {
+    .app-sidebar { flex: 0 0 200px; width: 200px; }
+    .app-layout #mainContent { padding: 16px; }
+}
+
+/* Ultra-wide: more padding around content */
+@media (min-width: 1600px) {
+    .app-layout #mainContent {
+        padding: 28px 32px;
+    }
+}
+
+/* Found-item overlay: wider on big screens */
+@media (min-width: 900px) {
+    .found-modal { max-width: 720px !important; }
+    .found-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    .found-item { margin-bottom: 0; }
+}
