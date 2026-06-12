@@ -646,7 +646,7 @@ app.post('/api/admin/users/:id/premium', authMiddleware, adminMiddleware, async 
     if (plan === 'starter') {
         // 10 days
         premiumUntil = new Date(now.getTime() + 10 * 24 * 60 * 60 * 1000);
-    } else if (plan === 'premium' || plan === 'full' || plan === 'month') {
+    } else if (plan === 'premium' || plan === 'full' || plan === 'guild' || plan === 'month') {
         // 30 days
         premiumUntil = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
     } else if (plan === 'year') {

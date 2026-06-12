@@ -935,6 +935,7 @@ function showGrantPremiumModal(userId) {
                     <option value="starter">🟦 STARTER — €1 / R$10 — 10 dias</option>
                     <option value="premium" selected>⭐ PREMIUM — €3 / R$20 — 30 dias</option>
                     <option value="full">💎 FULL ACCESS — €5 / R$30 — 30 dias</option>
+                    <option value="guild">⚔️ GUILD MASTER — €18 / R$100 — 30 dias (20 membros)</option>
                 </select>
             </div>
             <div style="margin-bottom:12px;">
@@ -957,9 +958,10 @@ function showGrantPremiumModal(userId) {
     document.body.appendChild(overlay);
 
     const priceMap = {
-        starter: { EUR: 1, BRL: 10 },
-        premium: { EUR: 3, BRL: 20 },
-        full:    { EUR: 5, BRL: 30 }
+        starter: { EUR: 1,  BRL: 10  },
+        premium: { EUR: 3,  BRL: 20  },
+        full:    { EUR: 5,  BRL: 30  },
+        guild:   { EUR: 18, BRL: 100 }
     };
 
     overlay.querySelector('#grantCancel').addEventListener('click', () => overlay.remove());
@@ -1027,6 +1029,22 @@ function showPricingModal(opts = {}) {
             features: [ t('planFeatColUnlimited'), t('planFeatAutoScanAppraisal'), t('planFeatWishlist50'), t('planFeatPushEmailWa'), t('planFeatExchangeSoon') ],
             btnLabel: t('planFullBtn'),
             btnClass: 'plan-btn-success'
+        },
+        {
+            id: 'guild',
+            title: t('planGuildTitle'),
+            priceEur: 18, priceBrl: 100, period: t('planMonth'),
+            tagline: t('planGuildTagline'),
+            features: [
+                t('planFeatGuildMembers'),
+                t('planFeatGuildShareCollection'),
+                t('planFeatGuildEvents'),
+                t('planFeatColUnlimited'),
+                t('planFeatWishlist50'),
+                t('planFeatPushEmailWa')
+            ],
+            btnLabel: t('planGuildBtn'),
+            btnClass: 'plan-btn-guild'
         }
     ];
 

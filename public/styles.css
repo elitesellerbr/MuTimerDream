@@ -5847,3 +5847,25 @@ body.modal-locked #landingPage {
     border-color: rgba(245, 166, 35, 0.5);
     box-shadow: 0 0 14px rgba(245, 166, 35, 0.2);
 }
+
+
+/* ==================== GUILD MASTER PLAN STYLES ==================== */
+.plan-btn-guild {
+    background: linear-gradient(135deg, #7e57c2, #b388ff);
+    color: #fff;
+}
+.plan-btn-guild:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(126, 87, 194, 0.5);
+}
+/* Make the pricing grid auto-fit 4 cards nicely when guild is enabled */
+@media (min-width: 1200px) {
+    .pricing-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+@media (max-width: 1199px) and (min-width: 700px) {
+    .pricing-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

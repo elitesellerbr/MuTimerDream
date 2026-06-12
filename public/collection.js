@@ -2,6 +2,11 @@ let collectionItems = new Set();
 let collectionAdds = {}; // { itemId: ['luck', 'skill', ...] }
 // Default: hide obtained items (they're "archived" under the Obtained tab)
 let collectionFilter = localStorage.getItem('mudream_col_filter') || 'missing';
+// Force 'all' (legacy) to migrate to 'missing' so bought items are hidden from the main view
+if (collectionFilter === 'all') {
+    collectionFilter = 'missing';
+    localStorage.setItem('mudream_col_filter', 'missing');
+}
 let viewingOther = null;
 let viewingGuildMember = null;
 
@@ -257,9 +262,8 @@ function renderCollection(container) {
         </div>` : ''}
 
         <div class="collection-filters">
-            <button class="collection-filter ${collectionFilter === 'all' ? 'active' : ''}" data-cf="all">${t('collectionAll')}</button>
-            <button class="collection-filter ${collectionFilter === 'obtained' ? 'active' : ''}" data-cf="obtained">✅ ${t('collectionObtained')} (${obtained})</button>
             <button class="collection-filter ${collectionFilter === 'missing' ? 'active' : ''}" data-cf="missing">❌ ${t('collectionMissing')} (${totalItems - obtained})</button>
+            <button class="collection-filter ${collectionFilter === 'obtained' ? 'active' : ''}" data-cf="obtained">✅ ${t('collectionObtained')} (${obtained})</button>
             ${!readOnly && (totalItems - obtained) > 0 ? `<button class="collection-filter" id="btnWatchMissing" style="background:linear-gradient(135deg,#f5a623,#ff8800);color:#fff;border-color:transparent">🔔 Vigiar ${totalItems - obtained} faltando no mercado</button>` : ''}
         </div>
 
