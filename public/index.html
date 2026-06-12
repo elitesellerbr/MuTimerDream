@@ -252,6 +252,7 @@
                     <button class="tab" data-tab="bosses" data-i18n="tabBosses" role="tab" aria-selected="false">🐉 Bosses</button>
                     <button class="tab" data-tab="elites" data-i18n="tabElites" role="tab" aria-selected="false">⚔️ Elites</button>
                     <button class="tab" data-tab="cherry" data-i18n="tabCherry" role="tab" aria-selected="false">🌸 Cherry</button>
+                    <button class="tab" data-tab="golden" data-i18n="tabGolden" role="tab" aria-selected="false">✨ Golden</button>
                     <button class="tab tab-chat" data-tab="muchat" data-i18n="tabChat" role="tab" aria-selected="false">🤖 MU IA</button>
                     <div class="sidebar-divider"></div>
                     <button class="tab" data-tab="guild" id="tabGuild" data-i18n="tabGuild" role="tab" aria-selected="false">⚔️ Guild</button>
@@ -310,6 +311,14 @@
                     <button class="btn-sm" id="btnSelectAllCherry" data-i18n="selectAll">Selecionar Todos</button>
                 </div>
                 <div id="cherryList" class="event-list"></div>
+            </section>
+
+            <section id="tab-golden" class="tab-content">
+                <div class="section-header">
+                    <h2 data-i18n="goldenTitle">✨ Golden Invasion</h2>
+                </div>
+                <p class="elite-info" style="color:var(--text-muted);font-size:13px;margin:0 0 12px;padding:0 4px;" data-i18n="goldenInfo">✨ Invasão a cada 4h (00:36, 04:36, 08:36, 12:36, 16:36, 20:36). Clique em "Matei" pra contar suas kills.</p>
+                <div id="goldenList" class="event-list"></div>
             </section>
 
             <section id="tab-muchat" class="tab-content">

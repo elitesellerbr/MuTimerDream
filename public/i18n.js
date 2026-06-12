@@ -442,6 +442,9 @@ const TRANSLATIONS = {
         donateProofNote: 'Inclua seu nome de char e o plano escolhido (Starter/Premium/Full Access) para ativarmos sua conta.',
         collectionBuy: 'COMPREI',
         collectionOwned: 'Comprei',
+        tabGolden: '✨ Golden',
+        goldenTitle: '✨ Golden Invasion',
+        goldenInfo: '✨ Invasão a cada 4h (00:36, 04:36, 08:36, 12:36, 16:36, 20:36). Clique no + pra contar suas kills.',
     },
     en: {
         enterSystem: 'SIGN IN / SIGN UP',
@@ -886,6 +889,9 @@ const TRANSLATIONS = {
         donateProofNote: 'Include your char name and the chosen plan (Starter/Premium/Full Access) so we can activate your account.',
         collectionBuy: 'BUY',
         collectionOwned: 'Owned',
+        tabGolden: '✨ Golden',
+        goldenTitle: '✨ Golden Invasion',
+        goldenInfo: '✨ Invasion every 4h (00:36, 04:36, 08:36, 12:36, 16:36, 20:36). Click + to track your kills.',
     }
 };
 

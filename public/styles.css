@@ -5820,3 +5820,30 @@ body.modal-locked #landingPage {
     }
     .found-item { margin-bottom: 0; }
 }
+
+
+/* ==================== GOLDEN INVASION TAB ==================== */
+.golden-group-header {
+    display: flex; align-items: center; gap: 8px;
+    color: #f5a623;
+    font-weight: 800;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 16px 0 8px;
+    padding: 8px 12px;
+    background: linear-gradient(90deg, rgba(245, 166, 35, 0.12), transparent);
+    border-left: 3px solid #f5a623;
+    border-radius: 4px;
+}
+.golden-group-header:first-child { margin-top: 0; }
+.golden-group-icon { font-size: 14px; }
+.golden-card .event-card {
+    background: linear-gradient(135deg, var(--bg-card), rgba(245, 166, 35, 0.08));
+    border-color: rgba(245, 166, 35, 0.3);
+    cursor: default;
+}
+.golden-card .event-card:hover {
+    border-color: rgba(245, 166, 35, 0.5);
+    box-shadow: 0 0 14px rgba(245, 166, 35, 0.2);
+}

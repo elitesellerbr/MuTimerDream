@@ -284,6 +284,56 @@ function renderElites() {
     }
 }
 
+function renderGolden() {
+    const container = document.getElementById('goldenList');
+    if (!container) return;
+    container.innerHTML = '';
+
+    // Group golden monsters by city (location)
+    const groups = {};
+    for (const g of (EVENTS_DATA.golden || [])) {
+        const key = g.map || 'Outros';
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(g);
+    }
+
+    for (const map of Object.keys(groups)) {
+        const groupHeader = document.createElement('div');
+        groupHeader.className = 'golden-group-header';
+        groupHeader.innerHTML = `<span class="golden-group-icon">📍</span><span>${map}</span>`;
+        container.appendChild(groupHeader);
+
+        for (const g of groups[map]) {
+            const key = `golden__${g.id}`;
+            const killCount = eliteKillCounts[key] || 0;
+            const maxKills = g.qty;
+            const countPct = Math.min(killCount / maxKills * 100, 100);
+            const countColor = killCount >= maxKills ? '#66bb6a' : '#f5a623';
+            const card = document.createElement('div');
+            card.className = 'elite-card golden-card';
+            card.dataset.key = key;
+            card.innerHTML = `
+                <div class="event-card" style="--card-accent:${g.color};cursor:default;">
+                    ${g.img
+                        ? `<div class="event-icon event-icon-img"><img src="${g.img}" alt="${g.name}"></div>`
+                        : `<div class="event-icon">${g.icon || '✨'}</div>`}
+                    <div class="event-info">
+                        <div class="event-name">${g.name}</div>
+                        <div class="event-detail">📍 ${g.map} · qty ${g.qty}${g.note ? ' · ' + g.note : ''}</div>
+                    </div>
+                    <div class="elite-count" title="Kills: ${killCount}/${maxKills}">
+                        <div class="elite-count-bar"><div class="elite-count-fill" style="width:${countPct}%;background:${countColor}"></div></div>
+                        <span class="elite-count-label" style="color:${countColor}">${killCount}/${maxKills}</span>
+                        <button class="btn-elite-add" onclick="addEliteKill('${key}')" title="Adicionar kill">+</button>
+                        ${killCount > 0 ? `<button class="btn-elite-reset" onclick="resetEliteCount('${key}')" title="Zerar contador">↺</button>` : ''}
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        }
+    }
+}
+
 function updateEliteCountdowns() {
     const cards = document.querySelectorAll('.elite-card');
     let needsFullRender = false;
@@ -645,6 +695,7 @@ function renderAll(forceFullRender = false) {
     renderCategory('bosses', 'bossesList');
     renderElites();
     renderCategory('cherry', 'cherryList');
+    renderGolden();
 }
 
 function updateCountdowns() {
