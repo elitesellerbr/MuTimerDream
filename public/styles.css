@@ -2810,8 +2810,9 @@ input[type="checkbox"] {
     .collection-progress-bar { padding: 10px; }
     .collection-cat-header { padding: 8px 10px; font-size: 13px; }
     .collection-item { padding: 6px 8px; gap: 6px; }
-    .collection-item-icon { width: 32px; height: 32px; font-size: 16px; }
-    .collection-item-img { width: 28px; height: 28px; }
+    .collection-item-icon { width: 52px; height: 52px; font-size: 24px; }
+    .collection-item-img  { width: 46px; height: 46px; }
+    .collection-item-emoji { line-height: 52px; }
     .collection-item-name { font-size: 12px; }
     .collection-item-tier { font-size: 9px; padding: 1px 5px; }
     .btn-adds { padding: 3px 6px; font-size: 13px; }
@@ -3657,33 +3658,56 @@ input[type="checkbox"] {
 }
 
 .collection-item-icon {
-    font-size: 18px;
+    font-size: 28px;
     flex-shrink: 0;
-    width: 36px;
-    height: 36px;
+    width: 60px;
+    height: 60px;
     text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
     background: rgba(0, 0, 0, 0.25);
-    border-radius: 6px;
+    border-radius: 10px;
     overflow: hidden;
+    transition: transform 0.2s ease;
+}
+
+.collection-item:hover .collection-item-icon {
+    transform: scale(1.06);
 }
 
 .collection-item-img {
-    width: 32px;
-    height: 32px;
+    width: 54px;
+    height: 54px;
     object-fit: contain;
     image-rendering: auto;
-    filter: drop-shadow(0 0 2px rgba(245, 166, 35, 0.3));
+    filter: drop-shadow(0 0 3px rgba(245, 166, 35, 0.4));
+    transition: transform 0.25s ease;
+}
+
+.collection-item:hover .collection-item-img {
+    transform: scale(1.1);
 }
 
 .collection-item.obtained .collection-item-img {
-    filter: drop-shadow(0 0 3px rgba(76, 175, 80, 0.5));
+    filter: drop-shadow(0 0 4px rgba(76, 175, 80, 0.55));
 }
 
 .collection-item-emoji {
-    line-height: 36px;
+    line-height: 60px;
+}
+
+/* Tablet — slightly bigger */
+@media (min-width: 700px) {
+    .collection-item-icon { width: 68px; height: 68px; font-size: 32px; }
+    .collection-item-img  { width: 60px; height: 60px; }
+    .collection-item-emoji { line-height: 68px; }
+}
+/* Desktop — fully imposing */
+@media (min-width: 1100px) {
+    .collection-item-icon { width: 76px; height: 76px; font-size: 36px; border-radius: 12px; }
+    .collection-item-img  { width: 68px; height: 68px; }
+    .collection-item-emoji { line-height: 76px; }
 }
 
 .collection-item-details {
