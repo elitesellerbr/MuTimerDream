@@ -576,6 +576,139 @@ async function sendWishlistWhatsApp(phone, matches) {
     });
 }
 
+// ==================== EXCHANGE ROUTES ====================
+// Tables required: exchange_listings, user_contact_info
+// Migration: data/exchange-migration.sql
+
+// Public list (all available listings + optional filters)
+app.get('/api/exchange/listings', async (req, res) => {
+    try {
+        const { server = 'rampage-x20', status = 'available', options, priceType } = req.query;
+        let q = supabase.from('exchange_listings')
+            .select('id, user_id, server, item_name, item_image, options, price_type, price_value, status, expires_at, created_at')
+            .eq('server', server)
+            .order('created_at', { ascending: false })
+            .limit(200);
+        if (status && status !== 'all') q = q.eq('status', status);
+        if (priceType && priceType !== 'all') q = q.eq('price_type', priceType);
+        const { data: listings } = await q;
+        // Fetch contact info for these users in batch
+        const userIds = [...new Set((listings || []).map(l => l.user_id))];
+        let contacts = {};
+        if (userIds.length > 0) {
+            const { data: contactRows } = await supabase.from('user_contact_info')
+                .select('user_id, discord_tag, ingame_name')
+                .in('user_id', userIds);
+            (contactRows || []).forEach(c => { contacts[c.user_id] = c; });
+        }
+        // Filter by options (AND match all requested options)
+        let filtered = listings || [];
+        if (options) {
+            const wanted = options.split(',').map(s => s.trim()).filter(Boolean);
+            if (wanted.length > 0) {
+                filtered = filtered.filter(l => wanted.every(o => (l.options || []).includes(o)));
+            }
+        }
+        const out = filtered.map(l => ({
+            id: l.id,
+            itemName: l.item_name,
+            itemImage: l.item_image,
+            options: l.options || [],
+            priceType: l.price_type,
+            priceValue: l.price_value,
+            status: l.status,
+            expiresAt: l.expires_at,
+            createdAt: l.created_at,
+            ownerId: l.user_id,
+            discord: contacts[l.user_id]?.discord_tag || null,
+            ingame: contacts[l.user_id]?.ingame_name || null
+        }));
+        res.json({ listings: out });
+    } catch (e) {
+        console.error('Exchange list error:', e.message);
+        res.status(500).json({ error: 'Failed to load' });
+    }
+});
+
+app.post('/api/exchange/listings', authMiddleware, async (req, res) => {
+    const { server, itemName, itemImage, options, priceType, priceValue } = req.body || {};
+    if (!itemName) return res.status(400).json({ error: 'itemName required' });
+    const validPriceTypes = ['dc', 'zen', 'offer'];
+    const pt = validPriceTypes.includes(priceType) ? priceType : 'offer';
+    try {
+        const { data, error } = await supabase.from('exchange_listings').insert({
+            user_id: req.user.id,
+            server: server || 'rampage-x20',
+            item_name: itemName,
+            item_image: itemImage || null,
+            options: options || [],
+            price_type: pt,
+            price_value: priceValue || 0
+        }).select().single();
+        if (error) throw error;
+        res.json({ ok: true, listing: data });
+    } catch (e) {
+        console.error('Exchange create error:', e.message);
+        res.status(500).json({ error: 'Create failed' });
+    }
+});
+
+app.patch('/api/exchange/listings/:id', authMiddleware, async (req, res) => {
+    const { status } = req.body || {};
+    const validStatus = ['available', 'sold', 'expired'];
+    if (!validStatus.includes(status)) return res.status(400).json({ error: 'invalid status' });
+    try {
+        await supabase.from('exchange_listings')
+            .update({ status })
+            .eq('id', req.params.id)
+            .eq('user_id', req.user.id);
+        res.json({ ok: true });
+    } catch (e) {
+        res.status(500).json({ error: 'Update failed' });
+    }
+});
+
+app.delete('/api/exchange/listings/:id', authMiddleware, async (req, res) => {
+    try {
+        await supabase.from('exchange_listings').delete()
+            .eq('id', req.params.id)
+            .eq('user_id', req.user.id);
+        res.json({ ok: true });
+    } catch (e) {
+        res.status(500).json({ error: 'Delete failed' });
+    }
+});
+
+app.get('/api/exchange/contact-info', authMiddleware, async (req, res) => {
+    try {
+        const { data } = await supabase.from('user_contact_info')
+            .select('discord_tag, ingame_name')
+            .eq('user_id', req.user.id)
+            .maybeSingle();
+        res.json({
+            discord: data?.discord_tag || '',
+            ingame:  data?.ingame_name || ''
+        });
+    } catch (e) {
+        res.status(500).json({ error: 'Failed' });
+    }
+});
+
+app.put('/api/exchange/contact-info', authMiddleware, async (req, res) => {
+    const { discord, ingame } = req.body || {};
+    try {
+        await supabase.from('user_contact_info').upsert({
+            user_id: req.user.id,
+            discord_tag: (discord || '').trim() || null,
+            ingame_name: (ingame || '').trim() || null,
+            updated_at: new Date().toISOString()
+        });
+        res.json({ ok: true });
+    } catch (e) {
+        res.status(500).json({ error: 'Save failed' });
+    }
+});
+
 // ==================== ADMIN ROUTES ====================
 
 app.get('/api/admin/users', authMiddleware, adminMiddleware, async (req, res) => {

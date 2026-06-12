@@ -258,6 +258,7 @@
                     <button class="tab" data-tab="guild" id="tabGuild" data-i18n="tabGuild" role="tab" aria-selected="false">⚔️ Guild</button>
                     <button class="tab" data-tab="collection" id="tabCollection" data-i18n="tabCollection" role="tab" aria-selected="false">📦 Coleção</button>
                     <button class="tab" data-tab="wishlist" id="tabWishlist" data-i18n="tabWishlist" role="tab" aria-selected="false">🛒 Wishlist</button>
+                    <button class="tab" data-tab="exchange" id="tabExchange" data-i18n="tabExchange" role="tab" aria-selected="false">💱 Exchange</button>
                     <button class="tab" data-tab="guide" data-i18n="tabGuide" role="tab" aria-selected="false">📖 Guia</button>
                     <button class="tab tab-admin" data-tab="admin" id="tabAdmin" style="display:none" data-i18n="tabAdmin" role="tab" aria-selected="false">👑 Admin</button>
                 </nav>
@@ -372,6 +373,13 @@
                     <h2 data-i18n="wishlistTitle">🛒 Wishlist do Mercado</h2>
                 </div>
                 <div id="wishlistContent"></div>
+            </section>
+
+            <section id="tab-exchange" class="tab-content">
+                <div class="section-header">
+                    <h2 data-i18n="exchangeTitle">💱 Collection Exchange</h2>
+                </div>
+                <div id="exchangeContent"></div>
             </section>
 
             <section id="tab-guide" class="tab-content">
@@ -784,6 +792,7 @@
     <script src="guild.js"></script>
     <script src="collection.js"></script>
     <script src="wishlist.js"></script>
+    <script src="exchange.js"></script>
     <script src="guide.js"></script>
     <script src="app.js"></script>
 </body>

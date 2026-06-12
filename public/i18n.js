@@ -451,6 +451,8 @@ const TRANSLATIONS = {
         tabGolden: '✨ Golden',
         goldenTitle: '✨ Golden Invasion',
         goldenInfo: '✨ Invasão a cada 4h (00:36, 04:36, 08:36, 12:36, 16:36, 20:36). Clique no + pra contar suas kills.',
+        tabExchange: '💱 Exchange',
+        exchangeTitle: '💱 Collection Exchange',
     },
     en: {
         enterSystem: 'SIGN IN / SIGN UP',
@@ -904,6 +906,8 @@ const TRANSLATIONS = {
         tabGolden: '✨ Golden',
         goldenTitle: '✨ Golden Invasion',
         goldenInfo: '✨ Invasion every 4h (00:36, 04:36, 08:36, 12:36, 16:36, 20:36). Click + to track your kills.',
+        tabExchange: '💱 Exchange',
+        exchangeTitle: '💱 Collection Exchange',
     }
 };
 
