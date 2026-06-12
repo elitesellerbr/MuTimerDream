@@ -1327,17 +1327,20 @@ main {
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background:
-        radial-gradient(ellipse at center, rgba(20, 30, 55, 0.4) 0%, transparent 70%),
-        rgba(3, 7, 18, 0.88);
+    /* Subtle tint so app behind stays visible — heavy blur+darken handles the "locked" feel */
+    background: rgba(3, 7, 18, 0.45);
     z-index: 9999;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 16px;
-    backdrop-filter: blur(16px) saturate(0.6) brightness(0.5);
-    -webkit-backdrop-filter: blur(16px) saturate(0.6) brightness(0.5);
+    backdrop-filter: blur(24px) saturate(0.4) brightness(0.35);
+    -webkit-backdrop-filter: blur(24px) saturate(0.4) brightness(0.35);
     animation: modalOverlayIn 0.25s ease;
+}
+/* Fallback for browsers without backdrop-filter — solid darker overlay */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .modal-overlay { background: rgba(3, 7, 18, 0.95); }
 }
 @keyframes modalOverlayIn {
     from { opacity: 0; backdrop-filter: blur(0px); }
