@@ -236,23 +236,38 @@
             </div>
         </div>
 
-        <div class="tab-nav-wrapper" id="tabNavWrapper">
-            <nav class="tab-nav" role="tablist" aria-label="Navegação principal">
-                <button class="tab active" data-tab="upcoming" data-i18n="tabUpcoming" role="tab" aria-selected="true">⏰ Próximos</button>
-                <button class="tab" data-tab="events" data-i18n="tabEvents" role="tab" aria-selected="false">🏰 Eventos</button>
-                <button class="tab" data-tab="bosses" data-i18n="tabBosses" role="tab" aria-selected="false">🐉 Bosses</button>
-                <button class="tab" data-tab="elites" data-i18n="tabElites" role="tab" aria-selected="false">⚔️ Elites</button>
-                <button class="tab" data-tab="cherry" data-i18n="tabCherry" role="tab" aria-selected="false">🌸 Cherry</button>
-                <button class="tab tab-chat" data-tab="muchat" data-i18n="tabChat" role="tab" aria-selected="false">🤖 MU IA</button>
-                <button class="tab" data-tab="guild" id="tabGuild" data-i18n="tabGuild" role="tab" aria-selected="false">⚔️ Guild</button>
-                <button class="tab" data-tab="collection" id="tabCollection" data-i18n="tabCollection" role="tab" aria-selected="false">📦 Coleção</button>
-                <button class="tab" data-tab="wishlist" id="tabWishlist" data-i18n="tabWishlist" role="tab" aria-selected="false">🛒 Wishlist</button>
-                <button class="tab" data-tab="guide" data-i18n="tabGuide" role="tab" aria-selected="false">📖 Guia</button>
-                <button class="tab tab-admin" data-tab="admin" id="tabAdmin" style="display:none" data-i18n="tabAdmin" role="tab" aria-selected="false">👑 Admin</button>
-            </nav>
-        </div>
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menu" aria-expanded="false">
+            <span aria-hidden="true">☰</span>
+        </button>
 
-        <main id="mainContent" role="main">
+        <div class="app-layout">
+            <aside class="app-sidebar" id="appSidebar" aria-label="Navegação principal">
+                <div class="sidebar-brand">
+                    <span class="sidebar-brand-icon">⚔️</span>
+                    <span class="sidebar-brand-text">MU TIMER<br><span class="gold">DREAM</span></span>
+                </div>
+                <nav class="tab-nav" role="tablist" aria-label="Navegação principal">
+                    <button class="tab active" data-tab="upcoming" data-i18n="tabUpcoming" role="tab" aria-selected="true">⏰ Próximos</button>
+                    <button class="tab" data-tab="events" data-i18n="tabEvents" role="tab" aria-selected="false">🏰 Eventos</button>
+                    <button class="tab" data-tab="bosses" data-i18n="tabBosses" role="tab" aria-selected="false">🐉 Bosses</button>
+                    <button class="tab" data-tab="elites" data-i18n="tabElites" role="tab" aria-selected="false">⚔️ Elites</button>
+                    <button class="tab" data-tab="cherry" data-i18n="tabCherry" role="tab" aria-selected="false">🌸 Cherry</button>
+                    <button class="tab tab-chat" data-tab="muchat" data-i18n="tabChat" role="tab" aria-selected="false">🤖 MU IA</button>
+                    <div class="sidebar-divider"></div>
+                    <button class="tab" data-tab="guild" id="tabGuild" data-i18n="tabGuild" role="tab" aria-selected="false">⚔️ Guild</button>
+                    <button class="tab" data-tab="collection" id="tabCollection" data-i18n="tabCollection" role="tab" aria-selected="false">📦 Coleção</button>
+                    <button class="tab" data-tab="wishlist" id="tabWishlist" data-i18n="tabWishlist" role="tab" aria-selected="false">🛒 Wishlist</button>
+                    <button class="tab" data-tab="guide" data-i18n="tabGuide" role="tab" aria-selected="false">📖 Guia</button>
+                    <button class="tab tab-admin" data-tab="admin" id="tabAdmin" style="display:none" data-i18n="tabAdmin" role="tab" aria-selected="false">👑 Admin</button>
+                </nav>
+                <div class="sidebar-footer">
+                    <button class="sidebar-cta" id="sidebarPremiumBtn">💎 Ver planos</button>
+                </div>
+            </aside>
+
+            <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+            <main id="mainContent" role="main">
             <section id="tab-upcoming" class="tab-content active" role="tabpanel">
                 <div class="section-header">
                     <h2 data-i18n="upcomingTitle">Próximos Eventos</h2>
@@ -418,7 +433,8 @@
                     </div>
                 </div>
             </section>
-        </main>
+            </main>
+        </div>
 
         <!-- AUTH MODAL -->
         <div class="modal-overlay" id="authModal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">

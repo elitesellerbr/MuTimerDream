@@ -988,6 +988,31 @@ function initClassShowcase() {
     }, 3000);
 }
 
+function initSidebar() {
+    const sidebar  = document.getElementById('appSidebar');
+    const toggle   = document.getElementById('sidebarToggle');
+    const backdrop = document.getElementById('sidebarBackdrop');
+    const sidebarPremiumBtn = document.getElementById('sidebarPremiumBtn');
+
+    const open  = () => { sidebar?.classList.add('open'); backdrop?.classList.add('show'); toggle?.setAttribute('aria-expanded', 'true'); };
+    const close = () => { sidebar?.classList.remove('open'); backdrop?.classList.remove('show'); toggle?.setAttribute('aria-expanded', 'false'); };
+
+    toggle?.addEventListener('click', () => {
+        if (sidebar?.classList.contains('open')) close(); else open();
+    });
+    backdrop?.addEventListener('click', close);
+    // Close on tab click (mobile)
+    sidebar?.querySelectorAll('.tab').forEach(t => {
+        t.addEventListener('click', () => {
+            if (window.matchMedia('(max-width: 900px)').matches) close();
+        });
+    });
+    sidebarPremiumBtn?.addEventListener('click', () => {
+        close();
+        if (typeof showPricingModal === 'function') showPricingModal();
+    });
+}
+
 async function loadLandingStats() {
     try {
         const res = await fetch('/api/stats/public');
@@ -1039,6 +1064,7 @@ function initLanding() {
 
     initClassShowcase();
     loadLandingStats();
+    initSidebar();
     document.getElementById('btnShowPricing')?.addEventListener('click', () => {
         if (typeof showPricingModal === 'function') showPricingModal();
     });
