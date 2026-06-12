@@ -247,16 +247,35 @@ app.post('/api/auth/register', async (req, res) => {
         }
 
         const hash = bcrypt.hashSync(password, 10);
-        const { data, error } = await supabase
+        const basePayload = { username, email: email.toLowerCase(), password: hash };
+        // Try with char_class; if the column doesn't exist yet, fall back to insert without it
+        let { data, error } = await supabase
             .from('users')
-            .insert({ username, email: email.toLowerCase(), password: hash, char_class: cleanCharClass })
+            .insert({ ...basePayload, char_class: cleanCharClass })
             .select('id')
             .single();
+
+        if (error) {
+            // Postgres 42703 = undefined_column. Supabase may surface it via code or message.
+            const isUndefinedColumn =
+                error.code === '42703' ||
+                /char_class/i.test(error.message || '') ||
+                /column .* does not exist/i.test(error.message || '');
+            if (isUndefinedColumn) {
+                console.warn('users.char_class missing — falling back to insert without it');
+                ({ data, error } = await supabase
+                    .from('users')
+                    .insert(basePayload)
+                    .select('id')
+                    .single());
+            }
+        }
 
         if (error) {
             if (error.code === '23505') {
                 return res.status(400).json({ error: 'Usuário ou email já cadastrado' });
             }
+            console.error('Register insert error:', error);
             throw error;
         }
 
