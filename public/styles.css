@@ -5370,3 +5370,168 @@ body.modal-locked #landingPage {
         scale(0.2);
     }
 }
+
+
+/* ==================== FOUND-ITEM OVERLAY ==================== */
+.found-overlay { z-index: 10100; }
+.found-modal {
+    background: linear-gradient(180deg, #0e1428 0%, #060a18 100%);
+    border: 2px solid #f5a623;
+    border-radius: 18px;
+    max-width: 560px !important;
+    width: 100%;
+    padding: 0;
+    overflow: hidden;
+    box-shadow:
+        0 0 60px rgba(245, 166, 35, 0.4),
+        0 20px 80px rgba(0,0,0,0.6);
+    animation: foundPop 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+}
+@keyframes foundPop {
+    0%   { opacity: 0; transform: scale(0.5) rotate(-3deg); }
+    60%  { transform: scale(1.05) rotate(1deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+.found-close {
+    position: absolute;
+    top: 12px; right: 12px;
+    background: rgba(0,0,0,0.4);
+    color: #fff;
+    border: none;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 2;
+    font-size: 16px;
+    transition: background 0.2s;
+}
+.found-close:hover { background: rgba(229, 57, 53, 0.6); }
+.found-banner {
+    background: linear-gradient(135deg, #f5a623 0%, #ff6600 100%);
+    color: #fff;
+    padding: 22px 24px 18px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.found-banner::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,0.18), transparent 35%),
+        radial-gradient(circle at 80% 70%, rgba(255,255,255,0.12), transparent 35%);
+    pointer-events: none;
+}
+.found-bolt {
+    font-size: 36px;
+    display: inline-block;
+    animation: foundBolt 1.2s ease-in-out infinite;
+    text-shadow: 0 0 16px rgba(255, 255, 100, 0.8);
+    margin-bottom: 4px;
+}
+@keyframes foundBolt {
+    0%, 100% { transform: scale(1) rotate(0); filter: brightness(1); }
+    25%      { transform: scale(1.2) rotate(-8deg); filter: brightness(1.3); }
+    50%      { transform: scale(1) rotate(0); filter: brightness(1); }
+    75%      { transform: scale(1.15) rotate(8deg); filter: brightness(1.3); }
+}
+.found-title {
+    font-size: 20px;
+    font-weight: 800;
+    margin: 4px 0 6px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.found-sub {
+    font-size: 13px;
+    opacity: 0.9;
+}
+.found-list {
+    padding: 14px 16px 6px;
+    max-height: 280px;
+    overflow-y: auto;
+}
+.found-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    background: rgba(15, 22, 42, 0.6);
+    border: 1px solid rgba(245, 166, 35, 0.2);
+    border-radius: 10px;
+    margin-bottom: 8px;
+}
+.found-item-img {
+    width: 64px; height: 64px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.found-item-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.found-item-info { flex: 1; min-width: 0; }
+.found-item-name {
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+.found-item-opts { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 4px; }
+.found-item-chip {
+    background: linear-gradient(135deg, #4fc3f7, #1a6fa0);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 9px;
+}
+.found-item-price {
+    color: #f5a623;
+    font-weight: 700;
+    font-size: 14px;
+}
+.found-actions {
+    display: flex; flex-direction: column;
+    gap: 8px;
+    padding: 12px 16px 16px;
+}
+.found-btn {
+    width: 100%;
+    text-align: center;
+    text-decoration: none;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: block;
+}
+.found-btn-primary {
+    background: linear-gradient(135deg, #f5a623, #ff6600);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(245, 166, 35, 0.4);
+    animation: foundBtnPulse 1.6s ease-in-out infinite;
+}
+.found-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(245, 166, 35, 0.55);
+}
+@keyframes foundBtnPulse {
+    0%, 100% { box-shadow: 0 4px 14px rgba(245, 166, 35, 0.4); }
+    50%      { box-shadow: 0 4px 22px rgba(245, 166, 35, 0.75); }
+}
+.found-btn-secondary {
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.found-btn-secondary:hover { background: rgba(255,255,255,0.12); }
+.found-btn-ghost {
+    background: transparent;
+    color: rgba(255,255,255,0.5);
+    text-decoration: underline;
+    padding: 6px;
+}
+.found-btn-ghost:hover { color: #fff; }

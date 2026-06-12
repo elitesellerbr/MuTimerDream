@@ -529,6 +529,10 @@ async function checkMarketForWishlist() {
                 alarm.sendNotification(t('wlNotifFound'), t('wlNotifFoundBody', { name: m.itemName }));
             }
         });
+
+        // 🎯 Pop overlay on top of everything telling user to go shop
+        showFoundItemOverlay(matches);
+
         renderWishlist();
     } catch (e) {
         // CORS or Cloudflare may block — log silently for now
@@ -590,6 +594,78 @@ function parseMarketHtml(html, wishlistItems) {
         }
     }
     return matches;
+}
+
+// Show a popup overlay when new items are found
+let _shownFindingKeys = new Set();
+function showFoundItemOverlay(findings) {
+    // Filter to new findings only (not yet shown this session)
+    const fresh = findings.filter(f => {
+        const key = `${f.itemName}|${f.price || ''}`;
+        if (_shownFindingKeys.has(key)) return false;
+        _shownFindingKeys.add(key);
+        return true;
+    });
+    if (fresh.length === 0) return;
+
+    // Remove any existing found-item overlay so we don't stack
+    document.querySelector('.found-overlay')?.remove();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay found-overlay';
+    overlay.innerHTML = `
+        <div class="modal found-modal">
+            <button class="modal-close found-close" aria-label="Fechar">✕</button>
+            <div class="found-banner">
+                <div class="found-bolt">⚡</div>
+                <div class="found-title">🎯 Item da sua wishlist apareceu!</div>
+                <div class="found-sub">${fresh.length > 1 ? `${fresh.length} itens encontrados` : 'Corre pro mercado antes que outro pegue!'}</div>
+            </div>
+            <div class="found-list">
+                ${fresh.slice(0, 4).map(f => `
+                    <div class="found-item">
+                        <div class="found-item-img">
+                            <img src="${f.imgSrc}" alt="${escapeHtml(f.itemName)}" loading="lazy">
+                        </div>
+                        <div class="found-item-info">
+                            <div class="found-item-name">${escapeHtml(f.itemName)}</div>
+                            ${(f.options || []).length ? `<div class="found-item-opts">${f.options.map(o => `<span class="found-item-chip">${o}</span>`).join('')}</div>` : ''}
+                            ${f.price ? `<div class="found-item-price">💰 ${escapeHtml(f.price)}</div>` : ''}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="found-actions">
+                <a class="found-btn found-btn-primary" href="${fresh[0].detailUrl}" target="_blank" rel="noopener" id="foundGoShop">
+                    🛒 Ir pra loja agora ↗
+                </a>
+                <button class="found-btn found-btn-secondary" id="foundQuickView" data-url="${fresh[0].detailUrl}">
+                    👁️ Ver aqui dentro
+                </button>
+                <button class="found-btn found-btn-ghost" id="foundLater">Talvez depois</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+    document.body.classList.add('modal-locked');
+
+    const close = () => {
+        overlay.remove();
+        document.body.classList.remove('modal-locked');
+    };
+    overlay.querySelector('.found-close').addEventListener('click', close);
+    overlay.querySelector('#foundLater').addEventListener('click', close);
+    overlay.querySelector('#foundGoShop').addEventListener('click', () => setTimeout(close, 200));
+    overlay.querySelector('#foundQuickView').addEventListener('click', (e) => {
+        const url = e.currentTarget.dataset.url;
+        close();
+        openQuickView(url);
+    });
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+
+    // Vibrate + play alarm tone if available
+    if (navigator.vibrate) navigator.vibrate([100, 60, 100, 60, 200]);
+    if (typeof alarm !== 'undefined' && typeof alarm.play === 'function') alarm.play();
 }
 
 // Recent findings persist locally so the user always sees what was found
