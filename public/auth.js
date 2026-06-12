@@ -404,8 +404,26 @@ function renderUsersTable(users) {
         </div>
         ${users.map(u => {
             const premiumActive = u.is_premium;
+            const planNames = { starter: 'STARTER', premium: 'PREMIUM', full: 'FULL', month: 'MONTH', year: 'YEAR' };
+            const planIcons = { starter: '🟦', premium: '⭐', full: '💎', month: '📅', year: '📆' };
+            const planKey = (u.premium_plan || 'premium').toLowerCase();
+            const planLabel = planNames[planKey] || planKey.toUpperCase();
+            const planIcon = planIcons[planKey] || '👑';
+
+            // Days remaining
+            let daysLeft = '';
+            let expiryClass = '';
+            if (premiumActive && u.premium_until) {
+                const ms = new Date(u.premium_until + 'T23:59:59Z').getTime() - Date.now();
+                const d = Math.max(0, Math.ceil(ms / 86400000));
+                daysLeft = d > 0 ? `${d}d` : 'expira hoje';
+                if (d <= 3) expiryClass = 'expiry-warn';
+                else if (d <= 7) expiryClass = 'expiry-soon';
+            }
+
             const premiumLabel = premiumActive
-                ? `<span class="premium-badge" title="${t('adminPremiumUntil')}: ${u.premium_until}">👑 Premium</span>`
+                ? `<span class="premium-badge premium-tier-${planKey}">${planIcon} ${planLabel}</span>
+                   <span class="premium-expiry ${expiryClass}" title="${t('adminPremiumUntil')}: ${u.premium_until}">${u.premium_until} <small>(${daysLeft})</small></span>`
                 : (u.is_admin ? '' : `<span class="free-badge">${t('adminFree')}</span>`);
             const payCount = (u.payments && u.payments.length) || 0;
             const lastPay = payCount > 0 ? u.payments[0] : null;
@@ -427,8 +445,9 @@ function renderUsersTable(users) {
                 <span class="user-row-actions">
                     ${u.is_admin ? '' : `
                         ${premiumActive
-                            ? `<button class="btn-sm btn-warning btn-revoke-premium" data-uid="${u.id}" title="${t('adminRevokePremium')}">${t('adminRevoke')}</button>`
-                            : `<button class="btn-sm btn-success btn-grant-premium" data-uid="${u.id}" title="${t('adminGrantPremium')}">👑 Premium</button>`
+                            ? `<button class="btn-sm btn-grant-premium" data-uid="${u.id}" title="Trocar plano / estender">🔄 Trocar</button>
+                               <button class="btn-sm btn-warning btn-revoke-premium" data-uid="${u.id}" title="${t('adminRevokePremium')}">⬇️ Free</button>`
+                            : `<button class="btn-sm btn-success btn-grant-premium" data-uid="${u.id}" title="${t('adminGrantPremium')}">👑 Ativar plano</button>`
                         }
                         <button class="btn-sm btn-danger btn-delete-user" data-uid="${u.id}">${t('adminRemove')}</button>
                     `}

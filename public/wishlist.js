@@ -90,7 +90,8 @@ function renderWishlist() {
     const container = document.getElementById('wishlistContent');
     if (!container) return;
 
-    const isLoggedIn = !!document.cookie.match(/session=/);
+    // currentUser is set by auth.js after /api/auth/me succeeds
+    const isLoggedIn = !!(typeof currentUser !== 'undefined' && currentUser);
     if (!isLoggedIn) {
         container.innerHTML = `<div class="empty-state"><div class="empty-icon">🔒</div><p>${t('wishlistLoginRequired') || 'Faça login para usar a Wishlist.'}</p></div>`;
         return;

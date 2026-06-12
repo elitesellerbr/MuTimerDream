@@ -5153,3 +5153,33 @@ body.modal-locked #landingPage {
     outline: 2px solid rgba(245, 166, 35, 0.5);
     outline-offset: 1px;
 }
+
+
+/* ==================== ADMIN PREMIUM STATUS ==================== */
+.premium-tier-starter { background: linear-gradient(135deg, #2196f3, #1976d2); color: #fff; }
+.premium-tier-premium { background: linear-gradient(135deg, #f5a623, #ff6600); color: #fff; }
+.premium-tier-full    { background: linear-gradient(135deg, #34d399, #10b981); color: #fff; }
+.premium-tier-month, .premium-tier-year { background: linear-gradient(135deg, #f5a623, #ff6600); color: #fff; }
+.premium-expiry {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.85);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+}
+.premium-expiry small {
+    margin-left: 4px;
+    color: #66bb6a;
+    font-weight: 700;
+}
+.premium-expiry.expiry-soon { background: rgba(245, 166, 35, 0.15); color: #f5a623; }
+.premium-expiry.expiry-soon small { color: #f5a623; }
+.premium-expiry.expiry-warn { background: rgba(229, 57, 53, 0.18); color: #ef5350; animation: pulseSoft 1.8s ease-in-out infinite; }
+.premium-expiry.expiry-warn small { color: #ef5350; }
+@keyframes pulseSoft {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.6; }
+}
