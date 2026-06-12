@@ -957,46 +957,30 @@ function showPricingModal(opts = {}) {
     const PLANS = [
         {
             id: 'starter',
-            title: 'STARTER',
-            priceEur: 1, priceBrl: 10, period: '10 dias',
-            tagline: 'Plano de teste rápido.',
-            features: [
-                '📦 Coleção ilimitada',
-                '🛒 Wishlist (5 itens)',
-                '🔔 Push notifications',
-                '⏰ Acesso curto'
-            ],
-            btnLabel: 'Escolher Starter',
+            title: t('planStarterTitle'),
+            priceEur: 1, priceBrl: 10, period: t('planStarter10days'),
+            tagline: t('planStarterTagline'),
+            features: [ t('planFeatColUnlimited'), t('planFeatWishlist5'), t('planFeatPush'), t('planFeatShortAccess') ],
+            btnLabel: t('planStarterBtn'),
             btnClass: 'plan-btn-outline'
         },
         {
             id: 'premium',
-            title: 'PREMIUM',
-            priceEur: 3, priceBrl: 20, period: 'mês',
-            tagline: 'Coleção + Wishlist completa.',
-            features: [
-                '📦 Coleção ilimitada',
-                '🔁 Auto-scan a cada 5min',
-                '🛒 10 itens na Wishlist',
-                '🔔 Push + Email'
-            ],
-            btnLabel: 'Escolher Premium',
+            title: t('planPremiumTitle'),
+            priceEur: 3, priceBrl: 20, period: t('planMonth'),
+            tagline: t('planPremiumTagline'),
+            features: [ t('planFeatColUnlimited'), t('planFeatAutoScan'), t('planFeatWishlist10'), t('planFeatPushEmail') ],
+            btnLabel: t('planPremiumBtn'),
             btnClass: 'plan-btn-primary',
             popular: true
         },
         {
             id: 'full',
-            title: 'FULL ACCESS',
-            priceEur: 5, priceBrl: 30, period: 'mês',
-            tagline: 'Experiência completa MU Timer Dream.',
-            features: [
-                '📦 Coleção ilimitada',
-                '🔁 Auto-scan + Avaliação',
-                '🛒 50 itens na Wishlist',
-                '🔔 Push + Email + WhatsApp',
-                '💱 Exchange P2P (em breve)'
-            ],
-            btnLabel: 'Escolher Full Access',
+            title: t('planFullTitle'),
+            priceEur: 5, priceBrl: 30, period: t('planMonth'),
+            tagline: t('planFullTagline'),
+            features: [ t('planFeatColUnlimited'), t('planFeatAutoScanAppraisal'), t('planFeatWishlist50'), t('planFeatPushEmailWa'), t('planFeatExchangeSoon') ],
+            btnLabel: t('planFullBtn'),
             btnClass: 'plan-btn-success'
         }
     ];
@@ -1008,13 +992,13 @@ function showPricingModal(opts = {}) {
             <button class="pricing-close" id="pricingCloseTop" aria-label="Fechar">✕</button>
             <div class="pricing-header">
                 <div class="pricing-icon">⚔️</div>
-                <h2 class="pricing-title">✨ Desbloqueie o Acesso Completo ✨</h2>
-                <p class="pricing-sub">Escolha o plano que combina com você.</p>
+                <h2 class="pricing-title">${t('pricingTitle')}</h2>
+                <p class="pricing-sub">${t('pricingSub')}</p>
             </div>
             <div class="pricing-grid">
                 ${PLANS.map(p => `
                     <div class="plan-card ${p.popular ? 'plan-popular' : ''}">
-                        ${p.popular ? '<div class="plan-badge">⭐ MAIS POPULAR</div>' : ''}
+                        ${p.popular ? `<div class="plan-badge">${t('pricingPopular')}</div>` : ''}
                         <div class="plan-banner">
                             <div class="plan-banner-emblem">⚔️</div>
                             <div class="plan-banner-name">${p.title}</div>
@@ -1035,10 +1019,8 @@ function showPricingModal(opts = {}) {
                     </div>
                 `).join('')}
             </div>
-            <div class="pricing-contact">
-                💬 Após o pagamento, mande o comprovante no WhatsApp/Email com o seu nome de char para ativação.
-            </div>
-            <button class="pricing-maybe-later" id="pricingMaybeLater">Talvez depois</button>
+            <div class="pricing-contact">${t('pricingContactInfo')}</div>
+            <button class="pricing-maybe-later" id="pricingMaybeLater">${t('pricingMaybeLater')}</button>
         </div>
     `;
     document.body.appendChild(overlay);
@@ -1065,13 +1047,13 @@ function showPaymentChoice(planId, eur, brl) {
     overlay.innerHTML = `
         <div class="pricing-modal pricing-modal-pay">
             <button class="pricing-close" id="payCloseTop" aria-label="Fechar">✕</button>
-            <h3 class="pay-title">💳 Como você quer pagar o plano <span class="gold">${planId.toUpperCase()}</span>?</h3>
+            <h3 class="pay-title">${t('payTitle', { plan: planId.toUpperCase() })}</h3>
             <div class="pay-amounts">
                 <div class="pay-amount-card">
                     <div class="pay-flag">🇪🇺</div>
                     <div class="pay-value">€${eur}</div>
                 </div>
-                <div class="pay-or">ou</div>
+                <div class="pay-or">${t('payOr')}</div>
                 <div class="pay-amount-card">
                     <div class="pay-flag">🇧🇷</div>
                     <div class="pay-value">R$ ${brl}</div>
@@ -1081,22 +1063,22 @@ function showPaymentChoice(planId, eur, brl) {
                 <button class="pay-method pay-pix" id="payBtnPix">
                     <span class="pay-method-icon">📱</span>
                     <div>
-                        <div class="pay-method-name">PIX</div>
-                        <div class="pay-method-desc">Pagamento instantâneo (R$)</div>
+                        <div class="pay-method-name">${t('payPixName')}</div>
+                        <div class="pay-method-desc">${t('payPixDesc')}</div>
                     </div>
                 </button>
                 <button class="pay-method pay-iban" id="payBtnIban">
                     <span class="pay-method-icon">🏦</span>
                     <div>
-                        <div class="pay-method-name">IBAN / BIC</div>
-                        <div class="pay-method-desc">Transferência bancária (€)</div>
+                        <div class="pay-method-name">${t('payIbanName')}</div>
+                        <div class="pay-method-desc">${t('payIbanDesc')}</div>
                     </div>
                 </button>
                 <button class="pay-method pay-stripe" id="payBtnCheckout" disabled>
                     <span class="pay-method-icon">💳</span>
                     <div>
-                        <div class="pay-method-name">Cartão (em breve)</div>
-                        <div class="pay-method-desc">Stripe checkout</div>
+                        <div class="pay-method-name">${t('payCardName')}</div>
+                        <div class="pay-method-desc">${t('payCardDesc')}</div>
                     </div>
                 </button>
             </div>

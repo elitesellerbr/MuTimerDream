@@ -118,12 +118,12 @@ function renderWishlist() {
                     </select>
                 </div>
                 <div class="calc-result" id="calcJewelDcResult">≈ 0 DC</div>
-                <p class="calc-note">Cotações estimadas — preço real varia conforme oferta no mercado.</p>
+                <p class="calc-note">${t('calcNoteDc')}</p>
             </div>
             <div class="calc-card">
                 <h4>💰 Jewel → ZEN</h4>
                 <div class="calc-row">
-                    <input type="number" id="calcJewelZenQty" placeholder="Qtd de Jewels" min="1" value="1">
+                    <input type="number" id="calcJewelZenQty" min="1" value="1">
                     <select id="calcJewelZenType" class="admin-input" style="max-width:140px">
                         <option value="bless">Jewel of Bless</option>
                         <option value="soul">Jewel of Soul</option>
@@ -135,7 +135,7 @@ function renderWishlist() {
                     </select>
                 </div>
                 <div class="calc-result" id="calcJewelZenResult">≈ 0 ZEN</div>
-                <p class="calc-note">Cotações em kk (milhões). Atualizadas conforme o mercado.</p>
+                <p class="calc-note">${t('calcNoteZen')}</p>
             </div>
         </div>
 
@@ -155,8 +155,8 @@ function renderWishlist() {
                     <span>📲 Push (PWA)</span>
                 </label>
                 <small class="wishlist-notif-status">
-                    ${isPwaInstalled ? '✅ PWA instalado' : '⚠️ Instale o app para receber push'}
-                    ${pushPermission !== 'granted' ? ` · <button class="btn-sm" id="wlReqPush">Liberar push</button>` : ''}
+                    ${isPwaInstalled ? t('wlPwaInstalled') : t('wlPwaNotInstalled')}
+                    ${pushPermission !== 'granted' ? ` · <button class="btn-sm" id="wlReqPush">${t('wlReqPushBtn')}</button>` : ''}
                 </small>
             </div>
             <div class="wishlist-notif-row">
@@ -173,39 +173,39 @@ function renderWishlist() {
                 </label>
                 <input type="tel" id="wlPhone" class="admin-input" placeholder="+5511999999999" value="${channels.phone || ''}" style="max-width:200px">
             </div>
-            <button class="btn-primary" id="wlSaveChannels">💾 Salvar preferências</button>
-            <p class="wishlist-notif-help">📌 Push: rápido e gratuito (precisa do PWA aberto/instalado). Email/WhatsApp: chega mesmo com o app fechado.</p>
+            <button class="btn-primary" id="wlSaveChannels">${t('wlSaveChannelsBtn')}</button>
+            <p class="wishlist-notif-help">${t('wlNotifHelp')}</p>
         </div>
 
         <!-- Add new wishlist item form -->
         <div class="wishlist-add-card">
-            <div class="wishlist-add-title">➕ ${t('wishlistAddItem') || 'Adicionar item para vigiar'}</div>
-            <input type="text" id="wlSearch" class="admin-input" placeholder="🔍 Nome do item (ex: Dragon Knight Armor, Phoenix Soul...)">
+            <div class="wishlist-add-title">${t('wlAddItemTitle')}</div>
+            <input type="text" id="wlSearch" class="admin-input" placeholder="${t('wlSearchPlaceholder')}">
             <div class="wishlist-filter-grid">
                 <div>
-                    <label>📂 Categoria</label>
+                    <label>${t('wlCatLabel')}</label>
                     <select id="wlCategory" class="admin-input">
-                        <option value="">Qualquer</option>
+                        <option value="">${t('wlAnyOption')}</option>
                         ${WISHLIST_CATEGORIES.map(c => `<option value="${c.id}">${c.label}</option>`).join('')}
                     </select>
                 </div>
                 <div>
-                    <label>⭐ Raridade</label>
+                    <label>${t('wlRarityLabel')}</label>
                     <select id="wlRarity" class="admin-input">
-                        <option value="">Qualquer</option>
+                        <option value="">${t('wlAnyOption')}</option>
                         ${WISHLIST_RARITIES.map(r => `<option value="${r}">${r}</option>`).join('')}
                     </select>
                 </div>
                 <div>
-                    <label>📈 Level mín. item</label>
+                    <label>${t('wlMinLvlLabel')}</label>
                     <input type="number" id="wlMinLvl" class="admin-input" min="0" max="15" value="0">
                 </div>
                 <div>
-                    <label>💰 Preço máx. Zen (kk)</label>
+                    <label>${t('wlMaxPriceLabel')}</label>
                     <input type="number" id="wlMaxZen" class="admin-input" placeholder="ex: 500" min="0">
                 </div>
             </div>
-            <label style="display:block;margin:10px 0 4px">⚙️ Opções desejadas (qualquer um marcado conta)</label>
+            <label style="display:block;margin:10px 0 4px">${t('wlOptionsDesiredLabel')}</label>
             <div class="wishlist-opts">
                 ${WISHLIST_OPTIONS.map(o => `
                     <label class="wishlist-opt-chip">
@@ -214,11 +214,11 @@ function renderWishlist() {
                     </label>
                 `).join('')}
             </div>
-            <button class="btn-primary wishlist-add-btn" id="wlAddBtn">🛒 Adicionar à Wishlist</button>
+            <button class="btn-primary wishlist-add-btn" id="wlAddBtn">${t('wlAddBtn')}</button>
         </div>
 
         <!-- Active wishlist -->
-        <div class="wishlist-list-title">📋 Meus itens vigiados (${wishlistItems.filter(i => i.server === wishlistServer).length})</div>
+        <div class="wishlist-list-title">${t('wlMyItemsTitle')} (${wishlistItems.filter(i => i.server === wishlistServer).length})</div>
         <div class="wishlist-list" id="wishlistList">
             ${renderWishlistItems()}
         </div>
@@ -230,12 +230,12 @@ function renderWishlist() {
 function renderWishlistItems() {
     const items = wishlistItems.filter(i => i.server === wishlistServer);
     if (items.length === 0) {
-        return `<div class="empty-state"><div class="empty-icon">🛒</div><p>Nenhum item na wishlist para este servidor. Adicione acima!</p></div>`;
+        return `<div class="empty-state"><div class="empty-icon">🛒</div><p>${t('wlEmptyForServer')}</p></div>`;
     }
     return items.map(item => `
         <div class="wishlist-item ${item.lastMatchAt ? 'matched' : ''}">
             <div class="wishlist-item-main">
-                <div class="wishlist-item-name">${escapeHtml(item.itemName || 'Qualquer')}</div>
+                <div class="wishlist-item-name">${escapeHtml(item.itemName || t('wlAnyOption'))}</div>
                 <div class="wishlist-item-meta">
                     ${item.category ? `<span class="wl-chip">📂 ${labelForCategory(item.category)}</span>` : ''}
                     ${item.rarity ? `<span class="wl-chip">⭐ ${item.rarity}</span>` : ''}
@@ -244,8 +244,8 @@ function renderWishlistItems() {
                     ${(item.options || []).map(o => `<span class="wl-chip wl-opt">${o}</span>`).join('')}
                 </div>
                 ${item.lastMatchAt
-                    ? `<div class="wishlist-item-found">✨ Encontrado ${timeAgo(item.lastMatchAt)} — <a href="https://mudream.online/pt/market" target="_blank" rel="noopener">ver no mercado ↗</a></div>`
-                    : `<div class="wishlist-item-status">⏳ Aguardando aparecer no mercado...</div>`}
+                    ? `<div class="wishlist-item-found">${t('wlFoundAt', { when: timeAgo(item.lastMatchAt) })}</div>`
+                    : `<div class="wishlist-item-status">${t('wlAwaiting')}</div>`}
             </div>
             <button class="btn-sm btn-danger wl-remove" data-id="${item.id}">🗑️</button>
         </div>
@@ -265,11 +265,11 @@ function escapeHtml(s) {
 function timeAgo(iso) {
     const ms = Date.now() - new Date(iso).getTime();
     const min = Math.floor(ms / 60000);
-    if (min < 1) return 'agora';
-    if (min < 60) return `há ${min}min`;
+    if (min < 1) return t('wlSecAgo');
+    if (min < 60) return t('wlMinAgo', { n: min });
     const h = Math.floor(min / 60);
-    if (h < 24) return `há ${h}h`;
-    return `há ${Math.floor(h / 24)}d`;
+    if (h < 24) return t('wlHourAgo', { n: h });
+    return t('wlDayAgo', { n: Math.floor(h / 24) });
 }
 
 // Jewel exchange rates (approximated to mudream current market)
@@ -322,7 +322,7 @@ function wireWishlistEvents(container) {
         reqPush.addEventListener('click', async () => {
             if ('Notification' in window) {
                 const perm = await Notification.requestPermission();
-                showToast(perm === 'granted' ? '✅ Push liberado!' : '⚠️ Permissão negada', perm === 'granted' ? 'success' : 'warning');
+                showToast(perm === 'granted' ? t('wlPushGranted') : t('wlPushDenied'), perm === 'granted' ? 'success' : 'warning');
                 renderWishlist();
             }
         });
@@ -337,17 +337,17 @@ function wireWishlistEvents(container) {
             phone:    document.getElementById('wlPhone').value.trim()
         };
         if (channels.email && !/^[^@\s]+@[^@\s]+\.\w+$/.test(channels.emailAddress)) {
-            showToast('⚠️ Email inválido', 'warning'); return;
+            showToast(t('wlToastInvalidEmail'), 'warning'); return;
         }
         if (channels.whatsapp && !/^\+?\d{10,15}$/.test(channels.phone.replace(/\s/g, ''))) {
-            showToast('⚠️ Telefone inválido (use +5511999999999)', 'warning'); return;
+            showToast(t('wlToastInvalidPhone'), 'warning'); return;
         }
         try {
             await saveWishlistChannels(channels);
             wishlistChannels = channels;
-            showToast('💾 Preferências salvas!', 'success');
+            showToast(t('wlToastSaved'), 'success');
         } catch (e) {
-            showToast('⚠️ Erro ao salvar', 'warning');
+            showToast(t('wlToastErrorSave'), 'warning');
         }
     });
 
@@ -363,18 +363,17 @@ function wireWishlistEvents(container) {
             options: Array.from(container.querySelectorAll('input[name="wlOpt"]:checked')).map(c => c.value)
         };
         if (!item.itemName && !item.category) {
-            showToast('⚠️ Informe ao menos nome ou categoria', 'warning'); return;
+            showToast(t('wlToastNoFilter'), 'warning'); return;
         }
         try {
             const saved = await saveWishlistItem(item);
             wishlistItems.push(saved.item || { ...item, id: 'local-' + Date.now() });
             localStorage.setItem('mudream_wishlist', JSON.stringify(wishlistItems));
-            showToast('🛒 Item adicionado à wishlist!', 'success');
+            showToast(t('wlToastAdded'), 'success');
             renderWishlist();
-            // Trigger an immediate scan
             checkMarketForWishlist();
         } catch (e) {
-            showToast('⚠️ Erro ao adicionar', 'warning');
+            showToast(t('wlToastErrorAdd'), 'warning');
         }
     });
 
@@ -382,14 +381,14 @@ function wireWishlistEvents(container) {
     container.querySelectorAll('.wl-remove').forEach(btn => {
         btn.addEventListener('click', async () => {
             const id = btn.dataset.id;
-            if (!confirm('Remover este item da wishlist?')) return;
+            if (!confirm(t('wlConfirmRemove'))) return;
             try {
                 await deleteWishlistItem(id);
                 wishlistItems = wishlistItems.filter(i => i.id !== id);
                 localStorage.setItem('mudream_wishlist', JSON.stringify(wishlistItems));
                 renderWishlist();
             } catch {
-                showToast('⚠️ Erro ao remover', 'warning');
+                showToast(t('wlToastErrorRemove'), 'warning');
             }
         });
     });
@@ -428,7 +427,7 @@ async function checkMarketForWishlist() {
             const wi = wishlistItems.find(i => i.id === m.wishlistId);
             if (wi) wi.lastMatchAt = new Date().toISOString();
             if (alarm && typeof alarm.sendNotification === 'function') {
-                alarm.sendNotification('🛒 Item encontrado!', `${m.itemName} apareceu no mercado RAMPAGE X-20`);
+                alarm.sendNotification(t('wlNotifFound'), t('wlNotifFoundBody', { name: m.itemName }));
             }
         });
         renderWishlist();
