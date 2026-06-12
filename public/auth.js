@@ -29,6 +29,22 @@ function updateAuthUI() {
         document.getElementById('profileEmail').textContent = currentUser.email || '';
         document.getElementById('authModalTitle').textContent = t('authProfile');
 
+        // Show character class as profile avatar
+        const classMap = {
+            dk:  { icon: '🗡️', label: 'Dark Knight' },
+            dw:  { icon: '⚡', label: 'Dark Wizard' },
+            elf: { icon: '🏹', label: 'Elf' },
+            mg:  { icon: '⚔️', label: 'Magic Gladiator' },
+            dl:  { icon: '👑', label: 'Dark Lord' },
+            sum: { icon: '🔮', label: 'Summoner' },
+            rf:  { icon: '👊', label: 'Rage Fighter' }
+        };
+        const cls = classMap[currentUser.char_class] || { icon: '⚔️', label: '' };
+        const avatarEl = document.querySelector('#authLoggedIn .user-avatar');
+        if (avatarEl) avatarEl.textContent = cls.icon;
+        const classLabelEl = document.getElementById('profileClassLabel');
+        if (classLabelEl) classLabelEl.textContent = cls.label;
+
         if (currentUser.is_admin) {
             document.getElementById('profileBadge').style.display = 'block';
             tabAdmin.style.display = '';
@@ -37,7 +53,7 @@ function updateAuthUI() {
             tabAdmin.style.display = 'none';
         }
 
-        btnAuth.innerHTML = '<span aria-hidden="true">⚔️</span>';
+        btnAuth.innerHTML = `<span aria-hidden="true">${cls.icon}</span>`;
         btnAuth.setAttribute('aria-label', currentUser.username);
     } else {
         loggedOut.style.display = 'block';
@@ -131,10 +147,20 @@ function initAuth() {
         }
     });
 
+    // Char-class picker — single-select
+    document.querySelectorAll('#regClassPicker .char-class-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('#regClassPicker .char-class-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            document.getElementById('regClass').value = btn.dataset.class;
+        });
+    });
+
     document.getElementById('btnRegister').addEventListener('click', async () => {
         const username = document.getElementById('regUser').value.trim();
         const email = document.getElementById('regEmail').value.trim();
         const password = document.getElementById('regPass').value;
+        const charClass = document.getElementById('regClass').value || null;
         if (!username || !email || !password) return showAuthError(t('adminFillFields'));
         // Frontend validation
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showAuthError(t('emailInvalid'));
@@ -143,7 +169,7 @@ function initAuth() {
         btn.classList.add('btn-loading');
         btn.disabled = true;
         try {
-            const opts = { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify({ username, email, password }) };
+            const opts = { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify({ username, email, password, charClass }) };
             const res = await fetch('/api/auth/register', opts);
             const data = await res.json();
             if (!res.ok) {

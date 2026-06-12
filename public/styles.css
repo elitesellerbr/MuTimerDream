@@ -4590,3 +4590,95 @@ input[type="checkbox"] {
     .stat-card .stat-value { font-size: 18px; }
     .feature-card { padding: 16px; }
 }
+
+/* ==================== CHAR CLASS PICKER ==================== */
+.char-class-picker {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-top: 6px;
+}
+.char-class-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    background: rgba(15, 22, 42, 0.7);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.7);
+    padding: 8px 4px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.char-class-btn span {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+}
+.char-class-btn:hover {
+    border-color: rgba(245, 166, 35, 0.4);
+    background: rgba(245, 166, 35, 0.08);
+    transform: translateY(-1px);
+}
+.char-class-btn.selected {
+    border-color: #f5a623;
+    background: linear-gradient(135deg, rgba(245, 166, 35, 0.2), rgba(255, 136, 0, 0.1));
+    color: #fff;
+    box-shadow: 0 0 12px rgba(245, 166, 35, 0.3);
+}
+.profile-class-label {
+    color: #f5a623;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 4px 0 2px;
+    text-shadow: 0 0 8px rgba(245, 166, 35, 0.4);
+}
+
+/* ==================== NORDIC DARK BACKGROUND ==================== */
+/* Applied to the main #app container (after login) */
+#app {
+    position: relative;
+    background:
+        radial-gradient(ellipse at top left,    rgba(245, 166, 35, 0.05) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom right, rgba(180, 60, 30, 0.06) 0%, transparent 55%),
+        radial-gradient(ellipse at center,       rgba(20, 30, 55, 0.4) 0%, transparent 70%),
+        linear-gradient(180deg, #0a1020 0%, #060a18 100%);
+    min-height: 100vh;
+}
+#app::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+        /* Norse runic circle - top left */
+        radial-gradient(circle at 8% 12%, transparent 60px, rgba(245, 166, 35, 0.04) 61px, rgba(245, 166, 35, 0.04) 62px, transparent 63px),
+        radial-gradient(circle at 8% 12%, transparent 40px, rgba(245, 166, 35, 0.06) 41px, rgba(245, 166, 35, 0.06) 42px, transparent 43px),
+        /* Norse runic circle - bottom right */
+        radial-gradient(circle at 92% 88%, transparent 70px, rgba(180, 60, 30, 0.04) 71px, rgba(180, 60, 30, 0.04) 72px, transparent 73px),
+        radial-gradient(circle at 92% 88%, transparent 45px, rgba(180, 60, 30, 0.05) 46px, rgba(180, 60, 30, 0.05) 47px, transparent 48px);
+}
+#app > * { position: relative; z-index: 1; }
+
+/* Subtle ember particles for ambience */
+#app::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+        radial-gradient(2px 2px at 12% 75%, rgba(245, 166, 35, 0.4), transparent),
+        radial-gradient(1px 1px at 27% 92%, rgba(255, 100, 50, 0.5), transparent),
+        radial-gradient(2px 2px at 45% 25%, rgba(245, 166, 35, 0.3), transparent),
+        radial-gradient(1px 1px at 73% 87%, rgba(255, 100, 50, 0.4), transparent),
+        radial-gradient(2px 2px at 85% 32%, rgba(245, 166, 35, 0.3), transparent),
+        radial-gradient(1px 1px at 58% 8%, rgba(255, 100, 50, 0.5), transparent);
+    background-size: 100% 100%;
+    opacity: 0.6;
+    animation: emberFloat 18s ease-in-out infinite;
+}
+@keyframes emberFloat {
+    0%, 100% { transform: translateY(0px); opacity: 0.6; }
+    50%      { transform: translateY(-8px); opacity: 0.9; }
+}

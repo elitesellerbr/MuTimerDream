@@ -362,6 +362,7 @@ const TRANSLATIONS = {
         fcMarketDesc: 'Defina o item exato que você quer. Avisamos por push, email ou WhatsApp quando aparece.',
         freeSpotsTitle: 'Os primeiros 40 guerreiros são GRÁTIS',
         freeSpotsNote: 'Depois disso: PIX ou IBAN (R$/€/mês)',
+        authRegClassLabel: 'Classe do seu Char',
     },
     en: {
         enterSystem: 'SIGN IN / SIGN UP',
@@ -726,6 +727,7 @@ const TRANSLATIONS = {
         fcMarketDesc: 'Define the exact item you want. We notify by push, email or WhatsApp when it shows up.',
         freeSpotsTitle: 'First 40 warriors are FREE',
         freeSpotsNote: 'After that: PIX or IBAN (R$/€ per month)',
+        authRegClassLabel: 'Your Character Class',
     }
 };
 

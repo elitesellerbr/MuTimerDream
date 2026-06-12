@@ -216,7 +216,9 @@ app.get('/api/stats/public', async (req, res) => {
 // ==================== AUTH ROUTES ====================
 
 app.post('/api/auth/register', async (req, res) => {
-    const { username, email, password } = req.body;
+    const { username, email, password, charClass } = req.body;
+    const validClasses = ['dk','dw','elf','mg','dl','sum','rf'];
+    const cleanCharClass = validClasses.includes(charClass) ? charClass : null;
     if (!username || !email || !password) return res.status(400).json({ error: 'Preencha todos os campos' });
     if (password.length < 6) return res.status(400).json({ error: 'Senha deve ter pelo menos 6 caracteres' });
 
@@ -244,7 +246,7 @@ app.post('/api/auth/register', async (req, res) => {
         const hash = bcrypt.hashSync(password, 10);
         const { data, error } = await supabase
             .from('users')
-            .insert({ username, email: email.toLowerCase(), password: hash })
+            .insert({ username, email: email.toLowerCase(), password: hash, char_class: cleanCharClass })
             .select('id')
             .single();
 
@@ -257,7 +259,7 @@ app.post('/api/auth/register', async (req, res) => {
 
         const token = jwt.sign({ id: data.id, username, is_admin: 0 }, JWT_SECRET, { expiresIn: '30d' });
         res.cookie('token', token, cookieOpts(30 * 24 * 3600000));
-        res.json({ ok: true, user: { id: data.id, username, is_admin: 0 } });
+        res.json({ ok: true, user: { id: data.id, username, is_admin: 0, char_class: cleanCharClass } });
         sendEmail(email.toLowerCase(), '⚔️ Bem-vindo ao MU Timer Dream!', buildWelcomeHtml(username)).catch(() => {});
     } catch (e) {
         console.error('Register error:', e.message);
@@ -298,7 +300,7 @@ app.post('/api/auth/logout', (req, res) => {
 app.get('/api/auth/me', authMiddleware, async (req, res) => {
     const { data: user, error } = await supabase
         .from('users')
-        .select('id, username, email, is_admin, created_at, last_login, enabled_alarms, elite_timers')
+        .select('id, username, email, is_admin, char_class, created_at, last_login, enabled_alarms, elite_timers')
         .eq('id', req.user.id)
         .single();
     if (error) {

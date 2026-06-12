@@ -449,6 +449,19 @@
                                 <input type="text" id="regUser" placeholder="Nome da sua Main no MU" class="admin-input" data-i18n="authRegUserPlaceholder">
                             </div>
                             <div class="setting-group">
+                                <label data-i18n="authRegClassLabel">Classe do seu Char</label>
+                                <div class="char-class-picker" id="regClassPicker">
+                                    <button type="button" class="char-class-btn" data-class="dk"  title="Dark Knight">🗡️<span>DK</span></button>
+                                    <button type="button" class="char-class-btn" data-class="dw"  title="Dark Wizard">⚡<span>DW</span></button>
+                                    <button type="button" class="char-class-btn" data-class="elf" title="Elf">🏹<span>ELF</span></button>
+                                    <button type="button" class="char-class-btn" data-class="mg"  title="Magic Gladiator">⚔️<span>MG</span></button>
+                                    <button type="button" class="char-class-btn" data-class="dl"  title="Dark Lord">👑<span>DL</span></button>
+                                    <button type="button" class="char-class-btn" data-class="sum" title="Summoner">🔮<span>SUM</span></button>
+                                    <button type="button" class="char-class-btn" data-class="rf"  title="Rage Fighter">👊<span>RF</span></button>
+                                </div>
+                                <input type="hidden" id="regClass" value="">
+                            </div>
+                            <div class="setting-group">
                                 <label data-i18n="authRegEmailLabel">Email</label>
                                 <input type="email" id="regEmail" placeholder="Seu email" class="admin-input" data-i18n="authRegEmailPlaceholder">
                             </div>
@@ -466,6 +479,7 @@
                         <div class="user-profile">
                             <div class="user-avatar">⚔️</div>
                             <h3 id="profileUsername"></h3>
+                            <p id="profileClassLabel" class="profile-class-label"></p>
                             <p id="profileEmail" style="color:var(--text-secondary);font-size:12px"></p>
                             <div id="profileBadge" style="display:none" class="admin-badge" data-i18n="authSuperAdmin">👑 SUPER ADMIN</div>
                         </div>
