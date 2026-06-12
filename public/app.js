@@ -988,6 +988,16 @@ function initClassShowcase() {
     }, 3000);
 }
 
+// Move every .modal-overlay to <body> so position:fixed always anchors to viewport
+// (ancestors with backdrop-filter / transform / filter break position:fixed otherwise)
+function liftModalsToBody() {
+    document.querySelectorAll('.modal-overlay').forEach(modal => {
+        if (modal.parentElement !== document.body) {
+            document.body.appendChild(modal);
+        }
+    });
+}
+
 function initSidebar() {
     const sidebar  = document.getElementById('appSidebar');
     const toggle   = document.getElementById('sidebarToggle');
@@ -1065,6 +1075,7 @@ function initLanding() {
     initClassShowcase();
     loadLandingStats();
     initSidebar();
+    liftModalsToBody();
     document.getElementById('btnShowPricing')?.addEventListener('click', () => {
         if (typeof showPricingModal === 'function') showPricingModal();
     });
