@@ -443,25 +443,85 @@ function bindCollectionItemClicks(container) {
                 collectionItems.delete(itemId);
             }
 
-            // Archive animation: fade & slide out when the item leaves the current filter view
             const itemName = EXC_ITEMS_DATA.items.find(i => i.id === itemId)?.name || 'Item';
             const becameObtainedAndHidden = !wasObtained && data.obtained && collectionFilter === 'missing';
-            const becameMissingAndHidden = wasObtained && !data.obtained && collectionFilter === 'obtained';
+            const becameMissingAndHidden  = wasObtained && !data.obtained && collectionFilter === 'obtained';
+
+            // 🌩️ Lightning strike when marking obtained — celebratory effect
+            if (!wasObtained && data.obtained) {
+                spawnLightningStrike(item);
+            }
 
             if (becameObtainedAndHidden || becameMissingAndHidden) {
-                item.classList.add('item-archiving');
-                if (typeof showToast === 'function') {
-                    const msg = data.obtained
-                        ? `✅ ${itemName} arquivado em Obtidos`
-                        : `↩️ ${itemName} voltou para Faltando`;
-                    showToast(msg, 'success', 2500);
-                }
-                setTimeout(() => renderCollection(container), 380);
+                // Wait for the lightning flash to peak before starting archive animation
+                setTimeout(() => {
+                    item.classList.add('item-archiving');
+                    if (typeof showToast === 'function') {
+                        const msg = data.obtained
+                            ? `✅ ${itemName} arquivado em Obtidos`
+                            : `↩️ ${itemName} voltou para Faltando`;
+                        showToast(msg, 'success', 2500);
+                    }
+                    setTimeout(() => renderCollection(container), 380);
+                }, becameObtainedAndHidden ? 420 : 0);
             } else {
-                renderCollection(container);
+                // Still re-render after a short delay so the lightning can finish
+                setTimeout(() => renderCollection(container), data.obtained && !wasObtained ? 700 : 0);
             }
         } catch {}
     });
+}
+
+// Spawn a brief lightning bolt + flash over the item element
+function spawnLightningStrike(targetEl) {
+    const rect = targetEl.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top  + rect.height / 2;
+
+    // Whole-screen flash (split-second)
+    const flash = document.createElement('div');
+    flash.className = 'lightning-flash-fx';
+    document.body.appendChild(flash);
+    setTimeout(() => flash.remove(), 380);
+
+    // Lightning bolt SVG positioned above the item
+    const bolt = document.createElement('div');
+    bolt.className = 'lightning-bolt-fx';
+    bolt.style.left = cx + 'px';
+    bolt.style.top  = (cy - 6) + 'px';
+    bolt.innerHTML = `
+        <svg viewBox="0 0 60 200" width="60" height="200" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <filter id="boltGlow">
+                    <feGaussianBlur stdDeviation="2"/>
+                </filter>
+            </defs>
+            <path d="M30 0 L18 80 L36 80 L20 200 L40 110 L22 110 L40 0 Z"
+                  fill="#ffeb3b" stroke="#fff" stroke-width="1.5" filter="url(#boltGlow)"/>
+            <path d="M30 0 L18 80 L36 80 L20 200 L40 110 L22 110 L40 0 Z"
+                  fill="#fffde7"/>
+        </svg>
+    `;
+    document.body.appendChild(bolt);
+    setTimeout(() => bolt.remove(), 700);
+
+    // Ember sparks around the item
+    for (let i = 0; i < 12; i++) {
+        const spark = document.createElement('div');
+        spark.className = 'lightning-spark-fx';
+        const angle = (Math.PI * 2 * i) / 12 + (i % 2 ? 0.3 : 0);
+        const dist  = 40 + (i % 3) * 14;
+        spark.style.left = cx + 'px';
+        spark.style.top  = cy + 'px';
+        spark.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+        spark.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+        spark.style.animationDelay = (i * 18) + 'ms';
+        document.body.appendChild(spark);
+        setTimeout(() => spark.remove(), 1000);
+    }
+
+    // Vibrate on mobile if supported
+    if (navigator.vibrate) navigator.vibrate([12, 30, 12]);
 }
 
 function showAddsModal(itemId, container) {

@@ -5315,3 +5315,58 @@ body.modal-locked #landingPage {
     40%  { transform: scale(1.08) rotate(-2deg); opacity: 1; box-shadow: 0 0 18px rgba(102, 187, 106, 0.6); }
     100% { transform: scale(0.4) translateY(40px) rotate(8deg); opacity: 0; }
 }
+
+
+/* ==================== LIGHTNING STRIKE FX (collection obtain) ==================== */
+.lightning-flash-fx {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9998;
+    background: radial-gradient(ellipse at center, rgba(255, 235, 59, 0.45) 0%, transparent 60%);
+    animation: lightningFlashFx 0.38s ease-out forwards;
+    mix-blend-mode: screen;
+}
+@keyframes lightningFlashFx {
+    0%   { opacity: 0; }
+    8%   { opacity: 1; }
+    16%  { opacity: 0.3; }
+    24%  { opacity: 0.9; }
+    100% { opacity: 0; }
+}
+.lightning-bolt-fx {
+    position: fixed;
+    transform: translate(-50%, -100%);
+    pointer-events: none;
+    z-index: 9999;
+    filter: drop-shadow(0 0 12px rgba(255, 235, 59, 0.9))
+            drop-shadow(0 0 24px rgba(255, 165, 0, 0.6));
+    animation: lightningBoltFx 0.7s ease-out forwards;
+}
+@keyframes lightningBoltFx {
+    0%   { opacity: 0; transform: translate(-50%, -120%) scaleY(0.6); }
+    14%  { opacity: 1; transform: translate(-50%, -100%) scaleY(1.1); }
+    28%  { opacity: 0.85; transform: translate(-50%, -100%) scaleY(1); }
+    42%  { opacity: 1; transform: translate(-50%, -100%) scaleY(0.95) skewX(-3deg); }
+    100% { opacity: 0; transform: translate(-50%, -100%) scaleY(1) skewX(0); }
+}
+.lightning-spark-fx {
+    position: fixed;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    background: radial-gradient(circle, #fffde7 0%, #ffeb3b 40%, transparent 70%);
+    box-shadow: 0 0 8px rgba(255, 235, 59, 0.95),
+                0 0 16px rgba(255, 152, 0, 0.6);
+    transform: translate(-50%, -50%);
+    animation: lightningSparkFx 0.9s ease-out forwards;
+}
+@keyframes lightningSparkFx {
+    0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+    10%  { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+    100% { opacity: 0; transform:
+        translate(calc(-50% + var(--dx)), calc(-50% + var(--dy)))
+        scale(0.2);
+    }
+}
