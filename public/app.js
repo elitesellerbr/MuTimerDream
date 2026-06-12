@@ -288,8 +288,9 @@ function renderGolden() {
     const container = document.getElementById('goldenList');
     if (!container) return;
     container.innerHTML = '';
+    container.classList.add('golden-list');
 
-    // Group golden monsters by city (location)
+    // Group by city
     const groups = {};
     for (const g of (EVENTS_DATA.golden || [])) {
         const key = g.map || 'Outros';
@@ -298,39 +299,44 @@ function renderGolden() {
     }
 
     for (const map of Object.keys(groups)) {
-        const groupHeader = document.createElement('div');
-        groupHeader.className = 'golden-group-header';
-        groupHeader.innerHTML = `<span class="golden-group-icon">📍</span><span>${map}</span>`;
-        container.appendChild(groupHeader);
-
-        for (const g of groups[map]) {
+        const section = document.createElement('div');
+        section.className = 'golden-city';
+        const cards = groups[map].map(g => {
             const key = `golden__${g.id}`;
             const killCount = eliteKillCounts[key] || 0;
             const maxKills = g.qty;
+            const done = killCount >= maxKills;
             const countPct = Math.min(killCount / maxKills * 100, 100);
-            const countColor = killCount >= maxKills ? '#66bb6a' : '#f5a623';
-            const card = document.createElement('div');
-            card.className = 'elite-card golden-card';
-            card.dataset.key = key;
-            card.innerHTML = `
-                <div class="event-card" style="--card-accent:${g.color};cursor:default;">
-                    ${g.img
-                        ? `<div class="event-icon event-icon-img"><img src="${g.img}" alt="${g.name}"></div>`
-                        : `<div class="event-icon">${g.icon || '✨'}</div>`}
-                    <div class="event-info">
-                        <div class="event-name">${g.name}</div>
-                        <div class="event-detail">📍 ${g.map} · qty ${g.qty}${g.note ? ' · ' + g.note : ''}</div>
+            return `
+                <div class="golden-mini-card ${done ? 'done' : ''}" data-key="${key}">
+                    <div class="golden-mini-img">
+                        ${g.img ? `<img src="${g.img}" alt="${g.name}" loading="lazy">` : `<span class="golden-mini-emoji">✨</span>`}
+                        ${done ? '<span class="golden-mini-check">✓</span>' : ''}
                     </div>
-                    <div class="elite-count" title="Kills: ${killCount}/${maxKills}">
-                        <div class="elite-count-bar"><div class="elite-count-fill" style="width:${countPct}%;background:${countColor}"></div></div>
-                        <span class="elite-count-label" style="color:${countColor}">${killCount}/${maxKills}</span>
-                        <button class="btn-elite-add" onclick="addEliteKill('${key}')" title="Adicionar kill">+</button>
-                        ${killCount > 0 ? `<button class="btn-elite-reset" onclick="resetEliteCount('${key}')" title="Zerar contador">↺</button>` : ''}
+                    <div class="golden-mini-body">
+                        <div class="golden-mini-name" title="${g.name}">${g.name.replace(/^Golden /, '')}${g.note ? ` <small class="golden-mini-note">${g.note}</small>` : ''}</div>
+                        <div class="golden-mini-progress">
+                            <div class="golden-mini-bar"><div class="golden-mini-fill" style="width:${countPct}%"></div></div>
+                            <span class="golden-mini-count">${killCount}/${maxKills}</span>
+                        </div>
+                    </div>
+                    <div class="golden-mini-actions">
+                        <button class="btn-golden-add" onclick="addEliteKill('${key}')" title="+1 kill">+</button>
+                        ${killCount > 0 ? `<button class="btn-golden-reset" onclick="resetEliteCount('${key}')" title="Zerar">↺</button>` : ''}
                     </div>
                 </div>
             `;
-            container.appendChild(card);
-        }
+        }).join('');
+
+        section.innerHTML = `
+            <div class="golden-city-header">
+                <span class="golden-city-icon">📍</span>
+                <span class="golden-city-name">${map}</span>
+                <span class="golden-city-total">${groups[map].length} monstros</span>
+            </div>
+            <div class="golden-city-grid">${cards}</div>
+        `;
+        container.appendChild(section);
     }
 }
 

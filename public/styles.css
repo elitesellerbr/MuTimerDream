@@ -5869,3 +5869,156 @@ body.modal-locked #landingPage {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+
+/* ==================== GOLDEN COMPACT LAYOUT ==================== */
+.golden-list { display: flex; flex-direction: column; gap: 18px; }
+.golden-list .event-card, .golden-list .elite-card { display: none; }
+.golden-city {
+    background: linear-gradient(180deg, rgba(245, 166, 35, 0.04), transparent 60%);
+    border: 1px solid rgba(245, 166, 35, 0.18);
+    border-radius: 12px;
+    padding: 10px 12px 14px;
+}
+.golden-city-header {
+    display: flex; align-items: center; gap: 8px;
+    color: #f5a623;
+    font-weight: 800;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(245, 166, 35, 0.2);
+    margin-bottom: 10px;
+}
+.golden-city-icon { font-size: 14px; }
+.golden-city-name { flex: 1; }
+.golden-city-total { color: rgba(255,255,255,0.5); font-weight: 600; font-size: 10px; letter-spacing: 0.5px; }
+.golden-city-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+}
+.golden-mini-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(15, 22, 42, 0.55);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 6px 8px;
+    transition: all 0.15s;
+}
+.golden-mini-card:hover {
+    border-color: rgba(245, 166, 35, 0.35);
+    background: rgba(245, 166, 35, 0.06);
+    transform: translateY(-1px);
+}
+.golden-mini-card.done {
+    border-color: rgba(102, 187, 106, 0.5);
+    background: rgba(102, 187, 106, 0.08);
+}
+.golden-mini-img {
+    position: relative;
+    width: 44px; height: 44px;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.35);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.golden-mini-img img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.25s ease;
+}
+.golden-mini-card:hover .golden-mini-img img { transform: scale(1.1); }
+.golden-mini-emoji { font-size: 22px; }
+.golden-mini-check {
+    position: absolute;
+    top: -4px; right: -4px;
+    background: linear-gradient(135deg, #66bb6a, #43a047);
+    color: #fff;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800;
+    border: 2px solid rgba(15, 22, 42, 0.9);
+}
+.golden-mini-body { flex: 1; min-width: 0; }
+.golden-mini-name {
+    color: #fff;
+    font-weight: 700;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+}
+.golden-mini-note {
+    color: rgba(255, 179, 128, 0.7);
+    font-weight: 500;
+    font-size: 9px;
+    margin-left: 4px;
+    text-transform: none;
+    letter-spacing: 0.2px;
+}
+.golden-mini-progress {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.golden-mini-bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    overflow: hidden;
+}
+.golden-mini-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #f5a623, #ff6600);
+    transition: width 0.3s ease;
+}
+.golden-mini-card.done .golden-mini-fill {
+    background: linear-gradient(90deg, #66bb6a, #43a047);
+}
+.golden-mini-count {
+    color: rgba(255,255,255,0.7);
+    font-size: 10px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    min-width: 32px;
+    text-align: right;
+}
+.golden-mini-card.done .golden-mini-count { color: #66bb6a; }
+.golden-mini-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.btn-golden-add, .btn-golden-reset {
+    width: 26px; height: 26px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 800;
+    transition: all 0.15s;
+}
+.btn-golden-add {
+    background: linear-gradient(135deg, #f5a623, #ff6600);
+    color: #fff;
+}
+.btn-golden-add:hover { transform: scale(1.1); box-shadow: 0 2px 8px rgba(245, 166, 35, 0.5); }
+.btn-golden-reset {
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.7);
+}
+.btn-golden-reset:hover { background: rgba(229, 57, 53, 0.2); color: #ef5350; }
+
+/* Hide old group header from previous render */
+.golden-group-header { display: none; }
+
+/* Mobile — even tighter */
+@media (max-width: 600px) {
+    .golden-city-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 6px; }
+    .golden-mini-img { width: 38px; height: 38px; }
+    .golden-mini-name { font-size: 11px; }
+}

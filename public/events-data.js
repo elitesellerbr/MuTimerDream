@@ -478,43 +478,51 @@ const EVENTS_DATA = {
     // Golden Invasion monsters — spawn during 00:36 / 04:36 / 08:36 / 12:36 / 16:36 / 20:36
     // Source: https://mudream.online/about/monsters/golden-monsters
     golden: [
-        // ==== NORIA / DREAM LAND / ELBELAND group (qty 5 + 3) ====
-        { id: 'g-goblin',       name: 'Golden Goblin',        map: 'Noria',         qty: 5, color: '#f5a623', icon: '🟨' },
-        { id: 'g-golem',        name: 'Golden Golem',         map: 'Noria',         qty: 3, color: '#f5a623', icon: '🪨' },
-        { id: 'g-budgedragon',  name: 'Golden Budge Dragon',  map: 'Dream Land',    qty: 5, color: '#f5a623', icon: '🐲' },
-        { id: 'g-giant',        name: 'Golden Giant',         map: 'Dream Land',    qty: 3, color: '#f5a623', icon: '🧌' },
-        { id: 'g-rabbit',       name: 'Golden Rabbit',        map: 'Elbeland',      qty: 5, color: '#f5a623', icon: '🐰' },
-        { id: 'g-grizzly',      name: 'Golden Grizzly',       map: 'Elbeland',      qty: 3, color: '#f5a623', icon: '🐻' },
-        // ==== DEVIAS / SHADOW ABYSS / ATLANS group (qty 4 + 3) ====
-        { id: 'g-eliteyeti',    name: 'Golden Elite Yeti',    map: 'Devias',        qty: 4, color: '#f5a623', icon: '☃️' },
-        { id: 'g-soldier',      name: 'Golden Soldier',       map: 'Devias',        qty: 3, color: '#f5a623', icon: '⚔️' },
-        { id: 'g-gorgon',       name: 'Golden Gorgon',        map: 'Shadow Abyss',  qty: 4, color: '#f5a623', icon: '🐍' },
-        { id: 'g-darkknight',   name: 'Golden Dark Knight',   map: 'Shadow Abyss',  qty: 3, color: '#f5a623', icon: '🛡️' },
-        { id: 'g-vepar',        name: 'Golden Vepar',         map: 'Atlans 1 - 2',  qty: 4, color: '#f5a623', icon: '🐙' },
-        { id: 'g-valkyrie',     name: 'Golden Valkyrie',      map: 'Atlans 1 - 2',  qty: 3, color: '#f5a623', icon: '🪽' },
-        // ==== ATLANS 2-3 / LOSTTOWER / TARKAN 1 group (qty 3 + 2) ====
-        { id: 'g-titan',        name: 'Golden Titan',         map: 'Atlans 2 - 3',  qty: 3, color: '#f5a623', icon: '⛰️' },
-        { id: 'g-lizardking',   name: 'Golden Lizard King',   map: 'Atlans 2 - 3',  qty: 2, color: '#f5a623', icon: '🦎' },
-        { id: 'g-devil',        name: 'Golden Devil',         map: 'Losttower 1 - 7', qty: 3, color: '#f5a623', icon: '😈' },
-        { id: 'g-balrog',       name: 'Golden Balrog',        map: 'Losttower 1 - 7', qty: 2, color: '#f5a623', icon: '👹' },
-        { id: 'g-wheel',        name: 'Golden Wheel',         map: 'Tarkan 1',      qty: 3, color: '#f5a623', icon: '☸️' },
-        { id: 'g-mutant',       name: 'Golden Mutant',        map: 'Tarkan 1',      qty: 2, color: '#f5a623', icon: '🧟' },
-        // ==== TARKAN 2 / AIDA / CRIMSON ICARUS group (qty 2 + 1) ====
-        { id: 'g-tantalos',     name: 'Golden Tantalos',      map: 'Tarkan 2',      qty: 2, color: '#f5a623', icon: '🗿' },
-        { id: 'g-beamknight',   name: 'Golden Beam Knight',   map: 'Tarkan 2',      qty: 1, color: '#f5a623', icon: '🤖' },
-        { id: 'g-stonegolem',   name: 'Golden Stone Golem',   map: 'Aida 1 - 2',    qty: 2, color: '#f5a623', icon: '🗿' },
-        { id: 'g-witchqueen',   name: 'Golden Witch Queen',   map: 'Aida 1 - 2',    qty: 1, color: '#f5a623', icon: '🧙‍♀️' },
-        { id: 'g-crust',        name: 'Golden Crust',         map: 'Crimson Icarus', qty: 2, color: '#f5a623', icon: '🦂' },
-        { id: 'g-phantomknight', name: 'Golden Phantom Knight', map: 'Crimson Icarus', qty: 2, color: '#f5a623', icon: '👻' },
-        // ==== KANTURU / KANTURU ISLAND group ====
-        { id: 'g-satyros',      name: 'Golden Satyros',       map: 'Kanturu, Kanturu Island', qty: 2, color: '#f5a623', icon: '🐐' },
-        { id: 'g-bladehunter',  name: 'Golden Blade Hunter',  map: 'Kanturu, Kanturu Island', qty: 2, color: '#f5a623', icon: '🗡️' },
-        { id: 'g-phantomknight-k', name: 'Golden Phantom Knight (Kanturu)', map: 'Kanturu, Kanturu Island', qty: 2, color: '#f5a623', icon: '👻' },
-        { id: 'g-kentauros',    name: 'Golden Kentauros',     map: 'Kanturu, Kanturu Island', qty: 1, color: '#f5a623', icon: '🐎' },
-        { id: 'g-gigantis',     name: 'Golden Gigantis',      map: 'Kanturu, Kanturu Island', qty: 1, color: '#f5a623', icon: '🦣' },
-        { id: 'g-genocider',    name: 'Golden Genocider',     map: 'Kanturu, Kanturu Island', qty: 1, color: '#f5a623', icon: '☠️' },
-        // ==== MULTI-MAP / SPECIAL ====
-        { id: 'g-derkon',       name: 'Golden Derkon',        map: 'Crimson Icarus, Tarkan 1-2, Aida 1-2', qty: 6, color: '#f5a623', icon: '🐉', note: '2 por localização' },
-        { id: 'g-greatdragon',  name: 'Great Golden Dragon',  map: 'Shadow Abyss',  qty: 1, color: '#ff8800', icon: '🐲', note: 'RARO — Drop especial 4x' }
+        // Noria
+        { id: 'g-goblin',       name: 'Golden Goblin',        map: 'Noria',         qty: 5, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/112/body/asngWVm4_UTe722n8dYCF.gif' },
+        { id: 'g-golem',        name: 'Golden Golem',         map: 'Noria',         qty: 3, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/223/body/ur5z2GTQ-L8AV3jGKid5v.gif' },
+        // Dream Land
+        { id: 'g-budgedragon',  name: 'Golden Budge Dragon',  map: 'Dream Land',    qty: 5, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/107/body/haCnfHpnvEaGzWJ9fbbPA.gif' },
+        { id: 'g-giant',        name: 'Golden Giant',         map: 'Dream Land',    qty: 3, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/225/body/uH1ayMdUEifF3JwU_BXKn.gif' },
+        // Elbeland
+        { id: 'g-rabbit',       name: 'Golden Rabbit',        map: 'Elbeland',      qty: 5, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/236/body/ZFM3E7_lOGVLWTJF75NNO.gif' },
+        { id: 'g-grizzly',      name: 'Golden Grizzly',       map: 'Elbeland',      qty: 3, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/226/body/KQyGSatPSFByrLr6v9P0W.gif' },
+        // Devias
+        { id: 'g-eliteyeti',    name: 'Golden Elite Yeti',    map: 'Devias',        qty: 4, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/227/body/-nSyuuK5T0WxUthTVwZjE.gif' },
+        { id: 'g-soldier',      name: 'Golden Soldier',       map: 'Devias',        qty: 3, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/108/body/pBs0mmXeg2vt40LUlTs_d.gif' },
+        // Shadow Abyss
+        { id: 'g-gorgon',       name: 'Golden Gorgon',        map: 'Shadow Abyss',  qty: 4, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/228/body/_BEYyx0hhXw9zP8OKIr4V.gif' },
+        { id: 'g-darkknight',   name: 'Golden Dark Knight',   map: 'Shadow Abyss',  qty: 3, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/110/body/FTtFAzasa3_Kn6x0buukS.gif' },
+        // Atlans 1-2
+        { id: 'g-vepar',        name: 'Golden Vepar',         map: 'Atlans 1 - 2',  qty: 4, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/115/body/vSuJBsKlDj62ZWWrFTbjy.gif' },
+        { id: 'g-valkyrie',     name: 'Golden Valkyrie',      map: 'Atlans 1 - 2',  qty: 3, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/229/body/H9Zd5SnrgaR7j7z7Q9OFT.gif' },
+        // Atlans 2-3
+        { id: 'g-titan',        name: 'Golden Titan',         map: 'Atlans 2 - 3',  qty: 3, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/111/body/HxYhQA42j2Lkjhi8OKC6p.gif' },
+        { id: 'g-lizardking',   name: 'Golden Lizard King',   map: 'Atlans 2 - 3',  qty: 2, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/114/body/__Yi_hb0A9fW6nQVhxFzO.gif' },
+        // Losttower 1-7
+        { id: 'g-devil',        name: 'Golden Devil',         map: 'Losttower 1 - 7', qty: 3, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/113/body/3CciBn7d2BorA1d9pz_D9.gif' },
+        { id: 'g-balrog',       name: 'Golden Balrog',        map: 'Losttower 1 - 7', qty: 2, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/230/body/AzPmnnwQZCqiPezxAMVvm.gif' },
+        // Tarkan 1
+        { id: 'g-wheel',        name: 'Golden Wheel',         map: 'Tarkan 1',      qty: 3, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/117/body/TsaHRUcGxMvnUe0cVQDxd.gif' },
+        { id: 'g-mutant',       name: 'Golden Mutant',        map: 'Tarkan 1',      qty: 2, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/246/body/eqTrkwY1F5uDfY5EWKiLH.gif' },
+        // Tarkan 2
+        { id: 'g-tantalos',     name: 'Golden Tantalos',      map: 'Tarkan 2',      qty: 2, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/116/body/CiZmt1cnAOLo81fbxyb0f.gif' },
+        { id: 'g-beamknight',   name: 'Golden Beam Knight',   map: 'Tarkan 2',      qty: 1, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/231/body/I0Pl_06EbF_cg8_xqpiJv.gif' },
+        // Aida 1-2
+        { id: 'g-stonegolem',   name: 'Golden Stone Golem',   map: 'Aida 1 - 2',    qty: 2, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/118/body/zby8OJDOrkss5vlqAqMaG.gif' },
+        { id: 'g-witchqueen',   name: 'Golden Witch Queen',   map: 'Aida 1 - 2',    qty: 1, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/232/body/YfpJ4AIjzUdepO9UV-_yw.gif' },
+        // Crimson Icarus
+        { id: 'g-crust',        name: 'Golden Crust',         map: 'Crimson Icarus', qty: 2, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/119/body/vd1Mkgx6fRmwd5RP59-K_.gif' },
+        { id: 'g-phantomknight', name: 'Golden Phantom Knight', map: 'Crimson Icarus', qty: 2, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/233/body/Dubbb1gkJDKI1JlBr8Rgt.gif' },
+        // Kanturu / Kanturu Island
+        { id: 'g-satyros',      name: 'Golden Satyros',       map: 'Kanturu, Kanturu Island', qty: 2, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/120/body/EePRGPrvir2UQ1uHYrpEv.gif' },
+        { id: 'g-bladehunter',  name: 'Golden Blade Hunter',  map: 'Kanturu, Kanturu Island', qty: 2, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/188/body/sRxt2yEXcrbG4jndtnG4M.gif' },
+        { id: 'g-phantomknight-k', name: 'Golden Phantom Knight', map: 'Kanturu, Kanturu Island', qty: 2, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/189/body/LFCyTjabmU_1pUJ8SGJ3j.gif' },
+        { id: 'g-kentauros',    name: 'Golden Kentauros',     map: 'Kanturu, Kanturu Island', qty: 1, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/121/body/OURA3JmlKzBQ5zdNYHFZy.gif' },
+        { id: 'g-gigantis',     name: 'Golden Gigantis',      map: 'Kanturu, Kanturu Island', qty: 1, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/190/body/qOBEIn2d81sYw069IYjLM.gif' },
+        { id: 'g-genocider',    name: 'Golden Genocider',     map: 'Kanturu, Kanturu Island', qty: 1, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/191/body/bNlqVNwnnj4uGZeAIi5j5.gif' },
+        // Multi-map / Special
+        { id: 'g-derkon',       name: 'Golden Derkon',        map: 'Crimson Icarus, Tarkan 1-2, Aida 1-2', qty: 6, color: '#f5a623', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/135/body/sT2bRr2upr-SX8Q8sZZo4.gif', note: '2 por localização' },
+        { id: 'g-greatdragon',  name: 'Great Golden Dragon',  map: 'Shadow Abyss',  qty: 1, color: '#ff8800', img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/124/body/9JWBOWm4PENjYWuTBfHTa.gif', note: 'RARO · Drop especial 4x' }
     ]
 };
