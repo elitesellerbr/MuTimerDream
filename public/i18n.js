@@ -344,6 +344,10 @@ const TRANSLATIONS = {
         wishlistLoginRequired: 'Faça login para usar a Wishlist.',
         wishlistAddItem: 'Adicionar item para vigiar',
         wishlistNotifTitle: 'Como você quer ser avisado?',
+        disclaimerNotAffiliated: '⚠️ MU Timer Dream NÃO é afiliado com nenhum servidor de MU Online (incluindo MuDream)',
+        disclaimerNoCredentials: '🔒 Nunca pedimos suas credenciais do MU',
+        disclaimerFanProject: '💙 Projeto fã independente, feito pra ajudar a comunidade',
+        appDisclaimer: 'MU Timer Dream NÃO é afiliado com nenhum servidor de MU Online. Nunca pedimos suas credenciais.',
     },
     en: {
         enterSystem: 'SIGN IN / SIGN UP',
@@ -690,6 +694,10 @@ const TRANSLATIONS = {
         wishlistLoginRequired: 'Log in to use the Wishlist.',
         wishlistAddItem: 'Add item to watch',
         wishlistNotifTitle: 'How do you want to be notified?',
+        disclaimerNotAffiliated: '⚠️ MU Timer Dream is NOT affiliated with any MU Online server (including MuDream)',
+        disclaimerNoCredentials: '🔒 We never ask for your MU credentials',
+        disclaimerFanProject: '💙 Independent fan project, built to help the community',
+        appDisclaimer: 'MU Timer Dream is NOT affiliated with any MU Online server. We never ask for your credentials.',
     }
 };
 
