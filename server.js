@@ -370,6 +370,163 @@ app.delete('/api/user/alarm-sound', authMiddleware, async (req, res) => {
     res.json({ ok: true });
 });
 
+// ==================== WISHLIST ROUTES ====================
+// Tables required in Supabase:
+//   user_wishlist (id uuid PK, user_id int FK users, server text, item_name text,
+//                  category text, rarity text, min_level int, max_price_zen bigint,
+//                  options text[], last_match_at timestamptz, created_at timestamptz)
+//   user_notification_channels (user_id int PK FK users, push bool, email bool,
+//                  whatsapp bool, email_address text, phone text)
+
+app.get('/api/wishlist', authMiddleware, async (req, res) => {
+    try {
+        const [{ data: items }, { data: ch }] = await Promise.all([
+            supabase.from('user_wishlist').select('*').eq('user_id', req.user.id).order('created_at', { ascending: false }),
+            supabase.from('user_notification_channels').select('*').eq('user_id', req.user.id).maybeSingle()
+        ]);
+        res.json({
+            items: (items || []).map(r => ({
+                id: r.id, server: r.server, itemName: r.item_name,
+                category: r.category, rarity: r.rarity, minLevel: r.min_level,
+                maxPriceZen: r.max_price_zen, options: r.options || [],
+                lastMatchAt: r.last_match_at
+            })),
+            channels: ch ? {
+                push: ch.push, email: ch.email, whatsapp: ch.whatsapp,
+                emailAddress: ch.email_address, phone: ch.phone
+            } : null
+        });
+    } catch (e) {
+        res.status(500).json({ error: 'Failed to load wishlist' });
+    }
+});
+
+app.post('/api/wishlist', authMiddleware, async (req, res) => {
+    const { server, itemName, category, rarity, minLevel, maxPriceZen, options } = req.body || {};
+    if (!server) return res.status(400).json({ error: 'server required' });
+    try {
+        const { data, error } = await supabase.from('user_wishlist').insert({
+            user_id: req.user.id,
+            server,
+            item_name: itemName || null,
+            category: category || null,
+            rarity: rarity || null,
+            min_level: minLevel || 0,
+            max_price_zen: maxPriceZen || null,
+            options: options || []
+        }).select().single();
+        if (error) throw error;
+        res.json({
+            item: {
+                id: data.id, server: data.server, itemName: data.item_name,
+                category: data.category, rarity: data.rarity, minLevel: data.min_level,
+                maxPriceZen: data.max_price_zen, options: data.options || []
+            }
+        });
+    } catch (e) {
+        res.status(500).json({ error: 'Insert failed' });
+    }
+});
+
+app.delete('/api/wishlist/:id', authMiddleware, async (req, res) => {
+    try {
+        await supabase.from('user_wishlist').delete()
+            .eq('id', req.params.id)
+            .eq('user_id', req.user.id);
+        res.json({ ok: true });
+    } catch (e) {
+        res.status(500).json({ error: 'Delete failed' });
+    }
+});
+
+app.post('/api/wishlist/channels', authMiddleware, async (req, res) => {
+    const { push, email, whatsapp, emailAddress, phone } = req.body || {};
+    try {
+        await supabase.from('user_notification_channels').upsert({
+            user_id: req.user.id,
+            push: !!push,
+            email: !!email,
+            whatsapp: !!whatsapp,
+            email_address: emailAddress || null,
+            phone: phone || null
+        });
+        res.json({ ok: true });
+    } catch (e) {
+        res.status(500).json({ error: 'Save failed' });
+    }
+});
+
+app.post('/api/wishlist/matches', authMiddleware, async (req, res) => {
+    const { matches } = req.body || {};
+    if (!Array.isArray(matches) || matches.length === 0) return res.json({ ok: true });
+    try {
+        // Update last_match_at for matched wishlist items
+        const now = new Date().toISOString();
+        for (const m of matches) {
+            await supabase.from('user_wishlist')
+                .update({ last_match_at: now })
+                .eq('id', m.wishlistId)
+                .eq('user_id', req.user.id);
+        }
+        // Fetch user's notification preferences
+        const { data: ch } = await supabase.from('user_notification_channels')
+            .select('*').eq('user_id', req.user.id).maybeSingle();
+        // Dispatch email/whatsapp if configured (push is handled client-side)
+        if (ch?.email && ch.email_address) {
+            await sendWishlistEmail(ch.email_address, matches).catch(() => {});
+        }
+        if (ch?.whatsapp && ch.phone) {
+            await sendWishlistWhatsApp(ch.phone, matches).catch(() => {});
+        }
+        res.json({ ok: true, dispatched: matches.length });
+    } catch (e) {
+        res.status(500).json({ error: 'Match save failed' });
+    }
+});
+
+// Email dispatch (uses Resend if RESEND_API_KEY env var set, otherwise no-op)
+async function sendWishlistEmail(to, matches) {
+    if (!process.env.RESEND_API_KEY) return;
+    const lines = matches.map(m => `<li>🛒 <strong>${m.itemName}</strong> apareceu no mercado</li>`).join('');
+    const html = `<h2>🎯 Item da sua wishlist apareceu no MU Dream!</h2><ul>${lines}</ul><p><a href="https://mudream.online/pt/market">Ver no mercado →</a></p>`;
+    await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            from: 'MU Timer Dream <wishlist@mu-timer-dream.vercel.app>',
+            to: [to],
+            subject: '🛒 Item da sua wishlist apareceu!',
+            html
+        })
+    });
+}
+
+// WhatsApp dispatch (uses Twilio if TWILIO_* env vars set, otherwise no-op)
+async function sendWishlistWhatsApp(phone, matches) {
+    const sid = process.env.TWILIO_ACCOUNT_SID;
+    const token = process.env.TWILIO_AUTH_TOKEN;
+    const from = process.env.TWILIO_WHATSAPP_FROM; // e.g. 'whatsapp:+14155238886'
+    if (!sid || !token || !from) return;
+    const body = `🛒 MU Timer Dream\n\nItens da sua wishlist no mercado:\n${matches.map(m => `• ${m.itemName}`).join('\n')}\n\nVer: https://mudream.online/pt/market`;
+    const auth = Buffer.from(`${sid}:${token}`).toString('base64');
+    const params = new URLSearchParams({
+        From: from,
+        To: phone.startsWith('whatsapp:') ? phone : `whatsapp:${phone}`,
+        Body: body
+    });
+    await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Basic ${auth}`,
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: params.toString()
+    });
+}
+
 // ==================== ADMIN ROUTES ====================
 
 app.get('/api/admin/users', authMiddleware, adminMiddleware, async (req, res) => {

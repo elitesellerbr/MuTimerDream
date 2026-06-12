@@ -339,6 +339,11 @@ const TRANSLATIONS = {
         // BC Crystal UI
         bcCrystalGot: '💎 Cristal pego! Entregue em',
         bcCrystalGotBtn: '💎 Peguei o Cristal',
+        tabWishlist: '🛒 Wishlist',
+        wishlistTitle: '🛒 Wishlist do Mercado',
+        wishlistLoginRequired: 'Faça login para usar a Wishlist.',
+        wishlistAddItem: 'Adicionar item para vigiar',
+        wishlistNotifTitle: 'Como você quer ser avisado?',
     },
     en: {
         enterSystem: 'SIGN IN / SIGN UP',
@@ -680,6 +685,11 @@ const TRANSLATIONS = {
         // BC Crystal UI
         bcCrystalGot: '💎 Crystal taken! Deliver in',
         bcCrystalGotBtn: '💎 Got the Crystal',
+        tabWishlist: '🛒 Wishlist',
+        wishlistTitle: '🛒 Market Wishlist',
+        wishlistLoginRequired: 'Log in to use the Wishlist.',
+        wishlistAddItem: 'Add item to watch',
+        wishlistNotifTitle: 'How do you want to be notified?',
     }
 };
 

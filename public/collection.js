@@ -189,6 +189,7 @@ function renderCollection(container) {
             <button class="collection-filter ${collectionFilter === 'all' ? 'active' : ''}" data-cf="all">${t('collectionAll')}</button>
             <button class="collection-filter ${collectionFilter === 'obtained' ? 'active' : ''}" data-cf="obtained">✅ ${t('collectionObtained')} (${obtained})</button>
             <button class="collection-filter ${collectionFilter === 'missing' ? 'active' : ''}" data-cf="missing">❌ ${t('collectionMissing')} (${totalItems - obtained})</button>
+            ${!readOnly && (totalItems - obtained) > 0 ? `<button class="collection-filter" id="btnWatchMissing" style="background:linear-gradient(135deg,#f5a623,#ff8800);color:#fff;border-color:transparent">🔔 Vigiar ${totalItems - obtained} faltando no mercado</button>` : ''}
         </div>
 
         <div class="collection-categories" id="collectionCats">
@@ -220,9 +221,31 @@ function renderCollection(container) {
 
     container.querySelectorAll('.collection-filter').forEach(btn => {
         btn.addEventListener('click', () => {
+            if (btn.id === 'btnWatchMissing') return; // handled below
             collectionFilter = btn.dataset.cf;
             renderCollection(container);
         });
+    });
+
+    // Watch missing items: bulk-add to wishlist
+    document.getElementById('btnWatchMissing')?.addEventListener('click', async () => {
+        const missing = EXC_ITEMS_DATA.items.filter(i => !collectionItems.has(i.id));
+        if (missing.length === 0) return;
+        if (!confirm(`Adicionar ${missing.length} itens faltando à sua Wishlist do mercado RAMPAGE X-20?`)) return;
+        const server = localStorage.getItem('mudream_wishlist_server') || 'rampage-x20';
+        let added = 0;
+        for (const it of missing) {
+            try {
+                await fetch('/api/wishlist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ server, itemName: it.name, category: null, options: [] })
+                });
+                added++;
+            } catch {}
+        }
+        showToast(`🛒 ${added} itens adicionados à Wishlist!`, 'success', 5000);
     });
 
     const searchInput = document.getElementById('collectionSearch');
