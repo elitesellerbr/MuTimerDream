@@ -5103,3 +5103,16 @@ input[type="checkbox"] {
     margin-top: 8px;
     line-height: 1.5;
 }
+
+
+/* ==================== BODY LOCK WHEN MODAL OPEN ==================== */
+body.modal-locked {
+    overflow: hidden;
+    /* Prevent any interaction with content behind */
+    touch-action: none;
+}
+body.modal-locked #app,
+body.modal-locked #landingPage {
+    pointer-events: none;
+    user-select: none;
+}

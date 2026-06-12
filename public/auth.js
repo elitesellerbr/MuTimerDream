@@ -79,30 +79,38 @@ async function checkSession() {
 function initAuth() {
     const modal = document.getElementById('authModal');
 
-    document.getElementById('btnAuth').addEventListener('click', () => {
+    function openAuthModal() {
         modal.style.display = 'flex';
-    });
+        document.body.classList.add('modal-locked');
+    }
+    function closeAuthModal(forceLanding = false) {
+        modal.style.display = 'none';
+        modal.dataset.required = '';
+        document.body.classList.remove('modal-locked');
+        if (forceLanding) goToLanding();
+    }
+    // expose for other modules
+    window.openAuthModal = openAuthModal;
+    window.closeAuthModal = closeAuthModal;
+
+    document.getElementById('btnAuth').addEventListener('click', openAuthModal);
 
     document.getElementById('closeAuth').addEventListener('click', () => {
-        if (modal.dataset.required === 'true' && !currentUser) {
-            // User must login — go back to landing
-            modal.style.display = 'none';
-            modal.dataset.required = '';
-            goToLanding();
-            return;
-        }
-        modal.style.display = 'none';
+        // If logged in, just close; otherwise force back to landing (app is shielded)
+        closeAuthModal(!currentUser);
     });
 
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
-            if (modal.dataset.required === 'true' && !currentUser) {
-                modal.style.display = 'none';
-                modal.dataset.required = '';
-                goToLanding();
-                return;
-            }
-            modal.style.display = 'none';
+            closeAuthModal(!currentUser);
+        }
+    });
+
+    // Block Escape key from closing modal silently when login is required
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.style.display === 'flex' && !currentUser) {
+            e.preventDefault();
+            closeAuthModal(true);
         }
     });
 
@@ -886,21 +894,22 @@ function showGrantPremiumModal(userId) {
     const overlay = document.createElement('div');
     overlay.className = 'confirm-overlay';
     overlay.innerHTML = `
-        <div class="confirm-box" style="max-width:420px; text-align:left;">
+        <div class="confirm-box" style="max-width:460px; text-align:left;">
             <div class="confirm-icon" style="text-align:center;">👑</div>
             <div class="confirm-msg" style="text-align:center; margin-bottom:16px;">${t('adminGrantPremium')}</div>
             <div style="margin-bottom:12px;">
                 <label style="font-size:13px; color:var(--text-secondary); display:block; margin-bottom:4px;">${t('adminPremiumPlan')}</label>
                 <select id="grantPlan" style="width:100%; padding:8px 12px; border-radius:8px; background:var(--bg-card); border:1px solid var(--border); color:var(--text-primary); font-size:14px;">
-                    <option value="year">${t('limitPlanYear')} — €10 / R$59,90</option>
-                    <option value="month">${t('limitPlanMonth')} — €3 / R$10</option>
+                    <option value="starter">🟦 STARTER — €1 / R$10 — 10 dias</option>
+                    <option value="premium" selected>⭐ PREMIUM — €3 / R$20 — 30 dias</option>
+                    <option value="full">💎 FULL ACCESS — €5 / R$30 — 30 dias</option>
                 </select>
             </div>
             <div style="margin-bottom:12px;">
                 <label style="font-size:13px; color:var(--text-secondary); display:block; margin-bottom:4px;">${t('adminPremiumCurrency')}</label>
                 <select id="grantCurrency" style="width:100%; padding:8px 12px; border-radius:8px; background:var(--bg-card); border:1px solid var(--border); color:var(--text-primary); font-size:14px;">
                     <option value="EUR">EUR (€)</option>
-                    <option value="BRL">BRL (R$)</option>
+                    <option value="BRL" selected>BRL (R$)</option>
                 </select>
             </div>
             <div style="margin-bottom:16px;">
@@ -915,7 +924,11 @@ function showGrantPremiumModal(userId) {
     `;
     document.body.appendChild(overlay);
 
-    const priceMap = { year: { EUR: 10, BRL: 59.90 }, month: { EUR: 3, BRL: 10 } };
+    const priceMap = {
+        starter: { EUR: 1, BRL: 10 },
+        premium: { EUR: 3, BRL: 20 },
+        full:    { EUR: 5, BRL: 30 }
+    };
 
     overlay.querySelector('#grantCancel').addEventListener('click', () => overlay.remove());
     overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });

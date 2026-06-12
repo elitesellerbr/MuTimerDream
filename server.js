@@ -621,10 +621,17 @@ app.post('/api/admin/users/:id/premium', authMiddleware, adminMiddleware, async 
 
     const now = new Date();
     let premiumUntil;
-    if (plan === 'year') {
+    if (plan === 'starter') {
+        // 10 days
+        premiumUntil = new Date(now.getTime() + 10 * 24 * 60 * 60 * 1000);
+    } else if (plan === 'premium' || plan === 'full' || plan === 'month') {
+        // 30 days
+        premiumUntil = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+    } else if (plan === 'year') {
+        // 365 days (legacy)
         premiumUntil = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
     } else {
-        premiumUntil = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+        return res.status(400).json({ error: 'Plano inválido' });
     }
 
     await supabase.from('payments').insert({
