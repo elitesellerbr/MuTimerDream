@@ -170,8 +170,39 @@ function renderCollection(container) {
         ? `<button class="btn-sm collection-share-btn" id="btnShareCollection">📤 ${t('collectionShare')}</button>`
         : '';
 
+    // Inline findings preview (items the wishlist scraper found)
+    let findingsPreview = '';
+    if (!readOnly && typeof getStoredFindings === 'function') {
+        const found = getStoredFindings().slice(0, 4);
+        if (found.length > 0) {
+            findingsPreview = `
+                <div class="wl-findings-panel" style="margin-bottom:14px">
+                    <div class="wl-findings-header">
+                        <div class="wl-findings-title">✨ Itens da coleção achados no mercado <span class="wl-findings-count">${getStoredFindings().length}</span></div>
+                        <a href="#" class="btn-sm" id="btnGoToWishlist">Ver todos →</a>
+                    </div>
+                    <div class="wl-findings-grid">
+                        ${found.map(f => `
+                            <div class="wl-finding-card">
+                                <div class="wl-finding-img"><img src="${f.imgSrc}" alt="${f.itemName}" loading="lazy"></div>
+                                <div class="wl-finding-body">
+                                    <div class="wl-finding-name">${f.itemName}</div>
+                                    ${f.price ? `<div class="wl-finding-price">💰 ${f.price}</div>` : ''}
+                                </div>
+                                <div class="wl-finding-actions">
+                                    <a class="wl-finding-btn wl-finding-btn-primary" href="${f.detailUrl}" target="_blank" rel="noopener">🛒 Abrir ↗</a>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+    }
+
     container.innerHTML = `
         ${viewingHeader}
+        ${findingsPreview}
         <div class="collection-header">
             <div class="collection-progress">
                 <div class="collection-progress-bar">
@@ -225,6 +256,12 @@ function renderCollection(container) {
             collectionFilter = btn.dataset.cf;
             renderCollection(container);
         });
+    });
+
+    // "Ver todos →" → switch to wishlist tab
+    document.getElementById('btnGoToWishlist')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('tabWishlist')?.click();
     });
 
     // Watch missing items: bulk-add to wishlist

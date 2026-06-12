@@ -5183,3 +5183,123 @@ body.modal-locked #landingPage {
     0%, 100% { opacity: 1; }
     50%      { opacity: 0.6; }
 }
+
+
+/* ==================== WISHLIST FINDINGS PANEL ==================== */
+.wl-findings-panel {
+    background: linear-gradient(135deg, rgba(52, 211, 153, 0.08), rgba(102, 187, 106, 0.04));
+    border: 1px solid rgba(102, 187, 106, 0.35);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 16px;
+}
+.wl-findings-header {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; flex-wrap: wrap; margin-bottom: 12px;
+}
+.wl-findings-title {
+    color: #66bb6a; font-weight: 800; font-size: 15px;
+}
+.wl-findings-count {
+    background: #66bb6a; color: #fff; font-size: 11px;
+    padding: 2px 8px; border-radius: 10px; margin-left: 6px;
+}
+.wl-findings-actions { display: flex; gap: 6px; }
+.wl-findings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+}
+.wl-finding-card {
+    background: rgba(15, 22, 42, 0.6);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 10px;
+    display: flex; flex-direction: column;
+    transition: transform 0.15s, border-color 0.15s;
+}
+.wl-finding-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(102, 187, 106, 0.4);
+}
+.wl-finding-img {
+    width: 100%;
+    height: 80px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    overflow: hidden;
+}
+.wl-finding-img img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.wl-finding-body { flex: 1; min-height: 0; }
+.wl-finding-name {
+    color: #fff; font-weight: 700; font-size: 13px;
+    margin-bottom: 4px;
+    overflow: hidden; text-overflow: ellipsis;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+.wl-finding-opts { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 4px; }
+.wl-finding-chip {
+    background: linear-gradient(135deg, #4fc3f7, #1a6fa0);
+    color: #fff; font-size: 9px; font-weight: 700;
+    padding: 1px 6px; border-radius: 8px;
+}
+.wl-finding-price {
+    color: #f5a623; font-weight: 700; font-size: 12px; margin-bottom: 4px;
+}
+.wl-finding-time { color: rgba(255,255,255,0.5); font-size: 10px; }
+.wl-finding-actions {
+    display: flex; gap: 4px; margin-top: 8px;
+}
+.wl-finding-btn {
+    flex: 1;
+    border: none;
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 11px; font-weight: 700;
+    cursor: pointer; text-align: center;
+    text-decoration: none;
+    transition: all 0.15s;
+}
+.wl-finding-btn-primary {
+    background: linear-gradient(135deg, #f5a623, #ff6600);
+    color: #fff;
+}
+.wl-finding-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(245, 166, 35, 0.4); }
+.wl-finding-btn-secondary {
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.8);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.wl-finding-btn-secondary:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+/* Quickview iframe modal */
+.quickview-modal {
+    max-width: 95vw !important;
+    width: 95vw;
+    max-height: 92vh !important;
+    height: 92vh;
+    display: flex; flex-direction: column;
+}
+.quickview-actions { display: flex; gap: 6px; align-items: center; }
+.quickview-frame-wrap {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    border-radius: 0 0 14px 14px;
+}
+.quickview-frame {
+    width: 100%; height: 100%; border: 0; background: #0a1020;
+}
+.quickview-fallback {
+    display: none;
+    position: absolute; inset: 0;
+    background: rgba(10, 16, 32, 0.95);
+    color: #fff;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 24px;
+    font-size: 14px;
+    flex-direction: column;
+}

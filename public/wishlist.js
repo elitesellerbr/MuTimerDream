@@ -101,7 +101,39 @@ function renderWishlist() {
     const isPwaInstalled = window.matchMedia('(display-mode: standalone)').matches;
     const pushPermission = (typeof Notification !== 'undefined') ? Notification.permission : 'denied';
 
+    const findings = getStoredFindings();
+    const findingsHtml = findings.length === 0 ? '' : `
+        <div class="wl-findings-panel">
+            <div class="wl-findings-header">
+                <div class="wl-findings-title">✨ Encontrados no mercado <span class="wl-findings-count">${findings.length}</span></div>
+                <div class="wl-findings-actions">
+                    <button class="btn-sm" id="wlScanNow">🔄 Escanear agora</button>
+                    <button class="btn-sm btn-danger" id="wlClearFindings">🗑️ Limpar</button>
+                </div>
+            </div>
+            <div class="wl-findings-grid">
+                ${findings.slice(0, 12).map(f => `
+                    <div class="wl-finding-card">
+                        <div class="wl-finding-img"><img src="${f.imgSrc}" alt="${escapeHtml(f.itemName)}" loading="lazy"></div>
+                        <div class="wl-finding-body">
+                            <div class="wl-finding-name">${escapeHtml(f.itemName)}</div>
+                            ${(f.options || []).length ? `<div class="wl-finding-opts">${f.options.map(o => `<span class="wl-finding-chip">${o}</span>`).join('')}</div>` : ''}
+                            ${f.price ? `<div class="wl-finding-price">💰 ${escapeHtml(f.price)}</div>` : ''}
+                            <div class="wl-finding-time">${timeAgo(f.foundAt)}</div>
+                        </div>
+                        <div class="wl-finding-actions">
+                            <a class="wl-finding-btn wl-finding-btn-primary" href="${f.detailUrl}" target="_blank" rel="noopener">🛒 Abrir no mercado ↗</a>
+                            <button class="wl-finding-btn wl-finding-btn-secondary" data-quickview="${f.detailUrl}">👁️ Ver aqui</button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+
     container.innerHTML = `
+        ${findingsHtml}
+
         <!-- Jewel calculators -->
         <div class="calc-grid">
             <div class="calc-card">
@@ -299,7 +331,70 @@ function updateCalculators() {
     }
 }
 
+function openQuickView(url) {
+    const safeUrl = url || 'https://mudream.online/pt/market';
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = `
+        <div class="modal quickview-modal">
+            <div class="modal-header">
+                <h3>🛒 Mercado MU Dream</h3>
+                <div class="quickview-actions">
+                    <a class="btn-sm" href="${safeUrl}" target="_blank" rel="noopener">↗ Abrir no Chrome</a>
+                    <button class="modal-close" type="button" aria-label="Fechar">✕</button>
+                </div>
+            </div>
+            <div class="quickview-frame-wrap">
+                <iframe src="${safeUrl}" class="quickview-frame" sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
+                <div class="quickview-fallback">
+                    ⚠️ Esse site bloqueia visualização embutida (Cloudflare/X-Frame).
+                    <br><br>
+                    <a class="btn-primary" href="${safeUrl}" target="_blank" rel="noopener" style="display:inline-block;padding:10px 16px;border-radius:8px;text-decoration:none;color:#fff;background:linear-gradient(135deg,#f5a623,#ff6600)">🛒 Abrir no Chrome →</a>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+    const close = () => overlay.remove();
+    overlay.querySelector('.modal-close').addEventListener('click', close);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+    // Detect iframe load failure (X-Frame-Options block) and show fallback
+    const iframe = overlay.querySelector('.quickview-frame');
+    const fallback = overlay.querySelector('.quickview-fallback');
+    let loaded = false;
+    iframe.addEventListener('load', () => {
+        loaded = true;
+        try {
+            // If we can read .location we know it loaded, otherwise it might be blocked
+            iframe.contentWindow.location.href;
+        } catch {
+            // Cross-origin frame loaded fine — keep iframe visible
+        }
+    });
+    // If iframe never fires load within 4s, show fallback
+    setTimeout(() => {
+        if (!loaded) {
+            iframe.style.display = 'none';
+            fallback.style.display = 'flex';
+        }
+    }, 4000);
+}
+
 function wireWishlistEvents(container) {
+    // Findings panel actions
+    document.getElementById('wlScanNow')?.addEventListener('click', () => {
+        showToast('🔍 Escaneando mercado...', 'info', 2000);
+        checkMarketForWishlist();
+    });
+    document.getElementById('wlClearFindings')?.addEventListener('click', () => {
+        if (!confirm('Limpar todos os itens encontrados?')) return;
+        clearStoredFindings();
+        renderWishlist();
+    });
+    container.querySelectorAll('[data-quickview]').forEach(btn => {
+        btn.addEventListener('click', () => openQuickView(btn.dataset.quickview));
+    });
+
     // Calculators
     ['calcJewelDcQty', 'calcJewelDcType', 'calcJewelZenQty', 'calcJewelZenType'].forEach(id => {
         const el = document.getElementById(id);
@@ -423,6 +518,9 @@ async function checkMarketForWishlist() {
             body: JSON.stringify({ matches })
         });
 
+        // Persist findings locally so the panel survives refreshes
+        storeFindings(matches);
+
         // Local notification & update UI
         matches.forEach(m => {
             const wi = wishlistItems.find(i => i.id === m.wishlistId);
@@ -441,25 +539,80 @@ async function checkMarketForWishlist() {
 function parseMarketHtml(html, wishlistItems) {
     const matches = [];
     const doc = new DOMParser().parseFromString(html, 'text/html');
-    // MU Dream uses <img alt="item name +N (xQ)">; price shown as ZEN/DC
-    const cards = doc.querySelectorAll('img[alt]');
-    for (const img of cards) {
-        const name = (img.alt || '').toLowerCase();
-        if (!name || /menu|logo|servers/i.test(img.src)) continue;
+    // Item cards in MU Dream usually wrap an <img> inside an <a> or button.
+    // Walk every meaningful <img> and try to extract context.
+    const imgs = doc.querySelectorAll('img[alt]');
+    for (const img of imgs) {
+        const name = (img.alt || '').trim();
+        const nameLower = name.toLowerCase();
+        if (!name || /menu|logo|servers|favicon/i.test(img.src)) continue;
+        if (!/items_seasons|item/i.test(img.src)) continue;
+
+        // climb up to the card container to read price / options
+        let card = img.closest('[class*="card"], [class*="item"], li, article, div');
+        // stop climbing if we'd reach <body>
+        if (!card || card.tagName === 'BODY') card = img.parentElement;
+        const cardText = (card?.textContent || '').replace(/\s+/g, ' ').trim();
+
+        // Extract price tokens (look for ZEN xxkk, DC xx, etc.)
+        const priceMatch = cardText.match(/(?:ZEN|DC|R\$|kk)\s*[\d.,]+|[\d.,]+\s*(?:kk|DC|ZEN)/i);
+        const price = priceMatch ? priceMatch[0] : null;
+
+        // Extract option chips (LUCK/MH/SD/DD/REF/DSR/ZEN/EXE/etc.)
+        const optChips = Array.from(cardText.matchAll(/\b(LUCK|MH|SD|DD|REF|DSR|ZEN|EXE|ANC|SOC|DMG|DMGL|ASPD|RHP|RMP)\b/g))
+            .map(m => m[1])
+            .filter((v, i, a) => a.indexOf(v) === i)
+            .slice(0, 6);
+
+        // Try to find an anchor (deep link to item)
+        const a = card?.closest('a') || card?.querySelector('a[href]');
+        const href = a?.getAttribute('href');
+        const detailUrl = href ? new URL(href, 'https://mudream.online').toString() : 'https://mudream.online/pt/market';
+
         for (const wi of wishlistItems) {
             const target = (wi.itemName || '').toLowerCase().trim();
-            if (target && !name.includes(target)) continue;
-            // Match!
+            if (target && !nameLower.includes(target)) continue;
+            // require at least one of requested options if user marked any
+            if ((wi.options || []).length > 0) {
+                const hasAny = wi.options.some(opt => optChips.includes(opt));
+                if (!hasAny) continue;
+            }
             matches.push({
                 wishlistId: wi.id,
-                itemName: img.alt,
+                itemName: name,
                 imgSrc: img.src,
+                price,
+                options: optChips,
+                detailUrl,
                 foundAt: new Date().toISOString()
             });
             break;
         }
     }
     return matches;
+}
+
+// Recent findings persist locally so the user always sees what was found
+function getStoredFindings() {
+    try { return JSON.parse(localStorage.getItem('mudream_wl_findings') || '[]'); } catch { return []; }
+}
+function storeFindings(matches) {
+    const existing = getStoredFindings();
+    // Prepend new ones, keep most recent 50, dedupe by (wishlistId + itemName + price)
+    const merged = [...matches.map(m => ({ ...m })), ...existing];
+    const seen = new Set();
+    const dedup = [];
+    for (const m of merged) {
+        const key = `${m.wishlistId}|${m.itemName}|${m.price || ''}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        dedup.push(m);
+        if (dedup.length >= 50) break;
+    }
+    localStorage.setItem('mudream_wl_findings', JSON.stringify(dedup));
+}
+function clearStoredFindings() {
+    localStorage.removeItem('mudream_wl_findings');
 }
 
 function startWishlistMarketChecker() {
