@@ -16,6 +16,16 @@ function initDonate() {
         if (typeof showPricingModal === 'function') showPricingModal();
     });
 
+    // Copy donation proof email
+    document.getElementById('btnCopyDonateEmail')?.addEventListener('click', async () => {
+        try {
+            await navigator.clipboard.writeText('elitesellerbr@gmail.com');
+            showToast('📋 Email copiado!', 'success', 2500);
+        } catch {
+            showToast('⚠️ Não foi possível copiar', 'warning');
+        }
+    });
+
     document.getElementById('closeDonate').addEventListener('click', () => {
         modal.style.display = 'none';
     });
