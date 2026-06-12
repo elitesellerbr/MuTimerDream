@@ -1,6 +1,7 @@
 let collectionItems = new Set();
 let collectionAdds = {}; // { itemId: ['luck', 'skill', ...] }
-let collectionFilter = 'all';
+// Default: hide obtained items (they're "archived" under the Obtained tab)
+let collectionFilter = localStorage.getItem('mudream_col_filter') || 'missing';
 let viewingOther = null;
 let viewingGuildMember = null;
 
@@ -254,6 +255,7 @@ function renderCollection(container) {
         btn.addEventListener('click', () => {
             if (btn.id === 'btnWatchMissing') return; // handled below
             collectionFilter = btn.dataset.cf;
+            localStorage.setItem('mudream_col_filter', collectionFilter);
             renderCollection(container);
         });
     });
@@ -426,6 +428,7 @@ function bindCollectionItemClicks(container) {
         if (e.target.closest('.btn-adds') || e.target.closest('.btn-remove-item')) return;
 
         const itemId = item.dataset.item;
+        const wasObtained = collectionItems.has(itemId);
         try {
             const res = await fetch('/api/collection/toggle', {
                 method: 'POST',
@@ -439,7 +442,24 @@ function bindCollectionItemClicks(container) {
             } else {
                 collectionItems.delete(itemId);
             }
-            renderCollection(container);
+
+            // Archive animation: fade & slide out when the item leaves the current filter view
+            const itemName = EXC_ITEMS_DATA.items.find(i => i.id === itemId)?.name || 'Item';
+            const becameObtainedAndHidden = !wasObtained && data.obtained && collectionFilter === 'missing';
+            const becameMissingAndHidden = wasObtained && !data.obtained && collectionFilter === 'obtained';
+
+            if (becameObtainedAndHidden || becameMissingAndHidden) {
+                item.classList.add('item-archiving');
+                if (typeof showToast === 'function') {
+                    const msg = data.obtained
+                        ? `✅ ${itemName} arquivado em Obtidos`
+                        : `↩️ ${itemName} voltou para Faltando`;
+                    showToast(msg, 'success', 2500);
+                }
+                setTimeout(() => renderCollection(container), 380);
+            } else {
+                renderCollection(container);
+            }
         } catch {}
     });
 }
