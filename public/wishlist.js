@@ -101,6 +101,44 @@ function renderWishlist() {
     const pushPermission = (typeof Notification !== 'undefined') ? Notification.permission : 'denied';
 
     container.innerHTML = `
+        <!-- Jewel calculators -->
+        <div class="calc-grid">
+            <div class="calc-card">
+                <h4>💎 Jewel → DC</h4>
+                <div class="calc-row">
+                    <input type="number" id="calcJewelDcQty" placeholder="Qtd de Jewels" min="1" value="1">
+                    <select id="calcJewelDcType" class="admin-input" style="max-width:140px">
+                        <option value="bless">Jewel of Bless</option>
+                        <option value="soul">Jewel of Soul</option>
+                        <option value="chaos">Jewel of Chaos</option>
+                        <option value="creation">Jewel of Creation</option>
+                        <option value="life">Jewel of Life</option>
+                        <option value="harmony">Jewel of Harmony</option>
+                        <option value="guardian">Jewel of Guardian</option>
+                    </select>
+                </div>
+                <div class="calc-result" id="calcJewelDcResult">≈ 0 DC</div>
+                <p class="calc-note">Cotações estimadas — preço real varia conforme oferta no mercado.</p>
+            </div>
+            <div class="calc-card">
+                <h4>💰 Jewel → ZEN</h4>
+                <div class="calc-row">
+                    <input type="number" id="calcJewelZenQty" placeholder="Qtd de Jewels" min="1" value="1">
+                    <select id="calcJewelZenType" class="admin-input" style="max-width:140px">
+                        <option value="bless">Jewel of Bless</option>
+                        <option value="soul">Jewel of Soul</option>
+                        <option value="chaos">Jewel of Chaos</option>
+                        <option value="creation">Jewel of Creation</option>
+                        <option value="life">Jewel of Life</option>
+                        <option value="harmony">Jewel of Harmony</option>
+                        <option value="guardian">Jewel of Guardian</option>
+                    </select>
+                </div>
+                <div class="calc-result" id="calcJewelZenResult">≈ 0 ZEN</div>
+                <p class="calc-note">Cotações em kk (milhões). Atualizadas conforme o mercado.</p>
+            </div>
+        </div>
+
         <!-- Server selector -->
         <div class="wishlist-server-selector">
             ${WISHLIST_SERVERS.map(s => `
@@ -234,7 +272,41 @@ function timeAgo(iso) {
     return `há ${Math.floor(h / 24)}d`;
 }
 
+// Jewel exchange rates (approximated to mudream current market)
+const JEWEL_RATES = {
+    bless:    { dc: 1.5, zen: 25 },
+    soul:     { dc: 1.2, zen: 20 },
+    chaos:    { dc: 3.0, zen: 50 },
+    creation: { dc: 2.0, zen: 30 },
+    life:     { dc: 2.5, zen: 40 },
+    harmony:  { dc: 5.0, zen: 80 },
+    guardian: { dc: 8.0, zen: 120 }
+};
+
+function updateCalculators() {
+    const dcQty  = parseInt(document.getElementById('calcJewelDcQty')?.value) || 0;
+    const dcType = document.getElementById('calcJewelDcType')?.value;
+    const zenQty  = parseInt(document.getElementById('calcJewelZenQty')?.value) || 0;
+    const zenType = document.getElementById('calcJewelZenType')?.value;
+    if (dcType && JEWEL_RATES[dcType]) {
+        const dcVal = (dcQty * JEWEL_RATES[dcType].dc).toFixed(1);
+        document.getElementById('calcJewelDcResult').textContent = `≈ ${dcVal} DC`;
+    }
+    if (zenType && JEWEL_RATES[zenType]) {
+        const zenVal = (zenQty * JEWEL_RATES[zenType].zen).toFixed(0);
+        document.getElementById('calcJewelZenResult').textContent = `≈ ${zenVal}kk ZEN`;
+    }
+}
+
 function wireWishlistEvents(container) {
+    // Calculators
+    ['calcJewelDcQty', 'calcJewelDcType', 'calcJewelZenQty', 'calcJewelZenType'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', updateCalculators);
+        if (el) el.addEventListener('change', updateCalculators);
+    });
+    updateCalculators();
+
     // Server selector
     container.querySelectorAll('.wishlist-server-btn').forEach(btn => {
         btn.addEventListener('click', () => {

@@ -951,7 +951,186 @@ async function revokePremium(userId) {
 
 // ==================== PREMIUM / LIMIT REACHED ====================
 
+// New muhub-inspired 3-tier pricing modal
+function showPricingModal(opts = {}) {
+    const reason = opts.reason || 'choose';  // 'choose' | 'limitReached'
+    const PLANS = [
+        {
+            id: 'starter',
+            title: 'STARTER',
+            priceEur: 1, priceBrl: 10, period: '10 dias',
+            tagline: 'Plano de teste rápido.',
+            features: [
+                '📦 Coleção ilimitada',
+                '🛒 Wishlist (5 itens)',
+                '🔔 Push notifications',
+                '⏰ Acesso curto'
+            ],
+            btnLabel: 'Escolher Starter',
+            btnClass: 'plan-btn-outline'
+        },
+        {
+            id: 'premium',
+            title: 'PREMIUM',
+            priceEur: 3, priceBrl: 20, period: 'mês',
+            tagline: 'Coleção + Wishlist completa.',
+            features: [
+                '📦 Coleção ilimitada',
+                '🔁 Auto-scan a cada 5min',
+                '🛒 10 itens na Wishlist',
+                '🔔 Push + Email'
+            ],
+            btnLabel: 'Escolher Premium',
+            btnClass: 'plan-btn-primary',
+            popular: true
+        },
+        {
+            id: 'full',
+            title: 'FULL ACCESS',
+            priceEur: 5, priceBrl: 30, period: 'mês',
+            tagline: 'Experiência completa MU Timer Dream.',
+            features: [
+                '📦 Coleção ilimitada',
+                '🔁 Auto-scan + Avaliação',
+                '🛒 50 itens na Wishlist',
+                '🔔 Push + Email + WhatsApp',
+                '💱 Exchange P2P (em breve)'
+            ],
+            btnLabel: 'Escolher Full Access',
+            btnClass: 'plan-btn-success'
+        }
+    ];
+
+    const overlay = document.createElement('div');
+    overlay.className = 'pricing-overlay';
+    overlay.innerHTML = `
+        <div class="pricing-modal">
+            <button class="pricing-close" id="pricingCloseTop" aria-label="Fechar">✕</button>
+            <div class="pricing-header">
+                <div class="pricing-icon">⚔️</div>
+                <h2 class="pricing-title">✨ Desbloqueie o Acesso Completo ✨</h2>
+                <p class="pricing-sub">Escolha o plano que combina com você.</p>
+            </div>
+            <div class="pricing-grid">
+                ${PLANS.map(p => `
+                    <div class="plan-card ${p.popular ? 'plan-popular' : ''}">
+                        ${p.popular ? '<div class="plan-badge">⭐ MAIS POPULAR</div>' : ''}
+                        <div class="plan-banner">
+                            <div class="plan-banner-emblem">⚔️</div>
+                            <div class="plan-banner-name">${p.title}</div>
+                            <div class="plan-banner-price">€${p.priceEur} / ${p.period}</div>
+                            <div class="plan-banner-brl">ou R$ ${p.priceBrl}</div>
+                        </div>
+                        <div class="plan-body">
+                            <div class="plan-price-big">€${p.priceEur} <span class="plan-period">/ ${p.period}</span></div>
+                            <div class="plan-price-brl">R$ ${p.priceBrl} ${p.period === 'mês' ? '/ mês' : '/ 10 dias'}</div>
+                            <p class="plan-tagline">${p.tagline}</p>
+                            <ul class="plan-features">
+                                ${p.features.map(f => `<li>${f}</li>`).join('')}
+                            </ul>
+                            <button class="plan-btn ${p.btnClass}" data-plan="${p.id}" data-eur="${p.priceEur}" data-brl="${p.priceBrl}">
+                                ${p.btnLabel}
+                            </button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="pricing-contact">
+                💬 Após o pagamento, mande o comprovante no WhatsApp/Email com o seu nome de char para ativação.
+            </div>
+            <button class="pricing-maybe-later" id="pricingMaybeLater">Talvez depois</button>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    const close = () => overlay.remove();
+    overlay.querySelector('#pricingCloseTop').addEventListener('click', close);
+    overlay.querySelector('#pricingMaybeLater').addEventListener('click', close);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+
+    overlay.querySelectorAll('.plan-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const planId = btn.dataset.plan;
+            const eur = parseFloat(btn.dataset.eur);
+            const brl = parseFloat(btn.dataset.brl);
+            showPaymentChoice(planId, eur, brl);
+            close();
+        });
+    });
+}
+
+function showPaymentChoice(planId, eur, brl) {
+    const overlay = document.createElement('div');
+    overlay.className = 'pricing-overlay';
+    overlay.innerHTML = `
+        <div class="pricing-modal pricing-modal-pay">
+            <button class="pricing-close" id="payCloseTop" aria-label="Fechar">✕</button>
+            <h3 class="pay-title">💳 Como você quer pagar o plano <span class="gold">${planId.toUpperCase()}</span>?</h3>
+            <div class="pay-amounts">
+                <div class="pay-amount-card">
+                    <div class="pay-flag">🇪🇺</div>
+                    <div class="pay-value">€${eur}</div>
+                </div>
+                <div class="pay-or">ou</div>
+                <div class="pay-amount-card">
+                    <div class="pay-flag">🇧🇷</div>
+                    <div class="pay-value">R$ ${brl}</div>
+                </div>
+            </div>
+            <div class="pay-methods">
+                <button class="pay-method pay-pix" id="payBtnPix">
+                    <span class="pay-method-icon">📱</span>
+                    <div>
+                        <div class="pay-method-name">PIX</div>
+                        <div class="pay-method-desc">Pagamento instantâneo (R$)</div>
+                    </div>
+                </button>
+                <button class="pay-method pay-iban" id="payBtnIban">
+                    <span class="pay-method-icon">🏦</span>
+                    <div>
+                        <div class="pay-method-name">IBAN / BIC</div>
+                        <div class="pay-method-desc">Transferência bancária (€)</div>
+                    </div>
+                </button>
+                <button class="pay-method pay-stripe" id="payBtnCheckout" disabled>
+                    <span class="pay-method-icon">💳</span>
+                    <div>
+                        <div class="pay-method-name">Cartão (em breve)</div>
+                        <div class="pay-method-desc">Stripe checkout</div>
+                    </div>
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    const close = () => overlay.remove();
+    overlay.querySelector('#payCloseTop').addEventListener('click', close);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+
+    overlay.querySelector('#payBtnPix').addEventListener('click', async () => {
+        close();
+        const donateModal = document.getElementById('donateModal');
+        if (donateModal) donateModal.style.display = 'flex';
+        if (typeof generatePix === 'function') await generatePix(brl);
+    });
+    overlay.querySelector('#payBtnIban').addEventListener('click', () => {
+        close();
+        const donateModal = document.getElementById('donateModal');
+        if (donateModal) donateModal.style.display = 'flex';
+        // Scroll to IBAN section
+        setTimeout(() => {
+            const ibanSection = donateModal.querySelector('.iban-card');
+            if (ibanSection) ibanSection.scrollIntoView({ behavior: 'smooth' });
+        }, 200);
+    });
+}
+
 function showLimitReachedModal(data) {
+    // New flow: show 3-tier pricing modal when limit is reached
+    showPricingModal({ reason: 'limitReached' });
+    return;
+    // Old code below kept for fallback (unreachable)
     const pricing = data.pricing || { eur: 10, brl: 59.90, eurMonth: 3, brlMonth: 10 };
     const limit = data.limit || 40;
 

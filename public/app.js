@@ -1039,6 +1039,9 @@ function initLanding() {
 
     initClassShowcase();
     loadLandingStats();
+    document.getElementById('btnShowPricing')?.addEventListener('click', () => {
+        if (typeof showPricingModal === 'function') showPricingModal();
+    });
 
     // Auto-skip landing if user has a valid session
     fetch('/api/auth/me', { credentials: 'same-origin' })

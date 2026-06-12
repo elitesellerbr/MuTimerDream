@@ -11,6 +11,11 @@ function initDonate() {
         pixResult.style.display = 'none';
     });
 
+    // Premium button in header opens the 3-tier pricing modal
+    document.getElementById('btnHeaderPremium')?.addEventListener('click', () => {
+        if (typeof showPricingModal === 'function') showPricingModal();
+    });
+
     document.getElementById('closeDonate').addEventListener('click', () => {
         modal.style.display = 'none';
     });
