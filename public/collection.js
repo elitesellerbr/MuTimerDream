@@ -5,6 +5,31 @@ let collectionFilter = localStorage.getItem('mudream_col_filter') || 'missing';
 let viewingOther = null;
 let viewingGuildMember = null;
 
+// Helpers for inline market finding shortcuts
+const FINDING_TTL_MS = 60 * 60 * 1000; // 1 hour
+function findRecentFinding(itemName) {
+    if (typeof getStoredFindings !== 'function' || !itemName) return null;
+    const target = itemName.toLowerCase().trim();
+    const now = Date.now();
+    const findings = getStoredFindings();
+    let best = null;
+    for (const f of findings) {
+        const age = now - new Date(f.foundAt).getTime();
+        if (age > FINDING_TTL_MS) continue;
+        const name = (f.itemName || '').toLowerCase();
+        if (!name.includes(target)) continue;
+        if (!best || new Date(f.foundAt) > new Date(best.foundAt)) best = f;
+    }
+    return best;
+}
+function minutesAgo(iso) {
+    return Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 60000));
+}
+function escapeHtml(s) {
+    if (s == null) return '';
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
 const AVAILABLE_ADDS = [
     { id: 'luck', label: '+Luck', icon: '🍀', color: '#4caf50' },
     { id: 'skill', label: '+Skill', icon: '⚡', color: '#ff9800' },
@@ -77,7 +102,21 @@ function initCollection() {
     });
 }
 
+let _findingExpireTimer = null;
+function startFindingExpireRefresh() {
+    if (_findingExpireTimer) return;
+    // Every 60s, re-render so the inline shop links expire after 1h
+    _findingExpireTimer = setInterval(() => {
+        const c = document.getElementById('collectionContent');
+        const tab = document.querySelector('.tab.active');
+        if (c && tab?.dataset.tab === 'collection') {
+            renderCollection(c);
+        }
+    }, 60 * 1000);
+}
+
 async function loadCollection() {
+    startFindingExpireRefresh();
     const container = document.getElementById('collectionContent');
     if (!currentUser && !viewingOther && !viewingGuildMember) {
         container.innerHTML = `<div class="empty-state"><div class="empty-icon">🔒</div><p>${t('collectionLoginRequired')}</p></div>`;
@@ -374,17 +413,27 @@ function renderCollectionCategories(names, searchQuery) {
                                 return add ? `<span class="add-tag" style="--add-color:${add.color}">${add.icon} ${add.label}</span>` : '';
                               }).join('')}</div>`
                             : '';
+                        // 🛒 Recent market finding for this item (within 1 hour)
+                        const finding = !has ? findRecentFinding(item.name) : null;
+                        const findingHtml = finding
+                            ? `<a class="collection-item-shop-link" href="${finding.detailUrl}" target="_blank" rel="noopener" title="Achado há ${minutesAgo(finding.foundAt)}m">
+                                 <span class="shop-link-icon">🛒</span>
+                                 <span class="shop-link-text">Ir pra loja${finding.price ? ` · ${escapeHtml(finding.price)}` : ''}</span>
+                                 <span class="shop-link-arrow">↗</span>
+                               </a>`
+                            : '';
                         const iconHtml = imgPath
                             ? `<img src="${ITEM_IMG_BASE}${imgPath}.webp" alt="${item.name}" class="collection-item-img" onerror="this.style.display='none';this.nextElementSibling.style.display=''">`
                               + `<span class="collection-item-emoji" style="display:none">${getItemIcon(item.category)}</span>`
                             : `<span class="collection-item-emoji">${getItemIcon(item.category)}</span>`;
                         return `
-                            <div class="collection-item ${has ? 'obtained' : ''} ${tierClass} ${readOnly ? 'readonly' : ''}" data-item="${item.id}" title="${item.name} (T${item.tier})">
+                            <div class="collection-item ${has ? 'obtained' : ''} ${tierClass} ${readOnly ? 'readonly' : ''} ${finding ? 'has-finding' : ''}" data-item="${item.id}" title="${item.name} (T${item.tier})">
                                 <div class="collection-item-icon">${iconHtml}</div>
                                 <div class="collection-item-details">
                                     <span class="collection-item-name">${item.name}</span>
                                     <span class="collection-item-tier">Tier ${item.tier}</span>
                                     ${addsHtml}
+                                    ${findingHtml}
                                 </div>
                                 <div class="collection-item-right">
                                     ${!has && !readOnly ? `<button class="btn-adds" data-item="${item.id}" title="Editar adds">⚙️</button>` : ''}
