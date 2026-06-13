@@ -214,12 +214,42 @@ function resetEliteCount(key) {
     renderElites();
 }
 
+// Elite respawn period (1h) + grace window (15min) after respawn before auto-clear.
+// User has 15 minutes after respawn to click "Matei" — otherwise we assume someone
+// else killed it and lose track of this elite's cycle.
+const ELITE_RESPAWN_MS = 60 * 60 * 1000;
+const ELITE_RESPAWNED_GRACE_MS = 15 * 60 * 1000;
+
 function getEliteRespawnMs(key) {
     const killTime = eliteKillTimers[key];
     if (!killTime) return null;
-    const respawnAt = killTime + 60 * 60 * 1000; // 1 hour
+    const respawnAt = killTime + ELITE_RESPAWN_MS;
     const remaining = respawnAt - Date.now();
-    return remaining > 0 ? remaining : null; // null = already respawned
+    return remaining > 0 ? remaining : null; // null = already respawned (in grace window)
+}
+
+// How long the elite has been in "Respawnou!" state. null if not respawned yet.
+function getEliteRespawnedAgeMs(key) {
+    const killTime = eliteKillTimers[key];
+    if (!killTime) return null;
+    const respawnAt = killTime + ELITE_RESPAWN_MS;
+    const age = Date.now() - respawnAt;
+    return age >= 0 ? age : null;
+}
+
+// Sweep expired "Respawnou!" states (>15min stale) — clears the timer so the
+// card returns to its idle state (no kill recorded). Call from the render tick.
+function sweepExpiredEliteRespawns() {
+    let changed = false;
+    for (const key of Object.keys(eliteKillTimers)) {
+        const age = getEliteRespawnedAgeMs(key);
+        if (age !== null && age > ELITE_RESPAWNED_GRACE_MS) {
+            delete eliteKillTimers[key];
+            changed = true;
+        }
+    }
+    if (changed) saveEliteKillTimers();
+    return changed;
 }
 
 function renderElites() {
@@ -246,8 +276,14 @@ function renderElites() {
                 <button class="btn-sm btn-elite-clear" onclick="clearEliteTimer('${key}')" title="Cancelar">✕</button>
             `;
         } else if (hasRespawned) {
+            const age = getEliteRespawnedAgeMs(key) || 0;
+            const graceLeft = Math.max(0, ELITE_RESPAWNED_GRACE_MS - age);
+            const graceMin = Math.floor(graceLeft / 60000);
+            const graceSec = Math.floor((graceLeft % 60000) / 1000);
+            const graceUrgent = graceLeft < 5 * 60 * 1000; // <5min
             statusHtml = `
                 <span class="elite-timer" style="color:#66bb6a;font-weight:bold;">${t('eliteRespawned')}</span>
+                <span class="elite-grace ${graceUrgent ? 'urgent' : ''}" title="Auto-limpa em 15min se ninguém matar">⏳ ${graceMin}:${String(graceSec).padStart(2, '0')}</span>
                 <button class="btn-sm btn-elite-kill" onclick="markEliteKilled('${elite.id}','${map}')">${t('eliteKilled')}</button>
                 <button class="btn-sm btn-elite-clear" onclick="clearEliteTimer('${key}')" title="Limpar">✕</button>
             `;
@@ -341,6 +377,11 @@ function renderGolden() {
 }
 
 function updateEliteCountdowns() {
+    // First sweep — clear "Respawnou!" states older than 15min
+    if (sweepExpiredEliteRespawns()) {
+        renderElites();
+        return;
+    }
     const cards = document.querySelectorAll('.elite-card');
     let needsFullRender = false;
     cards.forEach(card => {
@@ -352,8 +393,19 @@ function updateEliteCountdowns() {
         if (remaining !== null) {
             timerEl.textContent = formatCountdown(remaining);
             timerEl.style.color = '#f5a623';
-        } else if (timerEl.textContent !== t('eliteRespawned')) {
-            needsFullRender = true;
+        } else {
+            // Already respawned — update the grace countdown live
+            const graceEl = card.querySelector('.elite-grace');
+            if (graceEl) {
+                const age = getEliteRespawnedAgeMs(key) || 0;
+                const graceLeft = Math.max(0, ELITE_RESPAWNED_GRACE_MS - age);
+                const graceMin = Math.floor(graceLeft / 60000);
+                const graceSec = Math.floor((graceLeft % 60000) / 1000);
+                graceEl.textContent = `⏳ ${graceMin}:${String(graceSec).padStart(2, '0')}`;
+                if (graceLeft < 5 * 60 * 1000) graceEl.classList.add('urgent');
+            } else if (timerEl.textContent !== t('eliteRespawned')) {
+                needsFullRender = true;
+            }
         }
     });
     if (needsFullRender) renderElites();
