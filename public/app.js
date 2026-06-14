@@ -1134,7 +1134,8 @@ function initSidebar() {
 
 async function loadLandingStats() {
     try {
-        const res = await fetch('/api/stats/public');
+        // bust browser cache so newly registered users show up immediately
+        const res = await fetch('/api/stats/public?_=' + Date.now());
         if (!res.ok) return;
         const s = await res.json();
         animateStatValue(document.getElementById('statEvents'), s.eventsTracked);
@@ -1183,6 +1184,13 @@ function initLanding() {
 
     initClassShowcase();
     loadLandingStats();
+    // Auto-refresh stats every 20s while landing is visible
+    setInterval(() => {
+        const landing = document.getElementById('landingPage');
+        if (landing && landing.style.display !== 'none') {
+            loadLandingStats();
+        }
+    }, 20 * 1000);
     initSidebar();
     liftModalsToBody();
     document.getElementById('btnShowPricing')?.addEventListener('click', () => {

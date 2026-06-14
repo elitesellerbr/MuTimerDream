@@ -202,7 +202,9 @@ app.get('/api/stats/public', async (req, res) => {
         ]);
         const maxUsers = parseInt(maxSetting?.data?.value || '40');
         const currentUsers = users.count || 0;
-        res.set('Cache-Control', 'public, max-age=120');
+        // Short cache (15s) — must be near-real-time so 40-slot widget reflects
+        // sign-ups quickly. Edge caches still get some hit benefit.
+        res.set('Cache-Control', 'public, max-age=15, s-maxage=15');
         res.json({
             users: currentUsers,
             maxFreeUsers: maxUsers,

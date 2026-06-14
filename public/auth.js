@@ -310,7 +310,8 @@ async function loadDashboard() {
     const container = document.getElementById('adminDashboard');
     if (!container) return;
     try {
-        const data = await apiCall('/api/admin/dashboard');
+        // cache-buster
+        const data = await apiCall('/api/admin/dashboard?_=' + Date.now());
         container.innerHTML = `
             <div class="dash-cards">
                 <div class="dash-card">
