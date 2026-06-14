@@ -784,6 +784,8 @@ app.put('/api/exchange/contact-info', authMiddleware, async (req, res) => {
 // ==================== ADMIN ROUTES ====================
 
 app.get('/api/admin/users', authMiddleware, adminMiddleware, async (req, res) => {
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
     const { data: users } = await supabase
         .from('users')
         .select('id, username, email, is_admin, created_at, last_login, premium_until, premium_plan')
@@ -989,6 +991,9 @@ app.get('/api/admin/guilds', authMiddleware, adminMiddleware, async (req, res) =
 // ==================== ADMIN DASHBOARD ====================
 
 app.get('/api/admin/dashboard', authMiddleware, adminMiddleware, async (req, res) => {
+    // Always fetch fresh data — admin needs real-time counts
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Pragma', 'no-cache');
     const today = new Date().toISOString().split('T')[0];
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 

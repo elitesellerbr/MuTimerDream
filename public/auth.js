@@ -252,8 +252,28 @@ function initAdmin() {
             document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
             tab.classList.add('active');
             document.getElementById('admin' + capitalize(tab.dataset.atab)).classList.add('active');
+            // Reload data when switching to a tab (so newly registered users show)
+            const t = tab.dataset.atab;
+            if (t === 'dashboard') loadDashboard();
+            else if (t === 'users') loadUsers();
+            else if (t === 'guilds') loadAdminGuilds();
+            else if (t === 'campaigns') loadCampaignHistory();
         });
     });
+
+    // Reload everything whenever the top-level Admin tab is selected
+    document.getElementById('tabAdmin')?.addEventListener('click', () => {
+        loadAdminData();
+    });
+
+    // Auto-refresh dashboard + users every 30s while admin tab is visible
+    setInterval(() => {
+        const adminTab = document.getElementById('tab-admin');
+        if (adminTab && adminTab.classList.contains('active')) {
+            loadDashboard();
+            loadUsers();
+        }
+    }, 30 * 1000);
 
     document.getElementById('btnRefreshUsers').addEventListener('click', loadUsers);
 
