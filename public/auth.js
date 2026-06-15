@@ -138,9 +138,19 @@ function initAuth() {
         });
     });
 
+    // Restore remembered login on page load
+    const remembered = localStorage.getItem('mudream_remember_login');
+    if (remembered) {
+        const loginInput = document.getElementById('loginUser');
+        const rememberCheck = document.getElementById('rememberLogin');
+        if (loginInput) loginInput.value = remembered;
+        if (rememberCheck) rememberCheck.checked = true;
+    }
+
     document.getElementById('btnLogin').addEventListener('click', async () => {
         const login = document.getElementById('loginUser').value.trim();
         const password = document.getElementById('loginPass').value;
+        const remember = document.getElementById('rememberLogin')?.checked;
         if (!login || !password) return showAuthError(t('adminFillFields'));
         const btn = document.getElementById('btnLogin');
         btn.classList.add('btn-loading');
@@ -148,10 +158,14 @@ function initAuth() {
         try {
             const data = await apiCall('/api/auth/login', 'POST', { login, password });
             currentUser = data.user;
+            // Save or clear remembered login based on the checkbox
+            if (remember) localStorage.setItem('mudream_remember_login', login);
+            else localStorage.removeItem('mudream_remember_login');
             updateAuthUI();
             modal.dataset.required = '';
             modal.style.display = 'none';
-            document.getElementById('loginUser').value = '';
+            // Keep the username visible if remembered, only clear password
+            if (!remember) document.getElementById('loginUser').value = '';
             document.getElementById('loginPass').value = '';
             if (currentUser.is_admin) loadAdminData();
             // Load alarms from server and refresh UI
