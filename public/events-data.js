@@ -198,6 +198,7 @@ const EVENTS_DATA = {
             duration: 0,
             respawnInfo: { pt: '5-7 horas após a morte', en: '5-7 hours after death' },
             subServers: [1, 2, 3],
+            spawnsPerServer: 6,
             respawnMinHours: 5,
             respawnMaxHours: 7
         },

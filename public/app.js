@@ -195,6 +195,38 @@ function markBossKilled(eventId, subServer) {
     if (typeof renderAll === 'function') renderAll();
 }
 
+// Increment kill count for boss on sub-server. Starts the respawn timer
+// only when reaching the max (last spawn killed).
+function addBossKill(eventId, subServer, maxKills) {
+    const cKey = `${eventId}__s${subServer}__count`;
+    eliteKillCounts[cKey] = (eliteKillCounts[cKey] || 0) + 1;
+    if (eliteKillCounts[cKey] >= maxKills) {
+        // All spawns on this server killed — start the respawn timer
+        const tKey = `${eventId}__s${subServer}`;
+        eliteKillTimers[tKey] = Date.now();
+        saveEliteKillTimers();
+    }
+    saveEliteKillCounts();
+    if (typeof renderAll === 'function') renderAll();
+}
+
+function resetBossCount(eventId, subServer) {
+    const cKey = `${eventId}__s${subServer}__count`;
+    delete eliteKillCounts[cKey];
+    saveEliteKillCounts();
+    if (typeof renderAll === 'function') renderAll();
+}
+
+function clearBossTimer(eventId, subServer) {
+    const tKey = `${eventId}__s${subServer}`;
+    const cKey = `${eventId}__s${subServer}__count`;
+    delete eliteKillTimers[tKey];
+    delete eliteKillCounts[cKey];
+    saveEliteKillTimers();
+    saveEliteKillCounts();
+    if (typeof renderAll === 'function') renderAll();
+}
+
 function markEliteKilled(eliteId, mapName) {
     const key = `${eliteId}__${mapName}`;
     eliteKillTimers[key] = Date.now();
@@ -715,24 +747,46 @@ function renderCategory(category, containerId) {
                 ? `<div class="event-icon event-icon-img"><img src="${event.img}" alt="${event.name}"></div>`
                 : `<div class="event-icon">${event.icon}</div>`;
 
-            // Per-server kill buttons (e.g. Cryonox has sub-servers 1, 2, 3)
+            // Per-server kill counters (Cryonox: 6 spawns × 3 sub-servers)
             let subServerHtml = '';
             if (event.subServers && event.subServers.length > 0) {
                 const minMs = (event.respawnMinHours || 5) * 3600000;
+                const maxKills = event.spawnsPerServer || 1;
                 subServerHtml = `<div class="boss-server-row">
                     ${event.subServers.map(s => {
-                        const key = `${event.id}__s${s}`;
-                        const killAt = eliteKillTimers[key];
+                        const tKey = `${event.id}__s${s}`;
+                        const cKey = `${event.id}__s${s}__count`;
+                        const killAt = eliteKillTimers[tKey];
+                        const killCount = eliteKillCounts[cKey] || 0;
+                        const countPct = Math.min(killCount / maxKills * 100, 100);
+                        const fullCount = killCount >= maxKills;
+                        const countColor = fullCount ? '#66bb6a' : '#f5a623';
+
+                        // Status pill (timer or "Matei +")
+                        let pill;
                         if (killAt) {
                             const elapsed = Date.now() - killAt;
                             const remaining = minMs - elapsed;
                             if (remaining > 0) {
-                                return `<button class="boss-server-btn active" onclick="clearEliteTimer('${key}')" title="Cancelar"><span class="bsb-label">SV ${s}</span><span class="bsb-time">${formatCountdown(remaining)}</span></button>`;
+                                pill = `<button class="bsb-pill active" onclick="clearBossTimer('${event.id}', ${s})" title="Cancelar timer">⏳ ${formatCountdown(remaining)}</button>`;
                             } else {
-                                return `<button class="boss-server-btn ready" onclick="clearEliteTimer('${key}')" title="Pode ter respawnado"><span class="bsb-label">SV ${s}</span><span class="bsb-time">🟢 Pode</span></button>`;
+                                pill = `<button class="bsb-pill ready" onclick="clearBossTimer('${event.id}', ${s})" title="Pode ter respawnado">🟢 Pode</button>`;
                             }
+                        } else {
+                            pill = `<button class="bsb-pill idle" onclick="addBossKill('${event.id}', ${s}, ${maxKills})">⚔️ +1</button>`;
                         }
-                        return `<button class="boss-server-btn idle" onclick="markBossKilled('${event.id}', ${s})"><span class="bsb-label">SV ${s}</span><span class="bsb-time">⚔️ Matei</span></button>`;
+
+                        return `
+                            <div class="boss-server-card">
+                                <div class="bsv-head">
+                                    <span class="bsv-tag">SV ${s}</span>
+                                    <span class="bsv-count" style="color:${countColor}">${killCount}/${maxKills}</span>
+                                    ${killCount > 0 ? `<button class="bsv-reset" onclick="resetBossCount('${event.id}', ${s})" title="Zerar">↺</button>` : ''}
+                                </div>
+                                <div class="bsv-bar"><div class="bsv-fill" style="width:${countPct}%;background:${countColor}"></div></div>
+                                ${pill}
+                            </div>
+                        `;
                     }).join('')}
                 </div>`;
             }
