@@ -187,6 +187,18 @@ const EVENTS_DATA = {
             duration: 0
         },
         {
+            id: 'cryonox',
+            name: 'Cryonox',
+            icon: '🐲',
+            img: 'https://dreamassets.fra1.digitaloceanspaces.com/images/568/body/1Cl0MlICu9U6D7oXO2BIa.gif',
+            color: '#d32f2f',
+            category: 'bosses',
+            description: { pt: 'Localização: Twisted Karutan (4) + Land of Trials (2) — 6 spawns · Dropa pedra aleatória para Guild Shrine · ⚠️ Apenas no servidor principal', en: 'Location: Twisted Karutan (4) + Land of Trials (2) — 6 spawns · Drops random stone for Guild Shrine · ⚠️ Main server only' },
+            times: [],
+            duration: 0,
+            respawnInfo: { pt: '5-7 horas após a morte', en: '5-7 hours after death' }
+        },
+        {
             id: 'skeleton-king',
             name: 'Skeleton King',
             icon: '👑',
