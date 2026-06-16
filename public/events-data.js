@@ -196,7 +196,10 @@ const EVENTS_DATA = {
             description: { pt: 'Localização: Twisted Karutan (4) + Land of Trials (2) — 6 spawns · Dropa pedra aleatória para Guild Shrine · ⚠️ Apenas no servidor principal', en: 'Location: Twisted Karutan (4) + Land of Trials (2) — 6 spawns · Drops random stone for Guild Shrine · ⚠️ Main server only' },
             times: [],
             duration: 0,
-            respawnInfo: { pt: '5-7 horas após a morte', en: '5-7 hours after death' }
+            respawnInfo: { pt: '5-7 horas após a morte', en: '5-7 hours after death' },
+            subServers: [1, 2, 3],
+            respawnMinHours: 5,
+            respawnMaxHours: 7
         },
         {
             id: 'skeleton-king',

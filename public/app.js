@@ -187,6 +187,14 @@ function syncEliteTimersToServer() {
     }, 500);
 }
 
+// Mark a respawn-based boss as killed on a specific sub-server (1, 2, 3...)
+function markBossKilled(eventId, subServer) {
+    const key = `${eventId}__s${subServer}`;
+    eliteKillTimers[key] = Date.now();
+    saveEliteKillTimers();
+    if (typeof renderAll === 'function') renderAll();
+}
+
 function markEliteKilled(eliteId, mapName) {
     const key = `${eliteId}__${mapName}`;
     eliteKillTimers[key] = Date.now();
@@ -706,11 +714,35 @@ function renderCategory(category, containerId) {
             const respawnIcon = event.img
                 ? `<div class="event-icon event-icon-img"><img src="${event.img}" alt="${event.name}"></div>`
                 : `<div class="event-icon">${event.icon}</div>`;
+
+            // Per-server kill buttons (e.g. Cryonox has sub-servers 1, 2, 3)
+            let subServerHtml = '';
+            if (event.subServers && event.subServers.length > 0) {
+                const minMs = (event.respawnMinHours || 5) * 3600000;
+                subServerHtml = `<div class="boss-server-row">
+                    ${event.subServers.map(s => {
+                        const key = `${event.id}__s${s}`;
+                        const killAt = eliteKillTimers[key];
+                        if (killAt) {
+                            const elapsed = Date.now() - killAt;
+                            const remaining = minMs - elapsed;
+                            if (remaining > 0) {
+                                return `<button class="boss-server-btn active" onclick="clearEliteTimer('${key}')" title="Cancelar"><span class="bsb-label">SV ${s}</span><span class="bsb-time">${formatCountdown(remaining)}</span></button>`;
+                            } else {
+                                return `<button class="boss-server-btn ready" onclick="clearEliteTimer('${key}')" title="Pode ter respawnado"><span class="bsb-label">SV ${s}</span><span class="bsb-time">🟢 Pode</span></button>`;
+                            }
+                        }
+                        return `<button class="boss-server-btn idle" onclick="markBossKilled('${event.id}', ${s})"><span class="bsb-label">SV ${s}</span><span class="bsb-time">⚔️ Matei</span></button>`;
+                    }).join('')}
+                </div>`;
+            }
+
             card.innerHTML = `
                 ${respawnIcon}
                 <div class="event-info">
                     <div class="event-name">${event.name}</div>
                     <div class="event-detail"><span>${localize(event.description)}</span></div>
+                    ${subServerHtml}
                 </div>
                 <div class="event-right">
                     <div class="event-countdown" style="font-size:12px;color:var(--text-secondary)">⏳ ${localize(event.respawnInfo)}</div>
