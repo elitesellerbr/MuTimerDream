@@ -64,7 +64,13 @@ async function saveWishlistItem(item) {
         credentials: 'same-origin',
         body: JSON.stringify(item)
     });
-    if (!res.ok) throw new Error('Save failed');
+    if (!res.ok) {
+        let detail = '';
+        try { const j = await res.json(); detail = j.error || j.message || ''; } catch {}
+        const err = new Error(detail || 'Save failed');
+        err.status = res.status;
+        throw err;
+    }
     return res.json();
 }
 
@@ -454,8 +460,10 @@ function wireWishlistEvents(container) {
         }
     });
 
-    // Add new item
-    document.getElementById('wlAddBtn')?.addEventListener('click', async () => {
+    // Add new item — disable during submit to prevent double clicks
+    document.getElementById('wlAddBtn')?.addEventListener('click', async (e) => {
+        const btn = e.currentTarget;
+        if (btn.disabled) return;
         const item = {
             server: wishlistServer,
             itemName: document.getElementById('wlSearch').value.trim(),
@@ -468,6 +476,9 @@ function wireWishlistEvents(container) {
         if (!item.itemName && !item.category) {
             showToast(t('wlToastNoFilter'), 'warning'); return;
         }
+        btn.disabled = true;
+        const origText = btn.innerHTML;
+        btn.innerHTML = '⏳ Salvando...';
         try {
             const saved = await saveWishlistItem(item);
             wishlistItems.push(saved.item || { ...item, id: 'local-' + Date.now() });
@@ -475,8 +486,13 @@ function wireWishlistEvents(container) {
             showToast(t('wlToastAdded'), 'success');
             renderWishlist();
             checkMarketForWishlist();
+            return;
         } catch (e) {
-            showToast(t('wlToastErrorAdd'), 'warning');
+            const detail = e?.message && e.message !== 'Save failed' ? ` — ${e.message}` : '';
+            showToast(t('wlToastErrorAdd') + detail, 'warning', 6000);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = origText;
         }
     });
 

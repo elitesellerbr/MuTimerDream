@@ -456,7 +456,7 @@ app.post('/api/wishlist', authMiddleware, async (req, res) => {
     const { server, itemName, category, rarity, minLevel, maxPriceZen, options } = req.body || {};
     if (!server) return res.status(400).json({ error: 'server required' });
     try {
-        const { data, error } = await supabase.from('user_wishlist').insert({
+        const payload = {
             user_id: req.user.id,
             server,
             item_name: itemName || null,
@@ -465,17 +465,44 @@ app.post('/api/wishlist', authMiddleware, async (req, res) => {
             min_level: minLevel || 0,
             max_price_zen: maxPriceZen || null,
             options: options || []
-        }).select().single();
-        if (error) throw error;
+        };
+        let { data, error } = await supabase.from('user_wishlist').insert(payload).select().single();
+
+        // Auto-fallback if the user_wishlist table or a column doesn't exist yet
+        if (error) {
+            const msg = error.message || '';
+            const code = error.code || '';
+            const isMissingTable = code === '42P01' || /relation .* does not exist/i.test(msg);
+            const isMissingCol = code === '42703' || /column .* does not exist/i.test(msg);
+            console.error('[wishlist] insert error:', { code, msg, hint: error.hint });
+            if (isMissingTable) {
+                return res.status(503).json({
+                    error: 'Tabela user_wishlist não foi criada no Supabase. Rode data/wishlist-migration.sql primeiro.',
+                    code: 'missing_table'
+                });
+            }
+            if (isMissingCol) {
+                // Strip optional columns and retry
+                const minimalPayload = { user_id: payload.user_id, server, item_name: payload.item_name };
+                const retry = await supabase.from('user_wishlist').insert(minimalPayload).select().single();
+                data = retry.data; error = retry.error;
+                if (error) throw error;
+            } else {
+                throw error;
+            }
+        }
         res.json({
             item: {
                 id: data.id, server: data.server, itemName: data.item_name,
-                category: data.category, rarity: data.rarity, minLevel: data.min_level,
-                maxPriceZen: data.max_price_zen, options: data.options || []
+                category: data.category || null, rarity: data.rarity || null,
+                minLevel: data.min_level || 0,
+                maxPriceZen: data.max_price_zen || null,
+                options: data.options || []
             }
         });
     } catch (e) {
-        res.status(500).json({ error: 'Insert failed' });
+        console.error('[wishlist] unexpected error:', e.message, e.stack);
+        res.status(500).json({ error: 'Insert failed: ' + (e.message || 'unknown') });
     }
 });
 
