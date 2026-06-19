@@ -4284,27 +4284,43 @@ input[type="checkbox"] {
 }
 
 @media (max-width: 600px) {
-    .elite-status {
-        gap: 4px;
+    /* Stack the elite layout to 2 rows so the timer / Respawnou doesn't squeeze the row */
+    .elite-card .event-card {
+        flex-wrap: wrap;
+        row-gap: 8px;
+        padding: 10px 12px;
     }
-    .elite-timer {
-        min-width: 55px;
-        font-size: 12px;
-    }
-    .btn-elite-kill {
-        font-size: 11px;
-        padding: 3px 8px !important;
-    }
-    .elite-count {
+    .elite-card .event-card .event-icon { order: 0; }
+    .elite-card .event-card .event-info { order: 1; flex: 1; min-width: 0; }
+    /* Counter pinned to the right of the icon/name row */
+    .elite-card .elite-count {
+        order: 2;
+        margin-left: auto;
+        flex-shrink: 0;
         min-width: 70px;
         gap: 4px;
     }
-    .elite-count-bar {
-        width: 35px;
+    /* Status row spans full width below the info row */
+    .elite-card .elite-status {
+        order: 3;
+        width: 100%;
+        margin-left: 0 !important;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+        justify-content: flex-end;
+        padding-top: 4px;
+        border-top: 1px dashed rgba(255,255,255,0.06);
     }
-    .elite-count-label {
+    .elite-timer { min-width: 55px; font-size: 13px; text-align: center; flex: 0 0 auto; }
+    .elite-grace { font-size: 11px; }
+    .btn-elite-kill, .btn-elite-clear {
         font-size: 11px;
+        padding: 4px 10px !important;
     }
+    .elite-count-bar { width: 35px; }
+    .elite-count-label { font-size: 11px; }
 }
 
 /* ── PWA Update Banner ── */
