@@ -6389,3 +6389,142 @@ body.modal-locked #landingPage {
     0%, 100% { box-shadow: 0 0 0 rgba(102, 187, 106, 0); }
     50%      { box-shadow: 0 0 12px rgba(102, 187, 106, 0.5); }
 }
+
+/* ==================== RESPONSIVENESS POLISH PASS ==================== */
+
+/* Mobile header: shift past the hamburger toggle, allow icons to wrap */
+@media (max-width: 900px) {
+    header { padding-left: 60px; }
+    .header-content { flex-wrap: wrap; }
+}
+@media (max-width: 600px) {
+    h1 { font-size: 14px; letter-spacing: 0; }
+    .subtitle { display: none; }              /* save horizontal space */
+    .server-time { font-size: 12px; padding: 2px 6px; min-width: 0; }
+    .btn-icon { min-width: 30px; min-height: 28px; font-size: 14px; padding: 3px 5px; }
+    /* Hide donate when very tight — premium / settings / auth are higher priority */
+    .header-actions { flex-wrap: wrap; justify-content: flex-end; }
+}
+@media (max-width: 380px) {
+    .btn-donate, .btn-icon[id="btnToggleAll"] { display: none; }
+}
+
+/* Sidebar drawer toggle — keep clear of iOS notch and stop overlapping logo */
+@media (max-width: 900px) {
+    .sidebar-toggle {
+        top: max(12px, env(safe-area-inset-top));
+        left: max(12px, env(safe-area-inset-left));
+    }
+}
+
+/* Prevent any horizontal scroll on mobile — last-resort guard */
+@media (max-width: 600px) {
+    html, body { overflow-x: hidden; }
+    .modal { max-width: calc(100vw - 24px); }
+    .pricing-modal { max-width: calc(100vw - 16px) !important; padding: 22px 14px 16px; }
+    .plan-banner-name { font-size: 18px; letter-spacing: 1px; }
+    .plan-price-big { font-size: 26px; }
+    .donate-method, .iban-card { max-width: 100%; box-sizing: border-box; }
+    .iban-value { font-size: 11.5px; word-break: break-all; }
+    .iban-row { flex-wrap: wrap; gap: 4px; }
+
+    /* Found-item overlay padded comfortably */
+    .found-modal { max-width: calc(100vw - 16px) !important; }
+    .found-banner { padding: 16px 18px 14px; }
+    .found-title { font-size: 17px; }
+
+    /* Wishlist option chips wrap tighter */
+    .wishlist-opts { gap: 4px; }
+    .wishlist-opt-chip { padding: 3px 8px; font-size: 11px; }
+
+    /* Stats counter — 2 cols on small phones */
+    .landing-stats { grid-template-columns: repeat(2, 1fr); }
+    .stat-card .stat-value { font-size: 20px; }
+    .stat-card .stat-label { font-size: 9px; }
+
+    /* Hero tagline smaller on tight screens */
+    .landing-hero-tagline { font-size: 20px; padding: 0 8px; }
+    .landing-hero-sub { font-size: 12px; padding: 0 12px; }
+
+    /* Feature pills don't overflow */
+    .landing-features { flex-wrap: wrap; justify-content: center; }
+
+    /* Class showcase row — 4 across max on narrow */
+    .class-selector { flex-wrap: wrap; justify-content: center; gap: 6px; }
+
+    /* Char-class picker grid on auth modal */
+    .char-class-picker { grid-template-columns: repeat(4, 1fr); }
+
+    /* Found item — single column list */
+    .found-list { display: flex !important; flex-direction: column; }
+
+    /* Pricing payment modal — wider buttons */
+    .pay-amounts { flex-direction: column; gap: 8px; }
+    .pay-amount-card { width: 100%; }
+
+    /* Exchange filter sidebar collapses to a row above main on mobile */
+    .exchange-sidebar { padding: 12px; }
+    .exchange-table .exch-row {
+        grid-template-columns: 50px 1fr;
+    }
+
+    /* Boss sub-server cards: 1 per row on tiny phones */
+    .boss-server-row { grid-template-columns: 1fr; }
+}
+
+/* Tablet: 2-column boss sub-server cards */
+@media (min-width: 601px) and (max-width: 900px) {
+    .boss-server-row { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Sidebar dimensions sanity */
+@media (max-width: 900px) {
+    .app-sidebar { width: min(85vw, 320px); }
+}
+@media (max-width: 380px) {
+    .app-sidebar { width: 90vw; padding: 12px 10px; }
+    .sidebar-brand-text { font-size: 12px; }
+    .sidebar-brand-icon { width: 32px; height: 32px; font-size: 18px; }
+}
+
+/* Toast container should never push past viewport */
+.toast-container {
+    max-width: calc(100vw - 16px);
+}
+@media (max-width: 600px) {
+    .toast-container {
+        left: 8px !important;
+        right: 8px !important;
+        bottom: 8px !important;
+    }
+}
+
+/* Quick-view iframe modal: full viewport on mobile */
+@media (max-width: 700px) {
+    .quickview-modal {
+        max-width: 100vw !important;
+        width: 100vw !important;
+        max-height: 100vh !important;
+        height: 100vh !important;
+        border-radius: 0 !important;
+    }
+}
+
+/* Long item titles should ellipsis rather than push card */
+@media (max-width: 600px) {
+    .event-name,
+    .collection-item-name,
+    .exch-item-name,
+    .wl-finding-name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 100%;
+    }
+}
+
+/* Container query fallback — main content padding scales smoothly */
+@media (max-width: 480px) {
+    .app-layout #mainContent { padding: 10px 8px; }
+    .pricing-modal { padding: 20px 12px 14px; }
+}
