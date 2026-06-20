@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mudream-timer-v92';
+const CACHE_NAME = 'mudream-timer-v93';
 const ASSETS = [
     '/',
     '/index.html',
@@ -36,20 +36,33 @@ self.addEventListener('activate', e => {
     self.clients.claim();
 });
 
+// Helpers
+const isStaticAsset = (url) => /\.(css|js|svg|png|jpg|jpeg|webp|gif|woff2?|ttf|ico)(\?|$)/i.test(url);
+const isMudreamCdn = (url) => /dreamassets\.fra1\.(cdn\.)?digitaloceanspaces\.com/.test(url);
+const isApi = (url) => url.includes('/api/');
+
 self.addEventListener('fetch', e => {
-    // API calls: network only
-    if (e.request.url.includes('/api/')) {
+    const url = e.request.url;
+    const method = e.request.method;
+
+    // Non-GET requests pass through untouched (no caching)
+    if (method !== 'GET') return;
+
+    // API calls: network only (never cached — auth-sensitive)
+    if (isApi(url)) {
         return e.respondWith(fetch(e.request));
     }
 
-    // Audio files: cache first (custom alarm sounds)
-    if (e.request.destination === 'audio' || e.request.url.match(/\.(mp3|wav|ogg|webm)(\?|$)/i)) {
+    // Audio: cache-first (silent fallback)
+    if (e.request.destination === 'audio' || /\.(mp3|wav|ogg|webm)(\?|$)/i.test(url)) {
         e.respondWith(
             caches.match(e.request).then(cached => {
                 if (cached) return cached;
                 return fetch(e.request).then(res => {
-                    const clone = res.clone();
-                    caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+                    if (res.ok) {
+                        const clone = res.clone();
+                        caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+                    }
                     return res;
                 }).catch(() => cached);
             })
@@ -57,12 +70,49 @@ self.addEventListener('fetch', e => {
         return;
     }
 
-    // Everything else: network first, fallback to cache
+    // MU Dream CDN images (boss GIFs, item images) — cache-first, stale-while-revalidate
+    if (isMudreamCdn(url)) {
+        e.respondWith(
+            caches.match(e.request).then(cached => {
+                const fetchPromise = fetch(e.request).then(res => {
+                    if (res.ok) {
+                        const clone = res.clone();
+                        caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+                    }
+                    return res;
+                }).catch(() => cached);
+                return cached || fetchPromise;
+            })
+        );
+        return;
+    }
+
+    // Static assets (.css, .js, images, fonts) — cache-first with background refresh
+    if (isStaticAsset(url)) {
+        e.respondWith(
+            caches.match(e.request).then(cached => {
+                const fetchPromise = fetch(e.request).then(res => {
+                    if (res.ok) {
+                        const clone = res.clone();
+                        caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+                    }
+                    return res;
+                }).catch(() => cached);
+                // Return cache immediately if we have it, refresh in background
+                return cached || fetchPromise;
+            })
+        );
+        return;
+    }
+
+    // HTML and everything else: network-first so updates show up promptly
     e.respondWith(
         fetch(e.request)
             .then(res => {
-                const clone = res.clone();
-                caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+                if (res.ok) {
+                    const clone = res.clone();
+                    caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+                }
                 return res;
             })
             .catch(() => caches.match(e.request))

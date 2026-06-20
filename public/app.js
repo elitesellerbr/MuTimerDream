@@ -824,26 +824,59 @@ function renderCategory(category, containerId) {
 
 let lastRenderHash = '';
 
+// Map tab name -> render fn that rebuilds it; called only when its tab is active
+const TAB_RENDERERS = {
+    upcoming: renderUpcoming,
+    events:   () => renderCategory('events', 'eventsList'),
+    bosses:   () => renderCategory('bosses', 'bossesList'),
+    elites:   renderElites,
+    cherry:   () => renderCategory('cherry', 'cherryList'),
+    golden:   renderGolden
+};
+
+function getActiveTabName() {
+    const t = document.querySelector('.tab.active');
+    return t?.dataset.tab || null;
+}
+
 function renderAll(forceFullRender = false) {
     const upcoming = getAllUpcoming();
     const newHash = upcoming.map(o => `${o.id}-${o.serverTime}`).join('|');
 
     if (!forceFullRender && newHash === lastRenderHash) {
-        // Only update countdowns, not full DOM rebuild
+        // Cheap path: only tweak countdown text nodes, no DOM rebuild
         updateCountdowns();
         return;
     }
     lastRenderHash = newHash;
+
+    // Always render the Upcoming list (compact, shown on first tab)
     renderUpcoming();
-    renderCategory('events', 'eventsList');
-    renderCategory('bosses', 'bossesList');
-    renderElites();
-    renderCategory('cherry', 'cherryList');
-    renderGolden();
+
+    // Only rebuild the tab the user is actually looking at.
+    // Other tabs render on demand when clicked (see initTabSwitcher).
+    const active = getActiveTabName();
+    if (active && TAB_RENDERERS[active] && active !== 'upcoming') {
+        TAB_RENDERERS[active]();
+    }
 }
 
+// Force-render any timer tab when the user switches to it
+function renderActiveTabContent() {
+    const active = getActiveTabName();
+    if (active && TAB_RENDERERS[active]) {
+        TAB_RENDERERS[active]();
+    }
+}
+if (typeof window !== 'undefined') window.renderActiveTabContent = renderActiveTabContent;
+
 function updateCountdowns() {
-    const categories = ['events', 'bosses', 'cherry'];
+    // Only iterate the category visible in the current tab — saves dozens of
+    // getNextOccurrences() calls per second.
+    const active = getActiveTabName();
+    const categories = (active === 'upcoming')
+        ? ['events', 'bosses', 'cherry']
+        : (['events','bosses','cherry'].includes(active) ? [active] : []);
     for (const cat of categories) {
         for (const event of EVENTS_DATA[cat]) {
             const occs = getNextOccurrences(event);
@@ -1363,8 +1396,17 @@ function startApp() {
     }
 
     setInterval(updateServerClock, 1000);
-    setInterval(renderAll, 1000);
-    setInterval(checkAlarms, 3000);
+    // Render tick relaxed to 2s — countdown precision is still well within tolerance
+    // and halves background CPU/layout cost on phones.
+    setInterval(renderAll, 2000);
+    setInterval(checkAlarms, 5000);
+
+    // Pause render tick when tab is hidden (saves battery + CPU)
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            renderAll(true);  // catch up on what we missed
+        }
+    });
 
     // PWA: request wake lock to keep alarms active
     requestWakeLock();
@@ -1459,6 +1501,8 @@ function activateTab(tab) {
     tab.classList.add('active');
     tab.setAttribute('aria-selected', 'true');
     document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
+    // Now that this tab is visible, render its content (lazy)
+    if (typeof renderActiveTabContent === 'function') renderActiveTabContent();
 }
 
 function initTabScrollIndicators() {
