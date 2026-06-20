@@ -6406,6 +6406,29 @@ body.modal-locked #landingPage {
     50%      { box-shadow: 0 0 12px rgba(102, 187, 106, 0.5); }
 }
 
+/* Inline boss elapsed-time clock chip (sits next to the SV badge) */
+.bsv-clock {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.3px;
+    line-height: 1;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+.bsv-clock.wait    { background: rgba(245, 166, 35, 0.15); color: #f5a623; border-color: rgba(245, 166, 35, 0.3); }
+.bsv-clock.open    { background: rgba(102, 187, 106, 0.18); color: #66bb6a; border-color: rgba(102, 187, 106, 0.4); }
+.bsv-clock.urgent  { background: rgba(255, 152, 0, 0.20); color: #ff9800; border-color: rgba(255, 152, 0, 0.5); animation: bsvClockPulse 1.3s ease-in-out infinite; }
+.bsv-clock.last    { background: rgba(229, 57, 53, 0.22); color: #ef5350; border-color: rgba(229, 57, 53, 0.55); animation: bsvClockPulse 0.9s ease-in-out infinite; }
+@keyframes bsvClockPulse {
+    0%, 100% { box-shadow: 0 0 0 rgba(245, 166, 35, 0); }
+    50%      { box-shadow: 0 0 8px currentColor; }
+}
+
 /* ==================== RESPONSIVENESS POLISH PASS ==================== */
 
 /* Mobile header: shift past the hamburger toggle, allow icons to wrap */

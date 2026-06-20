@@ -199,10 +199,11 @@ function markBossKilled(eventId, subServer) {
 // only when reaching the max (last spawn killed).
 function addBossKill(eventId, subServer, maxKills) {
     const cKey = `${eventId}__s${subServer}__count`;
+    const tKey = `${eventId}__s${subServer}`;
+    const isFirst = !eliteKillTimers[tKey];
     eliteKillCounts[cKey] = (eliteKillCounts[cKey] || 0) + 1;
-    if (eliteKillCounts[cKey] >= maxKills) {
-        // All spawns on this server killed — start the respawn timer
-        const tKey = `${eventId}__s${subServer}`;
+    // Start the respawn timer on the FIRST kill of this cycle
+    if (isFirst) {
         eliteKillTimers[tKey] = Date.now();
         saveEliteKillTimers();
     }
@@ -449,6 +450,60 @@ function updateEliteCountdowns() {
         }
     });
     if (needsFullRender) renderElites();
+}
+
+// Cryonox-style boss alarms: fires at 5h / 6h / 7h after the first kill on a
+// sub-server, then auto-clears the timer + count at 7:30h. Each event/server
+// pair fires each threshold only once thanks to firedAlarms.
+function checkBossSubServerAlarms() {
+    for (const cat of ['bosses']) {
+        for (const event of (EVENTS_DATA[cat] || [])) {
+            if (!event.subServers || event.subServers.length === 0) continue;
+            for (const sv of event.subServers) {
+                const tKey = `${event.id}__s${sv}`;
+                const cKey = `${event.id}__s${sv}__count`;
+                const killAt = eliteKillTimers[tKey];
+                if (!killAt) continue;
+
+                const elapsedH = (Date.now() - killAt) / 3600000;
+
+                // Auto-clear at 7h30 — assume someone else closed the window
+                if (elapsedH >= 7.5) {
+                    delete eliteKillTimers[tKey];
+                    delete eliteKillCounts[cKey];
+                    saveEliteKillTimers();
+                    saveEliteKillCounts();
+                    continue;
+                }
+
+                if (!enabledAlarms.has(event.id)) continue;
+
+                // Three threshold alarms; each fires once via firedAlarms
+                const thresholds = [
+                    { id: '5h', at: 5, msg: `⏰ ${event.name} SV${sv}: 5h — janela abriu!`, sound: 'event' },
+                    { id: '6h', at: 6, msg: `⏰ ${event.name} SV${sv}: 6h — pode respawnar a qualquer momento!`, sound: 'event' },
+                    { id: '7h', at: 7, msg: `🚨 ${event.name} SV${sv}: 7h — última chance, vai checar!`, sound: 'elite' }
+                ];
+                for (const th of thresholds) {
+                    if (elapsedH < th.at) continue;
+                    const alarmKey = `boss-${tKey}-${th.id}`;
+                    if (firedAlarms.has(alarmKey)) continue;
+                    firedAlarms.add(alarmKey);
+                    showToast(th.msg, th.id === '7h' ? 'warning' : 'info', 8000);
+                    if (settings.soundAlarm) {
+                        if (th.sound === 'elite' && typeof alarm.playForElite === 'function') {
+                            alarm.playForElite();
+                        } else {
+                            alarm.play();
+                        }
+                    }
+                    if (settings.browserNotif) {
+                        alarm.sendNotification('MU Timer Dream', th.msg);
+                    }
+                }
+            }
+        }
+    }
 }
 
 function checkEliteAlarms() {
@@ -762,26 +817,48 @@ function renderCategory(category, containerId) {
                         const fullCount = killCount >= maxKills;
                         const countColor = fullCount ? '#66bb6a' : '#f5a623';
 
-                        // Status pill (timer or "Matei +")
-                        let pill;
+                        // Inline clock chip showing elapsed time since first kill
+                        let clockChip = '';
+                        let pillClass = 'idle';
+                        let pillLabel = '⚔️ +1';
+                        let pillTitle = '';
                         if (killAt) {
-                            const elapsed = Date.now() - killAt;
-                            const remaining = minMs - elapsed;
-                            if (remaining > 0) {
-                                pill = `<button class="bsb-pill active" onclick="clearBossTimer('${event.id}', ${s})" title="Cancelar timer">⏳ ${formatCountdown(remaining)}</button>`;
+                            const elapsedH = (Date.now() - killAt) / 3600000;
+                            const hh = Math.floor(elapsedH);
+                            const mm = Math.floor((elapsedH - hh) * 60);
+                            const elapsedStr = `${hh}h ${String(mm).padStart(2,'0')}m`;
+                            // Color the clock chip by phase:
+                            //   <5h gold (waiting), 5-6h green (window open),
+                            //   6-7h orange (urgent), 7h+ red (last call)
+                            let chipCls = 'wait';
+                            if (elapsedH >= 7) chipCls = 'last';
+                            else if (elapsedH >= 6) chipCls = 'urgent';
+                            else if (elapsedH >= 5) chipCls = 'open';
+                            clockChip = `<span class="bsv-clock ${chipCls}" title="Tempo desde 1ª kill">⏳ ${elapsedStr}</span>`;
+
+                            if (elapsedH >= 7.5) {
+                                // Auto-clear handled by sweep; in the meantime show ready
+                                pillClass = 'ready';
+                                pillLabel = '🟢 Pode';
+                                pillTitle = 'Pode ter respawnado · click pra zerar';
                             } else {
-                                pill = `<button class="bsb-pill ready" onclick="clearBossTimer('${event.id}', ${s})" title="Pode ter respawnado">🟢 Pode</button>`;
+                                pillClass = 'active';
+                                pillLabel = '⚔️ +1';
+                                pillTitle = 'Clique pra somar outra kill nesta janela';
                             }
-                        } else {
-                            pill = `<button class="bsb-pill idle" onclick="addBossKill('${event.id}', ${s}, ${maxKills})">⚔️ +1</button>`;
                         }
+                        const pillOnClick = (pillClass === 'ready')
+                            ? `clearBossTimer('${event.id}', ${s})`
+                            : `addBossKill('${event.id}', ${s}, ${maxKills})`;
+                        const pill = `<button class="bsb-pill ${pillClass}" onclick="${pillOnClick}" title="${pillTitle}">${pillLabel}</button>`;
 
                         return `
-                            <div class="boss-server-card">
+                            <div class="boss-server-card" data-boss-key="${tKey}">
                                 <div class="bsv-head">
                                     <span class="bsv-tag">SV ${s}</span>
                                     <span class="bsv-count" style="color:${countColor}">${killCount}/${maxKills}</span>
-                                    ${killCount > 0 ? `<button class="bsv-reset" onclick="resetBossCount('${event.id}', ${s})" title="Zerar">↺</button>` : ''}
+                                    ${clockChip}
+                                    ${killCount > 0 ? `<button class="bsv-reset" onclick="clearBossTimer('${event.id}', ${s})" title="Zerar tudo">↺</button>` : ''}
                                 </div>
                                 <div class="bsv-bar"><div class="bsv-fill" style="width:${countPct}%;background:${countColor}"></div></div>
                                 ${pill}
@@ -984,6 +1061,8 @@ function checkAlarms() {
 
     // Check elite respawn alarms
     checkEliteAlarms();
+    // Check sub-server boss alarms (Cryonox 5h/6h/7h + 7:30h auto-clear)
+    checkBossSubServerAlarms();
 
     // Check gate closing warnings (BC, DS, CC, etc.)
     checkGateAlarms();
