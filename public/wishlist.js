@@ -41,6 +41,17 @@ let wishlistServer = localStorage.getItem('mudream_wishlist_server') || 'rampage
 let wishlistChannels = null;
 let _wishlistCheckTimer = null;
 
+// Live scanner status shown to the user in the wishlist panel.
+function setScannerStatus(state, msg) {
+    const el = document.getElementById('wishlistScannerStatus');
+    if (!el) return;
+    const color = state === 'online' ? '#5be584' : state === 'offline' ? '#ff6b6b' : '#c0c0c0';
+    const dot = state === 'online' ? '🟢' : state === 'offline' ? '🔴' : '⚪';
+    el.style.color = color;
+    el.textContent = `${dot} ${msg}`;
+    el.title = new Date().toLocaleString();
+}
+
 async function loadWishlist() {
     try {
         const res = await fetch('/api/wishlist', { credentials: 'same-origin' });
@@ -111,8 +122,8 @@ function renderWishlist() {
     const marketLots = parseInt(localStorage.getItem('mudream_market_lots') || '0');
     const marketLastScan = localStorage.getItem('mudream_market_last_scan');
     const marketStatus = marketLots > 0
-        ? `<div class="wl-market-status"><span class="wl-live-dot"></span> Live · <strong>${marketLots.toLocaleString()}</strong> itens no mercado${marketLastScan ? ` · scan ${timeAgo(marketLastScan)}` : ''}</div>`
-        : `<div class="wl-market-status wl-market-status-warn">⚠️ Aguardando primeiro scan do mercado...</div>`;
+        ? `<div class="wl-market-status"><span class="wl-live-dot"></span> Live · <strong>${marketLots.toLocaleString()}</strong> itens no mercado${marketLastScan ? ` · scan ${timeAgo(marketLastScan)}` : ''}<div id="wishlistScannerStatus" class="wl-scanner-line">⚪ aguardando…</div></div>`
+        : `<div class="wl-market-status wl-market-status-warn">⚠️ Aguardando primeiro scan<div id="wishlistScannerStatus" class="wl-scanner-line">⚪ aguardando…</div></div>`;
 
     const findings = getStoredFindings();
     const findingsHtml = findings.length === 0 ? marketStatus : marketStatus + `
@@ -528,14 +539,18 @@ async function checkMarketForWishlist() {
         // Use backend proxy — direct fetch to mudream.online is blocked by CORS.
         const res = await fetch(`/api/market/scan?server=${server.mdId}`, { credentials: 'same-origin' });
         if (!res.ok) {
-            console.warn('Market scan endpoint failed:', res.status);
+            setScannerStatus('offline', 'Scanner offline (HTTP ' + res.status + ')');
             return;
         }
         const data = await res.json();
         if (!data.ok && (!data.items || data.items.length === 0)) {
-            console.warn('Market scan returned no items:', data.error || data.status);
+            const reason = data.status === 403 || data.status === 503
+                ? 'Cloudflare bloqueou (403). Scanner temporariamente indisponível.'
+                : ('Falha na leitura (' + (data.error || data.status || '??') + ')');
+            setScannerStatus('offline', reason);
             return;
         }
+        setScannerStatus('online', (data.total || 0) + ' anúncios lidos');
         const matches = matchWishlistAgainstMarket(data.items || [], items);
         // Store the total market size for display
         try { localStorage.setItem('mudream_market_lots', String(data.total || 0)); } catch {}

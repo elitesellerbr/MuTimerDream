@@ -1255,6 +1255,8 @@ function initClassShowcase() {
 
     let autoInterval = null;
     const classKeys = Object.keys(CLASS_IMAGES);
+    // expose so startApp() can stop the rotation once landing is dismissed
+    window._stopClassShowcase = () => { if (autoInterval) { clearInterval(autoInterval); autoInterval = null; } };
     let currentIdx = 0;
 
     // Preload first image immediately, others lazily
@@ -1382,10 +1384,10 @@ function initLanding() {
 
     initClassShowcase();
     loadLandingStats();
-    // Auto-refresh stats every 20s while landing is visible
-    setInterval(() => {
+    // Auto-refresh stats every 20s while landing is visible. Ref stored so startApp() can cancel.
+    window._landingStatsInterval = setInterval(() => {
         const landing = document.getElementById('landingPage');
-        if (landing && landing.style.display !== 'none') {
+        if (landing && landing.style.display !== 'none' && !landing.classList.contains('landing-hidden')) {
             loadLandingStats();
         }
     }, 20 * 1000);
@@ -1448,6 +1450,13 @@ function initLanding() {
 }
 
 function startApp() {
+    // Kill landing-only work — this runs even in PWA where landing was auto-skipped
+    try { window._stopClassShowcase?.(); } catch {}
+    if (window._landingStatsInterval) { clearInterval(window._landingStatsInterval); window._landingStatsInterval = null; }
+    // Rip the 40 CSS-animated particles out of the DOM to free GPU + memory
+    const particles = document.getElementById('particles');
+    if (particles) particles.innerHTML = '';
+
     initTabs();
     initSettings();
     initSelectAll();
@@ -1474,11 +1483,11 @@ function startApp() {
         setTimeout(() => loadCollectionOf(collectionUser), 500);
     }
 
-    setInterval(updateServerClock, 1000);
+    setInterval(() => { if (!document.hidden) updateServerClock(); }, 1000);
     // Render tick relaxed to 2s — countdown precision is still well within tolerance
-    // and halves background CPU/layout cost on phones.
-    setInterval(renderAll, 2000);
-    setInterval(checkAlarms, 5000);
+    // and halves background CPU/layout cost on phones. Skip entirely when tab is hidden.
+    setInterval(() => { if (!document.hidden) renderAll(); }, 2000);
+    setInterval(() => { if (!document.hidden) checkAlarms(); }, 5000);
 
     // Pause render tick when tab is hidden (saves battery + CPU)
     document.addEventListener('visibilitychange', () => {

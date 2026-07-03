@@ -613,18 +613,21 @@ const MARKET_CACHE = new Map(); // key: serverId, value: { ts, items }
 const MARKET_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 async function fetchMarketPage(serverId = 12) {
+    // Cloudflare on mudream.online blocks datacenter IPs (Vercel, AWS). We keep this
+    // server-side attempt as a best-effort, but the reliable path is client-side scan
+    // triggered from the user's browser (see /api/market/verify + wishlist.js).
     const headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
         'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
-        'Accept-Encoding': 'gzip, deflate, br',
+        'Referer': 'https://mudream.online/',
         'Cache-Control': 'no-cache',
         'Sec-Ch-Ua': '"Chromium";v="131", "Google Chrome";v="131"',
         'Sec-Ch-Ua-Mobile': '?0',
         'Sec-Ch-Ua-Platform': '"Windows"',
         'Sec-Fetch-Dest': 'document',
         'Sec-Fetch-Mode': 'navigate',
-        'Sec-Fetch-Site': 'none',
+        'Sec-Fetch-Site': 'same-origin',
         'Sec-Fetch-User': '?1',
         'Upgrade-Insecure-Requests': '1'
     };
@@ -632,7 +635,7 @@ async function fetchMarketPage(serverId = 12) {
         const url = `https://mudream.online/pt/market?server=${serverId}`;
         const res = await fetch(url, { headers });
         if (!res.ok) {
-            return { ok: false, status: res.status, items: [] };
+            return { ok: false, status: res.status, items: [], blocked: res.status === 403 || res.status === 503 };
         }
         const html = await res.text();
         const items = parseMarketHtml(html);
@@ -641,6 +644,19 @@ async function fetchMarketPage(serverId = 12) {
         return { ok: false, error: e.message, items: [] };
     }
 }
+
+// Client-side scan: browser posts the HTML it just fetched (from its own tab context —
+// browsers pass Cloudflare where our server can't). We parse and cache it.
+app.post('/api/market/verify', express.text({ limit: '3mb' }), (req, res) => {
+    const serverId = parseInt(req.query.server) || 12;
+    const html = req.body || '';
+    if (!html || html.length < 500) {
+        return res.status(400).json({ ok: false, error: 'html_missing' });
+    }
+    const items = parseMarketHtml(html);
+    MARKET_CACHE.set(serverId, { ts: Date.now(), items });
+    res.json({ ok: true, items, total: items.length, source: 'client' });
+});
 
 function parseMarketHtml(html) {
     const items = [];

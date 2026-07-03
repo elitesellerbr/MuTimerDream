@@ -280,8 +280,10 @@ function initAdmin() {
         loadAdminData();
     });
 
-    // Auto-refresh dashboard + users every 30s while admin tab is visible
+    // Auto-refresh dashboard + users every 30s ONLY while the Admin tab is actually visible.
+    // Skipped when page is hidden and when user isn't on Admin tab.
     setInterval(() => {
+        if (document.hidden) return;
         const adminTab = document.getElementById('tab-admin');
         if (adminTab && adminTab.classList.contains('active')) {
             loadDashboard();
