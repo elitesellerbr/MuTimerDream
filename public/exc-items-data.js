@@ -82,11 +82,6 @@ const EXC_ITEMS_DATA = {
         { id: 'dw-gsoul-pants', name: 'Grand Soul Pants', category: 'sets-dw', tier: 5 },
         { id: 'dw-gsoul-gloves', name: 'Grand Soul Gloves', category: 'sets-dw', tier: 5 },
         { id: 'dw-gsoul-boots', name: 'Grand Soul Boots', category: 'sets-dw', tier: 5 },
-        { id: 'dw-dsoul-helm', name: 'Dark Soul Helm', category: 'sets-dw', tier: 6 },
-        { id: 'dw-dsoul-armor', name: 'Dark Soul Armor', category: 'sets-dw', tier: 6 },
-        { id: 'dw-dsoul-pants', name: 'Dark Soul Pants', category: 'sets-dw', tier: 6 },
-        { id: 'dw-dsoul-gloves', name: 'Dark Soul Gloves', category: 'sets-dw', tier: 6 },
-        { id: 'dw-dsoul-boots', name: 'Dark Soul Boots', category: 'sets-dw', tier: 6 },
 
         // ===== ELF SETS =====
         { id: 'elf-vine-helm', name: 'Vine Helm', category: 'sets-elf', tier: 1 },
@@ -207,6 +202,11 @@ const EXC_ITEMS_DATA = {
         { id: 'sum-sblitz-pants', name: 'Storm Blitz Pants', category: 'sets-sum', tier: 5 },
         { id: 'sum-sblitz-gloves', name: 'Storm Blitz Gloves', category: 'sets-sum', tier: 5 },
         { id: 'sum-sblitz-boots', name: 'Storm Blitz Boots', category: 'sets-sum', tier: 5 },
+        { id: 'sum-dsoul-helm', name: 'Dark Soul Helm', category: 'sets-sum', tier: 6 },
+        { id: 'sum-dsoul-armor', name: 'Dark Soul Armor', category: 'sets-sum', tier: 6 },
+        { id: 'sum-dsoul-pants', name: 'Dark Soul Pants', category: 'sets-sum', tier: 6 },
+        { id: 'sum-dsoul-gloves', name: 'Dark Soul Gloves', category: 'sets-sum', tier: 6 },
+        { id: 'sum-dsoul-boots', name: 'Dark Soul Boots', category: 'sets-sum', tier: 6 },
 
         // ===== RF SETS (no Gloves) =====
         { id: 'rf-plate-helm', name: 'Plate Helm', category: 'sets-rf', tier: 1 },

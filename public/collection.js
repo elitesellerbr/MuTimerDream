@@ -41,6 +41,7 @@ const AVAILABLE_ADDS = [
     { id: 'additional', label: '+DD', icon: '💥', color: '#f44336' },
     { id: 'pvm', label: '+PvM', icon: '🗡️', color: '#ff5722' },
     { id: 'sd', label: '+SD', icon: '🛡️', color: '#9c27b0' },
+    { id: 'reflect', label: '+Reflect', icon: '🪞', color: '#00bcd4' },
     { id: 'life', label: '+Life', icon: '❤️', color: '#e91e63' },
     { id: 'mana', label: '+Mana', icon: '💙', color: '#2196f3' },
     { id: 'zen', label: '+Zen', icon: '💰', color: '#ffc107' }
@@ -64,7 +65,7 @@ const ITEM_IMG_MAP = {
     'dw-sphinx-helm': '7/7', 'dw-sphinx-armor': '8/7', 'dw-sphinx-pants': '9/7', 'dw-sphinx-gloves': '10/7', 'dw-sphinx-boots': '11/7',
     'dw-legendary-helm': '7/3', 'dw-legendary-armor': '8/3', 'dw-legendary-pants': '9/3', 'dw-legendary-gloves': '10/3', 'dw-legendary-boots': '11/3',
     'dw-gsoul-helm': '7/18', 'dw-gsoul-armor': '8/18', 'dw-gsoul-pants': '9/18', 'dw-gsoul-gloves': '10/18', 'dw-gsoul-boots': '11/18',
-    'dw-dsoul-helm': '7/19', 'dw-dsoul-armor': '8/19', 'dw-dsoul-pants': '9/19', 'dw-dsoul-gloves': '10/19', 'dw-dsoul-boots': '11/19',
+    'sum-dsoul-helm': '7/19', 'sum-dsoul-armor': '8/19', 'sum-dsoul-pants': '9/19', 'sum-dsoul-gloves': '10/19', 'sum-dsoul-boots': '11/19',
     // Elf Sets
     'elf-vine-helm': '7/10', 'elf-vine-armor': '8/10', 'elf-vine-pants': '9/10', 'elf-vine-gloves': '10/10', 'elf-vine-boots': '11/10',
     'elf-silk-helm': '7/11', 'elf-silk-armor': '8/11', 'elf-silk-pants': '9/11', 'elf-silk-gloves': '10/11', 'elf-silk-boots': '11/11',
