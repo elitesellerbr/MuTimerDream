@@ -645,17 +645,28 @@ async function fetchMarketPage(serverId = 12) {
     }
 }
 
-// Client-side scan: browser posts the HTML it just fetched (from its own tab context —
-// browsers pass Cloudflare where our server can't). We parse and cache it.
-app.post('/api/market/verify', express.text({ limit: '3mb' }), (req, res) => {
+// Client-side scan: bookmarklet running in mudream.online tab POSTs the HTML back.
+// Real browser passes Cloudflare where our server can't. We CORS-allow this route only.
+function allowMarketCors(req, res) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Max-Age', '86400');
+}
+app.options('/api/market/verify', (req, res) => { allowMarketCors(req, res); res.status(204).end(); });
+app.post('/api/market/verify', express.text({ type: '*/*', limit: '5mb' }), (req, res) => {
+    allowMarketCors(req, res);
     const serverId = parseInt(req.query.server) || 12;
     const html = req.body || '';
     if (!html || html.length < 500) {
         return res.status(400).json({ ok: false, error: 'html_missing' });
     }
     const items = parseMarketHtml(html);
+    if (items.length === 0) {
+        return res.json({ ok: false, error: 'no_items_parsed', total: 0 });
+    }
     MARKET_CACHE.set(serverId, { ts: Date.now(), items });
-    res.json({ ok: true, items, total: items.length, source: 'client' });
+    res.json({ ok: true, items: items.length, total: items.length, source: 'bookmarklet' });
 });
 
 function parseMarketHtml(html) {

@@ -52,6 +52,58 @@ function setScannerStatus(state, msg) {
     el.title = new Date().toLocaleString();
 }
 
+// Bookmarklet installer modal — user drags a link to their bookmarks bar.
+// When clicked while on mudream.online/market, it POSTs the HTML back to us.
+function buildBookmarkletHref() {
+    const origin = window.location.origin;
+    // NB: this string becomes the javascript: URL. Keep it single-line, no comments,
+    // no // comments (they break in a URL), and escape properly.
+    const code = `(function(){var s=(new URL(location.href)).searchParams.get('server')||'12';var api='${origin}/api/market/verify?server='+s;fetch(api,{method:'POST',headers:{'Content-Type':'text/html'},body:document.documentElement.outerHTML}).then(function(r){return r.json()}).then(function(j){if(j.ok){alert('\\u2705 Scan enviado! '+j.total+' itens. Volte ao Timer Dream.')}else{alert('\\u274C Falha: '+(j.error||'?'))}}).catch(function(e){alert('\\u274C Erro: '+e.message)})})();`;
+    return 'javascript:' + encodeURIComponent(code);
+}
+
+function showBookmarkletModal() {
+    const existing = document.getElementById('bookmarkletModal');
+    if (existing) existing.remove();
+    const href = buildBookmarkletHref();
+    const modal = document.createElement('div');
+    modal.id = 'bookmarkletModal';
+    modal.className = 'modal-overlay';
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+        <div class="modal" style="max-width:560px">
+            <div class="modal-header">
+                <h3>📌 Instalar Scanner de Mercado</h3>
+                <button class="modal-close" data-close>&times;</button>
+            </div>
+            <div class="modal-body" style="line-height:1.55">
+                <p style="margin-bottom:12px">O MU Dream bloqueia nossos servidores (Cloudflare). A solução é o <strong>seu próprio navegador</strong> escanear pra você — leva 3 segundos e é grátis.</p>
+
+                <div style="background:rgba(123,44,240,0.12);border:1px solid rgba(123,44,240,0.35);padding:12px;border-radius:10px;margin-bottom:14px">
+                    <div style="font-size:12px;text-transform:uppercase;letter-spacing:0.1em;color:#cdb6ff;margin-bottom:8px">Passo 1 — arraste o botão abaixo pra sua barra de favoritos</div>
+                    <a href="${href}" class="wl-bookmarklet-link" onclick="event.preventDefault();alert('Arraste o botão pra sua barra de favoritos — não clique.')" draggable="true">🔍 Scan MU Dream</a>
+                </div>
+
+                <div style="background:rgba(102,187,106,0.08);border:1px solid rgba(102,187,106,0.3);padding:12px;border-radius:10px;margin-bottom:14px">
+                    <div style="font-size:12px;text-transform:uppercase;letter-spacing:0.1em;color:#8ee5a4;margin-bottom:6px">Passo 2 — use quando quiser escanear</div>
+                    <ol style="margin:0;padding-left:22px;font-size:14px">
+                        <li>Abra <a href="https://mudream.online/pt/market?server=12" target="_blank" rel="noopener" style="color:#f5c542">mudream.online/pt/market</a></li>
+                        <li>Clique no bookmark <strong>🔍 Scan MU Dream</strong> na barra</li>
+                        <li>Aparece "✅ Scan enviado" — volte pro Timer Dream</li>
+                    </ol>
+                </div>
+
+                <div style="font-size:12px;color:#999;padding-top:6px;border-top:1px solid rgba(255,255,255,0.08)">
+                    💡 A cada scan seu, todos os usuários do Timer Dream veem o mercado atualizado (cache global de 5min). Você é herói. 🦸
+                </div>
+            </div>
+        </div>`;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal || e.target.dataset.close !== undefined) modal.remove();
+    });
+}
+
 async function loadWishlist() {
     try {
         const res = await fetch('/api/wishlist', { credentials: 'same-origin' });
@@ -121,9 +173,10 @@ function renderWishlist() {
     // Market scan status
     const marketLots = parseInt(localStorage.getItem('mudream_market_lots') || '0');
     const marketLastScan = localStorage.getItem('mudream_market_last_scan');
+    const scannerBtn = `<button class="btn-sm wl-scanner-install" id="wlInstallScanner" title="Habilitar scanner do mercado (grátis)">📌 Instalar scanner</button>`;
     const marketStatus = marketLots > 0
-        ? `<div class="wl-market-status"><span class="wl-live-dot"></span> Live · <strong>${marketLots.toLocaleString()}</strong> itens no mercado${marketLastScan ? ` · scan ${timeAgo(marketLastScan)}` : ''}<div id="wishlistScannerStatus" class="wl-scanner-line">⚪ aguardando…</div></div>`
-        : `<div class="wl-market-status wl-market-status-warn">⚠️ Aguardando primeiro scan<div id="wishlistScannerStatus" class="wl-scanner-line">⚪ aguardando…</div></div>`;
+        ? `<div class="wl-market-status"><span class="wl-live-dot"></span> Live · <strong>${marketLots.toLocaleString()}</strong> itens no mercado${marketLastScan ? ` · scan ${timeAgo(marketLastScan)}` : ''}<div id="wishlistScannerStatus" class="wl-scanner-line">⚪ aguardando…</div>${scannerBtn}</div>`
+        : `<div class="wl-market-status wl-market-status-warn">⚠️ Scanner ainda não rodou<div id="wishlistScannerStatus" class="wl-scanner-line">⚪ aguardando…</div>${scannerBtn}</div>`;
 
     const findings = getStoredFindings();
     const findingsHtml = findings.length === 0 ? marketStatus : marketStatus + `
@@ -415,6 +468,7 @@ function wireWishlistEvents(container) {
         clearStoredFindings();
         renderWishlist();
     });
+    document.getElementById('wlInstallScanner')?.addEventListener('click', showBookmarkletModal);
     container.querySelectorAll('[data-quickview]').forEach(btn => {
         btn.addEventListener('click', () => openQuickView(btn.dataset.quickview));
     });
