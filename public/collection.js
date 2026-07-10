@@ -35,15 +35,13 @@ function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
+// Options available on sets (MU Dream). Same list used in wishlist + collection modal.
 const AVAILABLE_ADDS = [
-    { id: 'luck', label: '+Luck', icon: '🍀', color: '#4caf50' },
-    { id: 'skill', label: '+Skill', icon: '⚡', color: '#ff9800' },
-    { id: 'additional', label: '+DD', icon: '💥', color: '#f44336' },
-    { id: 'pvm', label: '+PvM', icon: '🗡️', color: '#ff5722' },
-    { id: 'sd', label: '+SD', icon: '🛡️', color: '#9c27b0' },
-    { id: 'reflect', label: '+Reflect', icon: '🪞', color: '#00bcd4' },
-    { id: 'life', label: '+Life', icon: '❤️', color: '#e91e63' },
-    { id: 'mana', label: '+Mana', icon: '💙', color: '#2196f3' },
+    { id: 'mh',  label: '+MH',  icon: '❤️', color: '#e91e63' },
+    { id: 'sd',  label: '+SD',  icon: '🛡️', color: '#9c27b0' },
+    { id: 'dd',  label: '+DD',  icon: '💥', color: '#f44336' },
+    { id: 'ref', label: '+REF', icon: '🪞', color: '#00bcd4' },
+    { id: 'dsr', label: '+DSR', icon: '💎', color: '#7b2cf0' },
     { id: 'zen', label: '+Zen', icon: '💰', color: '#ffc107' }
 ];
 
