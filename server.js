@@ -1955,7 +1955,16 @@ app.get('/api/collection', authMiddleware, async (req, res) => {
         .from('user_items')
         .select('item_id, obtained, obtained_at, adds')
         .eq('user_id', req.user.id);
-    res.json({ items: (items || []).map(i => ({ ...i, obtained: i.obtained === 1, adds: JSON.parse(i.adds || '[]') })) });
+    // Strip legacy option values (luck/skill/pvm/life/mana/additional/reflect) that no
+    // longer exist for sets, and migrate dw-dsoul-* → sum-dsoul-* (Dark Soul is Summoner).
+    const cleaned = (items || []).map(i => {
+        let itemId = i.item_id;
+        if (itemId && itemId.startsWith('dw-dsoul-')) itemId = itemId.replace('dw-dsoul-', 'sum-dsoul-');
+        const raw = JSON.parse(i.adds || '[]');
+        const adds = raw.filter(a => VALID_ADDS.includes(a));
+        return { item_id: itemId, obtained: i.obtained === 1, obtained_at: i.obtained_at, adds };
+    });
+    res.json({ items: cleaned });
 });
 
 app.post('/api/collection/toggle', authMiddleware, async (req, res) => {
@@ -1988,11 +1997,15 @@ app.post('/api/collection/toggle', authMiddleware, async (req, res) => {
     }
 });
 
+// Set options as they exist on MU Dream — MH/SD/DD/REF/DSR/ZEN.
+// Legacy values (luck/skill/additional/pvm/reflect/life/mana) are rejected on write and
+// silently stripped on read (see /api/collection below).
+const VALID_ADDS = ['mh', 'sd', 'dd', 'ref', 'dsr', 'zen'];
+
 app.put('/api/collection/adds', authMiddleware, async (req, res) => {
     const { itemId, adds } = req.body;
     if (!itemId) return res.status(400).json({ error: 'Item inválido' });
-    const validAdds = ['luck', 'skill', 'additional', 'life', 'mana', 'zen'];
-    const filtered = (adds || []).filter(a => validAdds.includes(a));
+    const filtered = (adds || []).filter(a => VALID_ADDS.includes(a));
 
     const { data: existing } = await supabase
         .from('user_items')
